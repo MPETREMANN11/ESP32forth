@@ -1,0 +1,64 @@
+\ *********************************************************************
+\ manage traffic lights
+\    Filename:      trafficLights.txt
+\    Date:          30/05/2021
+\    Updated:       30/05/2021
+\    File Version:  1.0
+\    MCU:           ESP32-WROOM-32
+\    Forth:         ESP32forth v 7.05
+\    Copyright:     Marc PETREMANN
+\    Author:        Marc PETREMANN
+\    GNU General Public License
+\ *********************************************************************
+
+
+
+\ alternative solution for "marker", (marker not defined in ESP32forth)
+DEFINED? --defPin [if] forget --defPin  [then]
+create --defPin
+
+
+vocabulary defPins
+defPins definitions
+transfer pin 
+transfer pinmode
+transfer HIGH
+transfer LOW
+transfer output
+forth definitions
+
+defPins also
+
+\ Use:
+\ numGPIO defPIN: PD7  ( define portD pin #7)
+: defPIN: ( GPIOx --- <word> | <word> --- GPIOx )
+    value
+  ;
+
+\ Turn a pin on, dont change others
+: high ( GPIOx -- )
+    HIGH swap pin
+  ;
+
+\ Set GPIOx as output
+: output ( GPIOx -- )
+    output pinMode
+  ;
+
+\ Turn a pin off, dont change others
+: low ( GPIOx -- )
+    LOW swap pin
+  ;
+
+only forth also
+
+ 2 defPIN: ledGREEN
+21 defPIN: ledYELLOW
+17 defPIN: ledRED
+
+: LEDinit 
+    ledGREEN    output  
+    ledYELLOW   output 
+    ledRED      output  ;
+   
+
