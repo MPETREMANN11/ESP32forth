@@ -12,7 +12,6 @@
 \ *********************************************************************
 
 
-
 \ alternative solution for "marker", (marker not defined in ESP32forth)
 DEFINED? --defPin [if] forget --defPin  [then]
 create --defPin
@@ -20,7 +19,7 @@ create --defPin
 
 vocabulary defPins
 defPins definitions
-transfer pin 
+transfer pin
 transfer pinmode
 transfer HIGH
 transfer LOW
@@ -52,13 +51,51 @@ defPins also
 
 only forth also
 
- 2 defPIN: ledGREEN
-21 defPIN: ledYELLOW
-17 defPIN: ledRED
+ 2 defPIN: ledGREEN         \ green  LED on GPIO2
+21 defPIN: ledYELLOW        \ yellow LED on GPIO21
+17 defPIN: ledRED           \ red    LED on GPIO17
 
-: LEDinit 
-    ledGREEN    output  
-    ledYELLOW   output 
-    ledRED      output  ;
+: LEDinit
+    ledGREEN    output
+    ledYELLOW   output
+    ledRED      output
+    ;
+
+
+\ traficLights execute one light cycle
+: trafficLights ( ---)
+    ledGREEN   high   3000 ms    ledGREEN   low
+    ledYELLOW  high    800 ms    ledYELLOW  low
+    ledRED     high   3000 ms    ledRED     low
+    ;
+
+\ classic traffic lights loop
+: lightsLoop ( ---)
+    LEDinit
+    begin
+        trafficLights
+    key? until
+    ;
+
+\ german trafic light style
+: Dtraffic ( ---)
+    ledGREEN   high   3000 ms    ledGREEN   low
+    ledYELLOW  high    800 ms    ledYELLOW  low
+    ledRED     high   3000 ms
+    ledYELLOW  high    800 ms
+    \ simultaneous red and yellow ON
+    ledRED     low  \ simultaneous red and yellow OFF
+    ledYELLOW  low
+    ;
+
+\ german traffic lights loop
+: DlightsLoop ( ---)
+    LEDinit
+    begin
+        Dtraffic
+    key? until
+    ;
+
+
    
 
