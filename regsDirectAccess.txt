@@ -1,0 +1,103 @@
+\ *********************************************************************
+\ direct access to GPIO registers
+\    Filename:      strings.txt
+\    Date:          11/07/2021
+\    Updated:       11/07/2021
+\    File Version:  1.0
+\    MCU:           ESP32-WROOM-32
+\    Forth:         ESP32forth all versions 7.x++
+\    Copyright:     Marc PETREMANN
+\    Author:        Marc PETREMANN
+\    GNU General Public License
+\ *********************************************************************
+
+DEFINED? --access [if] forget --access  [then]
+create --access
+
+
+
+
+\ So to summarize:
+\ GPIO_OUT_W1TS_REG     - write 1 to set
+\ GPIO_OUT_W1TC_REG     - write 1 to clear
+\ GPIO_IN_REG           - read current input levels
+\ GPIO_OUT_REG          - read current output levels
+\ 32 bits -> GPIO(0-31)
+\ REG_WRITE(GPIO_OUT_W1TS_REG, 0x00010001); - will set GPIO0 and GPIO16
+
+
+
+hex
+3ff44000                constant DR_REG_GPIO_BASE
+
+DR_REG_GPIO_BASE 04 +   constant GPIO_OUT_REG
+DR_REG_GPIO_BASE 08 +   constant GPIO_OUT_W1TS_REG
+DR_REG_GPIO_BASE 0c +   constant GPIO_OUT_W1TC_REG
+
+DR_REG_GPIO_BASE 20 +   constant GPIO_ENABLE_REG
+
+\ DR_REG_GPIO_BASE 10 +   constant GPIO_OUT1_REG
+\ DR_REG_GPIO_BASE 14 +   constant GPIO_OUT1_W1TS_REG
+\ DR_REG_GPIO_BASE 18 +   constant GPIO_OUT1_W1TC_REG
+
+\ DR_REG_GPIO_BASE 2c +   constant GPIO_ENABLE1_REG
+
+
+binary  \ masks are 32 bit length
+00000000000000000000000000000100 constant ledGREEN      \  green LED on G2
+00000000001000000000000000000000 constant ledYELLOW     \ yellow LED on G21
+00000000000000100000000000000000 constant ledRED        \    red LED on G17
+decimal
+
+\ other manner to define LEDs
+\ 1  2 lshift constant ledGREEN      \  green LED on G2
+\ 1 21 lshift constant ledYELLOW     \ yellow LED on G21
+\ 1 17 lshift constant ledRED        \    red LED on G17
+
+
+\ init G2 G17 and G21 in output mode
+: GxInit ( -- )
+    ledGREEN ledYELLOW + ledRED +
+    GPIO_ENABLE_REG L!
+    ;
+
+\ set Gx in LOW level
+: GxOFF ( mask --- )
+    GPIO_OUT_W1TC_REG L!
+    ;
+
+\ set Gx in HIGH level
+: GxON ( mask --- )
+    GPIO_OUT_W1TS_REG L!
+    ;
+
+
+\ ******* Example: manage german triffic lights *********
+
+\ german traffic lights cycle
+create dLightsCycle ( -- addr )
+    ledGREEN ,
+    ledYELLOW ,
+    ledRED ,
+    ledYELLOW ledRED + ,
+
+\ ser all LEDs off
+: allLEDSoff ( -- )
+    ledRED ledYELLOW ledGREEN + + 
+    GxOFF
+    ;
+
+\ german trafic light style
+: Dtraffic ( ---)
+    begin
+        4 0 do
+            allLEDSoff
+            dLightsCycle i cell * + @
+            GxON 500 ms
+        loop
+        key?
+    until
+    allLEDSoff
+    ;
+
+
