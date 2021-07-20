@@ -1,0 +1,49 @@
+\ *********************************************************************
+\ Interruption example with button on GPIO17
+\    Filename:      interruptions.txt
+\    Date:          20 jul 2021
+\    Updated:       20 jul 2021
+\    File Version:  1.0
+\    MCU:           ESP32-WROOM-32
+\    Forth:         ESP32forth all versions 7.x++
+\    Copyright:     Marc PETREMANN
+\    Author:        Marc PETREMANN
+\    GNU General Public License
+\ *********************************************************************
+
+DEFINED? --Intrrs [if] forget --Intrrs  [then]
+create --Intrrs
+
+17 constant button  \ mount button on GPIO17
+
+\ word executed by interruption
+: getButton
+    ." pinvalue: "
+    button digitalRead . cr
+  ;
+
+interrupts                          \ select interrupts vocabulary
+
+\ interrupt activated for upraising signal
+: intPosEdge ( -- )
+    button GPIO_INTR_POSEDGE gpio_set_intr_type
+    drop
+  ;
+
+\ interrupt activated for falldown signal
+: intNegEdge ( -- )
+    button GPIO_INTR_NEGEDGE gpio_set_intr_type drop
+  ;
+
+\ initialise button and interruption vector
+: init-interruption ( -- )
+    button input pinMode            \ set G17 in input mode
+    button gpio_pulldown_en drop    \ activate internal resistor on G17
+    ['] getButton button pinchange
+    ;
+
+forth
+
+\ for testing:
+init-interruption
+intPosEdge
