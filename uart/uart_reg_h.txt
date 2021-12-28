@@ -1,0 +1,80 @@
+\ *********************************************************************
+\ Serial registers: constants and macros
+\    Filename:      uart_reg.txt
+\    Date:          26 dec 2021
+\    Updated:       28 dec 2021
+\    File Version:  1.0
+\    MCU:           ESP32-WROOM-32
+\    Forth:         ESP32forth all versions 7.x++
+\    Copyright:     Marc PETREMANN
+\    Author:        Marc PETREMANN
+\    GNU General Public License
+\ *********************************************************************
+
+DEFINED? --uart_reg [if] forget --uart_reg  [then]
+create --uart_reg
+
+create drRegUartBase
+    $3ff40000  ,
+    $3ff50000  ,
+    $3ff6E000  ,
+
+: drRegUartBase@ { index -- addr }
+    drRegUartBase
+    cell index *  + @
+  ;
+
+: UART_FIFO_REG { idx -- addr }     \ id=[0,1,2]
+    idx drRegUartBase@
+  ;
+
+: DR_REG_UART_BASE  { idx -- addr } \ id=[0,1,2]
+    idx drRegUartBase@
+  ;
+
+1 DR_REG_UART_BASE constant DR_REG_UART1_BASE
+2 DR_REG_UART_BASE constant DR_REG_UART2_BASE
+
+\ FIFO data register
+: REG_UART_BASE { idx -- addr }     \ id=[0,1,2]
+    idx drRegUartBase@
+  ;
+
+0 REG_UART_BASE . cr
+1 REG_UART_BASE . cr
+2 REG_UART_BASE . cr
+
+
+
+
+\ Peripherals accessed by the CPU via 0x3FF40000 ~ 0x3FF7FFFF address space
+\ (DPORT address) can also be accessed via 0x60000000 ~ 0x6003FFFF
+\ (AHB address). (0x3FF40000 + n) address and (0x60000000 + n)
+\ address access the same content, where n = 0 ~ 0x3FFFF.
+
+create uartAhbBase
+    $60000000 ,
+    $60010000 ,
+    $6002E000 ,
+
+: REG_UART_AHB_BASE { idx -- addr }     \ id=[0,1,2]
+    uartAhbBase  idx cell *  + @
+  ;
+
+0 REG_UART_AHB_BASE . cr
+1 REG_UART_AHB_BASE . cr
+2 REG_UART_AHB_BASE . cr
+
+
+: UART_FIFO_AHB_REG ( idx -- addr )
+    REG_UART_AHB_BASE 
+  ;
+
+: UART_FIFO_REG (idx -- addr )
+    REG_UART_BASE
+  ;
+
+
+
+
+
