@@ -1,0 +1,25 @@
+\ *********************************************************************
+\ Serial registers: constants and macros
+\    Filename:      uart_reg.txt
+\    Date:          26 dec 2021
+\    Updated:       26 dec 2021
+\    File Version:  1.0
+\    MCU:           ESP32-WROOM-32
+\    Forth:         ESP32forth all versions 7.x++
+\    Copyright:     Marc PETREMANN
+\    Author:        Marc PETREMANN
+\    GNU General Public License
+\ *********************************************************************
+
+DEFINED? --uart_reg [if] forget --uart_reg  [then]
+create --uart_reg
+
+$3FF40000 constant UART_FIFO_REG
+DEFINED? DR_REG_UART_BASE invert 
+[if]  UART_FIFO_REG constant DR_REG_UART_BASE  [then]
+\ FIFO data register 
+: REG_UART_BASE { idx -- addr }     
+    idx $10000 *
+    REG_UART_BASE +
+  ;
+
