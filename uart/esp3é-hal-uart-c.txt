@@ -1,0 +1,36 @@
+\ *********************************************************************
+\ Serial Hardware
+\    Filename:      esp32-hal-uart-c.txt
+\    Date:          26 dec 2021
+\    Updated:       28 dec 2021
+\    File Version:  1.0
+\    MCU:           ESP32-WROOM-32
+\    Forth:         ESP32forth all versions 7.x++
+\    Copyright:     Marc PETREMANN
+\    Author:        Marc PETREMANN
+\    GNU General Public License
+\ *********************************************************************
+
+
+
+\ require uart_reg_h.txt
+
+
+\ : UART_REG_BASE { idx -- addr }
+\     idx DR_REG_UART_BASE
+\   ;
+
+
+: uart0_write_char ( c -- )  \ c only available in interval [$00..$FF]
+    DR_REG_UART_BASE L!
+  ;
+
+: uart1_write_char ( c -- )
+    DR_REG_UART1_BASE L!
+  ;
+
+: uart2_write_char ( c -- )
+    DR_REG_UART1_BASE L!
+  ;
+
+
