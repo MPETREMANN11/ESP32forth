@@ -14,22 +14,26 @@
 DEFINED? --uart_reg [if] forget --uart_reg  [then]
 create --uart_reg
 
-$3FF40000 constant fifoRegBase
-: UART_FIFO_REG { idx -- addr }     \ id=[0,1,2]
+: calcUartAddrBase { idx addrBase -- addr }     \ id=[0,1,2]
     idx 1 = 
     if
         $10000
-        fifoRegBase +
+        addrBase +
     else
         idx 2 = 
         if
             idx $10000 *
-            fifoRegBase +
+            addrBase +
             $e000 +
         else
-            fifoRegBase
+            addrBase
         then
     then
+  ;
+
+$3FF40000 constant fifoRegBase
+: UART_FIFO_REG { idx -- addr }     \ id=[0,1,2]
+    idx fifoRegBase  calcUartAddrBase
   ;
 
 : DR_REG_UART_BASE  { idx -- addr } \ id=[0,1,2]
@@ -41,7 +45,29 @@ $3FF40000 constant fifoRegBase
     idx DR_REG_UART_BASE
   ;
 
-0 DR_REG_UART_BASE . cr
-1 DR_REG_UART_BASE . cr
-2 DR_REG_UART_BASE . cr
+\ 0 DR_REG_UART_BASE . cr
+\ 1 DR_REG_UART_BASE . cr
+\ 2 DR_REG_UART_BASE . cr
+
+\ 0 REG_UART_BASE . cr
+\ 1 REG_UART_BASE . cr
+\ 2 REG_UART_BASE . cr
+
+
+\ Peripherals accessed by the CPU via 0x3FF40000 ~ 0x3FF7FFFF address space 
+\ (DPORT address) can also be accessed via 0x60000000 ~ 0x6003FFFF 
+\ (AHB address). (0x3FF40000 + n) address and (0x60000000 + n) 
+\ address access the same content, where n = 0 ~ 0x3FFFF.
+
+$60000000 constant uartAhbBase
+
+: REG_UART_AHB_BASE { idx -- addr }     \ id=[0,1,2]
+    idx uartAhbBase  calcUartAddrBase
+  ;
+
+\ 0 REG_UART_AHB_BASE . cr
+\ 1 REG_UART_AHB_BASE . cr
+\ 2 REG_UART_AHB_BASE . cr
+
+
 
