@@ -14,24 +14,34 @@
 DEFINED? --uart_reg [if] forget --uart_reg  [then]
 create --uart_reg
 
-$3FF40000 constant UART_FIFO_REG
-DEFINED? DR_REG_UART_BASE invert   [if]  
-    UART_FIFO_REG constant DR_REG_UART_BASE  
-[then]
-\ FIFO data register 
-: REG_UART_BASE { idx -- addr }     \ id=[0,1,2]
+$3FF40000 constant fifoRegBase
+: UART_FIFO_REG { idx -- addr }     \ id=[0,1,2]
     idx 1 = 
     if
         $10000
-        DR_REG_UART_BASE +
+        fifoRegBase +
     else
         idx 2 = 
         if
             idx $10000 *
-            DR_REG_UART_BASE +
+            fifoRegBase +
             $e000 +
         else
-            DR_REG_UART_BASE
+            fifoRegBase
         then
     then
   ;
+
+: DR_REG_UART_BASE  { idx -- addr } \ id=[0,1,2]
+    idx UART_FIFO_REG
+  ;
+
+\ FIFO data register 
+: REG_UART_BASE { idx -- addr }     \ id=[0,1,2]
+    idx DR_REG_UART_BASE
+  ;
+
+0 DR_REG_UART_BASE . cr
+1 DR_REG_UART_BASE . cr
+2 DR_REG_UART_BASE . cr
+
