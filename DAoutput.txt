@@ -2,7 +2,7 @@
 \ Control 2 LEDs with DA output
 \    Filename:      DAoutput.txt
 \    Date:          15/07/2021
-\    Updated:       15/07/2021
+\    Updated:       30/12/2021
 \    File Version:  1.0
 \    MCU:           ESP32-WROOM-32
 \    Forth:         ESP32forth all versions 7.x++
@@ -11,7 +11,7 @@
 \    GNU General Public License
 \ *********************************************************************
 
-DEFINED? --DAout [if] forget --access  [then]
+DEFINED? --DAout [if] forget --DAout  [then]
 create --DAout
 
 \ define Gx to LEDs
