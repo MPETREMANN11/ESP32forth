@@ -1,0 +1,38 @@
+\ *********************************************************************
+\ Tools for manipulating ESP32 registers, like Flahsforth
+\    Filename:      regManipulations.txt
+\    Date:          01/01/2022
+\    Updated:       01/01/2022
+\    File Version:  1.0
+\    MCU:           ESP32-WROOM-32
+\    Forth:         ESP32forth all versions 7.x++
+\    Copyright:     Marc PETREMANN
+\    Author:        Marc PETREMANN
+\    GNU General Public License
+\ *********************************************************************
+
+DEFINED? --RegManip [if] forget --RegManip  [then]
+create --RegManip
+
+
+\ ****  Tools for manipulating ESP32 registers, like Flahsforth  ****
+: mtst { mask addr -- x }
+    addr L@ 
+    mask and 
+  ;
+
+
+\ : mset ( mask addr -- )
+\     dup >r c@ swap or r> c!
+\   ;
+\ 
+\ : SET_PERI_REG_MASK { periAddr periMask -- } 
+\   ;
+\ 
+\ : mclr ( c addr --)
+\     dup >r c@ swap invert and r> c!
+\   ;
+\ 
+\ : CLEAR_PERI_REG_MASK { periAddr periMask --  } 
+\   ;
+
