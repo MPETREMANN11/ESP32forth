@@ -1,5 +1,5 @@
 \ *********************************************************************
-\ Tools for manipulating ESP32 registers, like Flahsforth
+\ Tools for ESP32 registers manipulation
 \    Filename:      regManipulations.txt
 \    Date:          01/01/2022
 \    Updated:       01/01/2022
@@ -16,23 +16,17 @@ create --RegManip
 
 
 \ ****  Tools for manipulating ESP32 registers, like Flahsforth  ****
-: mtst { mask addr -- x }
-    addr L@ 
-    mask and 
+: mtst ( mask addr -- x )
+    L@ and 
   ;
 
 
 \ : mset ( mask addr -- )
 \     dup >r c@ swap or r> c!
 \   ;
-\ 
-\ : SET_PERI_REG_MASK { periAddr periMask -- } 
-\   ;
-\ 
+
 \ : mclr ( c addr --)
 \     dup >r c@ swap invert and r> c!
 \   ;
-\ 
-\ : CLEAR_PERI_REG_MASK { periAddr periMask --  } 
-\   ;
+
 
