@@ -2,7 +2,7 @@
 \ Tools for ESP32 registers manipulation
 \    Filename:      regManipulations.txt
 \    Date:          01/01/2022
-\    Updated:       01/01/2022
+\    Updated:       03/01/2022
 \    File Version:  1.0
 \    MCU:           ESP32-WROOM-32
 \    Forth:         ESP32forth all versions 7.x++
@@ -14,19 +14,23 @@
 DEFINED? --RegManip [if] forget --RegManip  [then]
 create --RegManip
 
-
 \ ****  Tools for manipulating ESP32 registers, like Flahsforth  ****
+
+\ get masked addr content
 : mtst ( mask addr -- x )
     L@ and 
   ;
 
-
-\ : mset ( mask addr -- )
-\     dup >r c@ swap or r> c!
-\   ;
-
-\ : mclr ( c addr --)
-\     dup >r c@ swap invert and r> c!
-\   ;
+\ set masked addr content
+: mset ( mask addr -- )
+    dup L@ 
+    rot or swap L!
+  ;
+        
+\ clear masked addr content
+: mclr ( c addr --)
+    dup L@ 
+    rot and swap L!
+  ;
 
 
