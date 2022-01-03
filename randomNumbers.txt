@@ -1,0 +1,35 @@
+\ *********************************************************************
+\ Random Numbers generation
+\    Filename:      randomNumbers.txt
+\    Date:          03/01/2022
+\    Updated:       03/01/2022
+\    File Version:  1.0
+\    MCU:           ESP32-WROOM-32
+\    Forth:         ESP32forth all versions 7.x++
+\    Copyright:     Marc PETREMANN
+\    Author:        Marc PETREMANN
+\    GNU General Public License
+\ *********************************************************************
+
+DEFINED? --random [if] forget --random  [then]
+create --random
+
+
+\ Random number data
+$3FF75144 constant RNG_DATA_REG     \ Read Only ESP32 register
+ 
+\ get 32 bits random b=number
+: rnd  ( -- x )
+    RNG_DATA_REG L@
+  ;
+ 
+\ get random number in interval [0..n-1]
+: random ( n -- 0..n-1 )
+    rnd swap mod 
+  ; 
+
+
+\ example: dice sort / tirage de dé
+: dice ( -- n )  \ sort n between [1..6]
+    6 random 1+
+  ;
