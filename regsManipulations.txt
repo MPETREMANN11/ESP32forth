@@ -1,8 +1,8 @@
 \ *********************************************************************
 \ Tools for ESP32 registers manipulation
 \    Filename:      regManipulations.txt
-\    Date:          01/01/2022
-\    Updated:       03/01/2022
+\    Date:          01 jan 2022
+\    Updated:       04 jan 2022
 \    File Version:  1.0
 \    MCU:           ESP32-WROOM-32
 \    Forth:         ESP32forth all versions 7.x++
@@ -33,4 +33,16 @@ create --RegManip
     rot and swap L!
   ;
 
+
+\ **** Words definitions for bytes, masks and registers ****
+
+\ definie a bit
+: bit:  ( comp: n --- <name> )  ( exec: -- n )
+    constant
+  ;
+
+\ define register 
+: reg:  ( comp: n --- <name> )  ( exec: -- n )
+    constant
+  ;
 
