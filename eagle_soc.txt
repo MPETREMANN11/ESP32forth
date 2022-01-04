@@ -1,0 +1,50 @@
+\ *********************************************************************
+\ Constants and macros for ESP32
+\    Filename:      eagle_soc.txt
+\    Date:          04/01/2022
+\    Updated:       04/01/2022
+\    File Version:  1.0
+\    MCU:           ESP32-WROOM-32
+\    Forth:         ESP32forth all versions 7.x++
+\    Copyright:     Marc PETREMANN
+\    Author:        Marc PETREMANN
+\    GNU General Public License
+\ *********************************************************************
+
+: bit:  ( comp: n --- <name> )  ( exec: -- n )
+    constant
+  ;
+
+\ Register Bits
+$80000000 bit: BIT31
+$40000000 bit: BIT30
+$20000000 bit: BIT29
+$10000000 bit: BIT28
+$08000000 bit: BIT27
+$04000000 bit: BIT26
+$02000000 bit: BIT25   
+$01000000 bit: BIT24   
+$00800000 bit: BIT23   
+$00400000 bit: BIT22   
+$00200000 bit: BIT21   
+$00100000 bit: BIT20   
+$00080000 bit: BIT19   
+$00040000 bit: BIT18   
+$00020000 bit: BIT17   
+$00010000 bit: BIT16   
+$00008000 bit: BIT15   
+$00004000 bit: BIT14   
+$00002000 bit: BIT13   
+$00001000 bit: BIT12   
+$00000800 bit: BIT11   
+$00000400 bit: BIT10   
+$00000200 bit: BIT9     
+$00000100 bit: BIT8     
+$00000080 bit: BIT7     
+$00000040 bit: BIT6     
+$00000020 bit: BIT5     
+$00000010 bit: BIT4     
+$00000008 bit: BIT3     
+$00000004 bit: BIT2     
+$00000002 bit: BIT1     
+$00000001 bit: BIT0     
