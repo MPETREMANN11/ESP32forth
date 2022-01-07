@@ -20,7 +20,8 @@ interrupts
 
 \ enable interrupt on GPIO G15
 : intG15enable ( -- )
-    15 GPIO_INTR_POSEDGE gpio_set_intr_type drop
+    \ Falling Edge interrupt
+    15 GPIO_INTR_NEGEDGE gpio_set_intr_type drop
   ;
 
 \ disable interrupt on GPIO G15
@@ -63,11 +64,11 @@ pinsInit
 \ used by interruption when G15 activated
 : testIncDec ( -- )
     intG15disable
-    15 digitalRead  if
+    15 digitalRead 0= if
         04 digitalRead  if 
-            decKYvar
-        else   
             incKYvar
+        else   
+            decKYvar
         then
         cr ." KYvar: " KYvar . 
     then
