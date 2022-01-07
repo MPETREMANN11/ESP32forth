@@ -18,12 +18,22 @@ create --ky040
 
 interrupts
 
+\ enable interrupt on GPIO G15
+: intG15enable ( -- )
+    15 GPIO_INTR_POSEDGE gpio_set_intr_type drop
+  ;
+
+\ disable interrupt on GPIO G15
+: intG15disable ( -- )
+    15 GPIO_INTR_DISABLE gpio_set_intr_type drop
+  ;
+
 : pinsInit ( -- )
     04 input pinmode            \ GO4 as an input
-\    04 gpio_pulldown_en drop    \ Enable pull-down on GPIO 04
+    04 gpio_pulldown_en drop    \ Enable pull-down on GPIO 04
     15 input pinmode            \ G15 as an input
-\    15 gpio_pulldown_en drop    \ Enable pull-down on GPIO 15
-    15 GPIO_INTR_POSEDGE gpio_set_intr_type drop
+    15 gpio_pulldown_en drop    \ Enable pull-down on GPIO 15
+    intG15enable
   ;
 
 \ *** use test only for testing encoder ***
@@ -37,3 +47,34 @@ pinsInit
 ' test 15 pinchange
 \ *** end test ****************************
 
+
+0 value KYvar   \ content is incremented or decremented
+
+\ increment content of KYvar
+: incKYvar ( n -- )
+    1 +to KYvar
+  ;
+
+\ decrement content of KYvar
+: decKYvar ( n -- )
+    -1 +to KYvar
+  ;
+
+\ used by interruption when G15 activated
+: testIncDec ( -- )
+    intG15disable
+    15 digitalRead  if
+        04 digitalRead  if 
+            decKYvar
+        else   
+            incKYvar
+        then
+        cr ." KYvar: " KYvar . 
+    then
+    1000 0 do loop  \ small wait loop
+    intG15enable
+  ;
+
+
+pinsInit
+' testIncDec 15 pinchange
