@@ -18,3 +18,12 @@
 DEFINED? --LoRa [if] forget --LoRa  [then]
 create --LoRa
 
+\ Connection LoraTransmitter
+\ REYAX RYLR896               ESP32 ESP32Forth
+\ 1: VDD 3.3V --------------- VDD 3V3
+\ 2: NRTS
+\ 3: RXD -------------------- G17  UART 2 TX
+\ 4: TXD -------------------- G16  UART 2 RX
+\ 5: NC
+\ 6: GND -------------------- GND
+
