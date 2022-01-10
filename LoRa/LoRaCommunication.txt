@@ -1,0 +1,20 @@
+\ *********************************************************************
+\ Communication with LoRa tramsitter thru UART2
+\    Filename:      LoRaCommunication.txt
+\    Date:          10 jan 2022
+\    Updated:       10 jan 2022
+\    File Version:  1.0
+\    MCU:           ESP32-WROOM-32
+\    Forth:         ESP32forth all versions 7.x++
+\                   with Serial2 extension
+\    Copyright:     Marc PETREMANN
+\    Author:        Marc PETREMANN
+\    GNU General Public License
+\ *********************************************************************
+
+\ use modified version of ESP32Forth
+\ see ../serial2.txt
+
+DEFINED? --LoRa [if] forget --LoRa  [then]
+create --LoRa
+
