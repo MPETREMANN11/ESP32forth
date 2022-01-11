@@ -1,8 +1,8 @@
 \ *********************************************************************
-\ Communication with LoRa tramsitter thru UART2
+\ Communication with LoRa transmitter thru UART2
 \    Filename:      LoRaCommunication.txt
 \    Date:          10 jan 2022
-\    Updated:       10 jan 2022
+\    Updated:       11 jan 2022
 \    File Version:  1.0
 \    MCU:           ESP32-WROOM-32
 \    Forth:         ESP32forth all versions 7.x++
@@ -13,10 +13,13 @@
 \ *********************************************************************
 
 \ use modified version of ESP32Forth
-\ see ../serial2.txt
-
-DEFINED? --LoRa [if] forget --LoRa  [then]
-create --LoRa
+\ see ../serial2.txt - new words in Seruial vocabulary:
+\ Serial2.flush 
+\ Serial2.write 
+\ Serial2.readBytes 
+\ Serial2.available 
+\ Serial2.end 
+\ Serial2.begin 
 
 \ Connection LoraTransmitter
 \ REYAX RYLR896               ESP32 ESP32Forth
@@ -27,3 +30,32 @@ create --LoRa
 \ 5: NC
 \ 6: GND -------------------- GND
 
+
+DEFINED? --LoRa [if] forget --LoRa  [then]
+create --LoRa
+
+\ buffer size
+300 constant #BUFFER_SIZE
+
+\ definie buffer for UART2
+create  UART2-BUFFER
+    #BUFFER_SIZE allot
+
+
+\ CREATE COMMAND$ 120 ALLOT
+
+\ change
+115200 value #SERIAL2_RATE
+
+
+Serial \ Select Serial vocabulary
+
+\ initialise Serial2
+: Serial2.init ( -- )
+    #SERIAL2_RATE Serial2.begin
+  ;
+
+\ : test-send
+\     s" xxx...xxx..." 
+\     Serial2.write drop
+\   ;
