@@ -1,0 +1,73 @@
+\ *********************************************************************
+\ DUMP tool for ESP32Forth
+\    Filename:      dumpTool.txt
+\    Date:          12 jan 2022
+\    Updated:       12 jan 2022
+\    File Version:  1.0
+\    MCU:           ESP32-WROOM-32
+\    Forth:         ESP32forth all versions 7.x++
+\    Copyright:     Marc PETREMANN
+\    Author:        Marc PETREMANN
+\    GNU General Public License
+\ *********************************************************************
+
+DEFINED? --Dump [if] forget --Dump  [then]
+create --Dump
+
+
+0 value START_ADDR      \ first address to dump
+0 value END_ADDR        \ latest address to dump
+0 value 0START_ADDR     \ first address for dump loop
+0 value LINES           \ number of lines for dump loop
+          
+\ display address in format: NNNN-NNNN
+: DUMPaddr ( n -- ) 
+    <# # # # #  [char] - hold # # # # #>
+    type
+  ;
+
+\ display byte in format: NN
+: DUMPbyte ( c -- ) 
+    <# # # #>
+    type
+  ;
+
+\ display byte in format: NN
+: DUMPchar ( c -- ) 
+    dup 32 < over 127 > or
+    if      drop s" ." type
+    else    emit
+    then
+  ;
+
+: dump { start len -- }
+    cr cr ." --addr---  00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F  ------chars-----
+    start TO START_ADDR             \ store START address to dump
+    start len + to END_ADDR         \ store latest address to dump
+    START_ADDR 16 / 16 *
+    to 0START_ADDR                  \ calc. addr for loop start
+    len 16 / 1+ to LINES
+    base @ >r                       \ save current base
+    hex
+    \ outer loop
+    LINES 0 do
+        0START_ADDR i 16 * +        \ calc start address for current line
+        cr DUMPaddr space space     \ and display address
+        \ first inner loop, display bytes
+        16 0 do
+            \ calculate real address
+            0START_ADDR j 16 * i + +
+            c@ DUMPbyte space
+        loop 
+        space
+        \ second inner loop, display chars
+        16 0 do
+            \ calculate real address
+            0START_ADDR j 16 * i + +
+            c@ DUMPchar
+        loop 
+    loop
+    r> base !               \ restore current base
+    cr cr
+  ;
+
