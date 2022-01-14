@@ -69,7 +69,7 @@ create --str
 \ append char c to string 
 : c+$!  ( c str1 -- )
     over >r
-    + 1+ c!
+    + c!
     r> cell - dup @ 1+ swap !
     ;
 
