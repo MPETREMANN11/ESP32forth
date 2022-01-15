@@ -12,7 +12,7 @@
 \    GNU General Public License
 \ *********************************************************************
 
-\ require: ../tools/strings.txt
+\ require: ../strings.txt
 
 \ use modified version of ESP32Forth
 \ see ../serial2.txt - new words in Serial vocabulary:
