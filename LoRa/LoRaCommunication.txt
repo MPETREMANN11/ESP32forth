@@ -12,8 +12,10 @@
 \    GNU General Public License
 \ *********************************************************************
 
+\ require: ../tools/strings.txt
+
 \ use modified version of ESP32Forth
-\ see ../serial2.txt - new words in Seruial vocabulary:
+\ see ../serial2.txt - new words in Serial vocabulary:
 \ Serial2.flush 
 \ Serial2.write 
 \ Serial2.readBytes 
@@ -34,40 +36,6 @@
 DEFINED? --LoRa [if] forget --LoRa  [then]
 create --LoRa
 
-\ *** for complete string package, see: strings.txt
-DEFINED? string invert [IF]
-\ define a strvar
-: string  ( n --- names_strvar)
-    create
-        dup
-        ,                   \ n is maxlength
-        0 ,                 \ 0 is real length
-        allot
-    does>
-        cell+ cell+
-        dup cell - @
-    ;
-
-\ get maxlength of a string
-: maxlen$  ( strvar --- strvar maxlen)
-    over cell - cell - @
-    ;
-
-\ store str into strvar
-: $!  ( str strvar ---)
-    maxlen$                 \ get maxlength of strvar
-    nip rot min             \ keep min length
-    2dup swap cell - !      \ store real length
-    cmove                   \ copy string
-    ;
-
-\ append char c to string 
-: c+$!  ( c str1 -- )
-    over >r
-    + c!
-    r> cell - dup @ 1+ swap !
-    ;
-[THEN]
 
 \ 300 is buffer size
 300 string UART2-BUFFER
@@ -105,11 +73,8 @@ Serial \ Select Serial vocabulary
     then
   ;
 
-
 \ Usage:
 \ Serial2.init
 \ .band8685
 \ Serial2.available
 \ LoRaInput
-
-
