@@ -15,14 +15,6 @@
 \ ..working in progress..
 
 
-\ *** defining defered words ********************************
-
-serial \ Select Serial vocabulary
-
-: serial2-type ( a n -- ) 
-    Serial2.write drop ;
-
-
 \ *** defining LoRa Setup words *****************************
 
 : crlf ( -- )       \ same action as cr, but adapted for LoRa
@@ -37,5 +29,53 @@ serial \ Select Serial vocabulary
     type  crlf
   ;
 
+\ Test LoRa disponibility
+: AT_ ( -- )
+    ." AT"
+    type  crlf
+  ;
 
+\ Set the BAND of LoRa transmitter:
+\  s" <parameter>" value is RF frequency, unit Hz 
+: ATband ( addr len -- )
+    ." AT+BAND="
+    type  crlf
+  ;
+
+\ Set the AES32 password:
+\  s" <parameter>" value is an 32 character long AES password 
+\  from 00000000000000000000000000000001 to FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF 
+: ATcpin ( addr len -- )
+    ." AT+CPIN="
+    type  crlf
+  ;
+
+\ Set the CRFOP RF output power:
+\  s" <parameter>" value is RF output power between 0..15 
+: ATcrfop ( addr len -- )
+    ." AT+CRFOP="
+    type  crlf
+  ;
+
+\ Reset the LoRa transmitter with FACTORY parameters 
+: ATfactory ( -- )
+    ." AT+FACTORY"
+    type  crlf
+  ;
+
+\ Set the baud rate transmission with ESP32:
+\  s" <parameter>" value is:
+\     300
+\     1200
+\     4800
+\     9600
+\     19200
+\     28800
+\     38400
+\     57600
+\     115200 (default)
+: ATipr ( addr len -- )
+    ." AT+IPR="
+    type  crlf
+  ;
 
