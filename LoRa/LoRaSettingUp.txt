@@ -14,3 +14,28 @@
 
 \ ..working in progress..
 
+
+\ *** defining defered words ********************************
+
+serial \ Select Serial vocabulary
+
+: serial2-type ( a n -- ) 
+    Serial2.write drop ;
+
+
+\ *** defining LoRa Setup words *****************************
+
+: crlf ( -- )       \ same action as cr, but adapted for LoRa
+    $0d emit
+    $0a emit
+  ;
+
+\ Set the ADDRESS of LoRa transmitter:
+\  s" <adress>" value in interval [0..65535][?] (default 0) 
+: ATaddress ( addr len -- )
+    ." AT+ADDRESS="
+    type  crlf
+  ;
+
+
+
