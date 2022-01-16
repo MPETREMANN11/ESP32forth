@@ -36,11 +36,6 @@
 DEFINED? --LoRa [if] forget --LoRa  [then]
 create --LoRa
 
-
-\ 300 is buffer size
-300 string UART2-BUFFER
-
-
 \ 115200 speed communication for LoRa REYAX
 115200 value #SERIAL2_RATE
 
