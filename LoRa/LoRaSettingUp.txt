@@ -12,10 +12,17 @@
 \    GNU General Public License
 \ *********************************************************************
 
-\ ..working in progress..
-
+DEFINED? --LRset [if] forget --LRset  [then]
+create --LRset
 
 \ *** defining LoRa Setup words *****************************
+
+\ convert a number to a decimal string
+: .n ( n ---)
+    base @ >r decimal
+    <# #s #> type
+    r> base !
+  ;
 
 : crlf ( -- )       \ same action as cr, but adapted for LoRa
     $0d emit
@@ -32,7 +39,7 @@
 \ Test LoRa disponibility
 : AT_ ( -- )
     ." AT"
-    type  crlf
+    crlf
   ;
 
 \ Set the BAND of LoRa transmitter:
@@ -60,7 +67,7 @@
 \ Reset the LoRa transmitter with FACTORY parameters 
 : ATfactory ( -- )
     ." AT+FACTORY"
-    type  crlf
+    crlf
   ;
 
 \ Set the baud rate transmission with ESP32:
@@ -78,4 +85,64 @@
     ." AT+IPR="
     type  crlf
   ;
+
+\ Set work MODE:  
+\  s" <parameter>" value is [0,1] 
+\ 0 (defalt) Transmit and Receive mode
+\ 1 Sleep mode
+: ATmode ( addr len -- )
+    ." AT+MODE"
+    type  crlf
+  ;
+
+\ Set NETWORKID:  
+\  s" <parameter>" value is [0..16] (0 bay default) 
+: ATnetworkid ( addr len -- )
+    ." AT+NETWORKID"
+    type  crlf
+  ;
+
+\ Set PARAMETER:  
+\  s" <Spreading Factor>,<Bandwidth>,<Coding Rate>,<Programmed Preamble>"
+\     <Spreading Factor>    value [7..12] (default 12)
+\     <Bandwidth>           value [0..9]  (default 7)
+\     <Coding Rate>         value [1..4]  (default 1)
+\     <Programmed Preamble> value [4..7]  (default 4)
+: ATparameter ( addr len -- )
+    ." AT+PARAMETER"
+    type  crlf
+  ;
+
+\ RESET the LoRa transmitter
+: ATreset ( -- )
+    ." AT+RESET"
+    crlf
+  ;
+
+\ SEND Send data to the appointment address
+: ATsend { addr len address -- }
+    ." AT+SEND="
+    address .n  [char] , emit
+    len     .n  [char] , emit
+    addr len type crlf
+  ;
+
+
+\ *** defining defered words ********************************
+
+serial \ Select Serial vocabulary
+
+: serial2-type ( a n -- ) 
+    Serial2.write drop ;
+
+: typeToLoRa ( -- )
+    ['] serial2-type is type
+  ;
+
+: typeToTerm ( -- )
+    ['] default-type is type
+  ;
+
+
+
 
