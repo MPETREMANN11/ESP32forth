@@ -1,0 +1,115 @@
+\ *********************************************************************
+\ Initialisation of LoRa transmitters REYAX RYLR890
+\    Filename:      LoRaInitParams.txt
+\    Date:          19 jan 2022
+\    Updated:       19 jan 2022
+\    File Version:  1.0
+\    MCU:           ESP32-WROOM-32
+\    Forth:         ESP32forth all versions 7.x++
+\                   with Serial2 extension
+\    Copyright:     Marc PETREMANN
+\    Author:        Marc PETREMANN
+\    GNU General Public License
+\ *********************************************************************
+
+DEFINED? --LRset [if] forget --LRset  [then]
+create --LRset
+
+\ *** defining LoRa Setup words *****************************
+
+: crlf ( -- )       \ same action as cr, but adapted for LoRa
+    $0d emit   
+    $0a emit
+  ;
+
+\ Set the ADDRESS of LoRa transmitter:
+\  s" <adress>" value in interval [0..65535][?] (default 0)
+: ATaddress ( addr len -- )
+    ." AT+ADDRESS="
+    type  crlf
+  ;
+
+\ Set the BAND of LoRa transmitter:
+\  s" <parameter>" value is RF frequency, unit Hz
+: ATband ( addr len -- )
+    s" AT+BAND=" type
+    type  crlf
+  ;
+
+\ *** defining defered words ********************************
+
+serial \ Select Serial vocabulary
+
+: serial2-type ( a n -- )
+    Serial2.write drop ;
+
+: typeToLoRa ( -- )
+    ['] serial2-type is type
+  ;
+
+: typeToTerm ( -- )
+    ['] default-type is type
+  ;
+
+
+\ 115200 speed communication for LoRa REYAX
+115200 value #SERIAL2_RATE
+
+\ definition of OUTput and INput buffers
+128 string LoRaRX   \ buffer LoRa transmitter -> ESP32
+
+
+Serial \ Select Serial vocabulary
+
+\ initialise Serial2
+: Serial2.init ( -- )
+    #SERIAL2_RATE Serial2.begin
+  ;
+
+
+\ input from LoRa transmitter
+: LoRaInput ( -- n )
+    Serial2.available if
+        LoRaRX maxlen$ nip
+        Serial2.readBytes
+        LoRaRX drop cell - !
+    else
+        0 LoRaRX drop cell - !
+    then
+  ;
+
+
+
+\ *** defining defered words ********************************
+
+serial \ Select Serial vocabulary
+
+: serial2-type ( a n -- )
+    Serial2.write drop
+  ;
+
+: typeToLoRa ( -- )
+    ['] serial2-type is type
+  ;
+
+: typeToTerm ( -- )
+    ['] default-type is type
+  ;
+
+: rx.
+    LoRaINPUT
+    loRaRX type
+  ;
+
+: SETaddress ( -- )
+    typeToLoRa 
+    s" 55" ATaddress 100 ms
+    typeToTerm
+  ;
+
+: SETband ( -- )
+    typeToLoRa 
+    s" 868500000" ATband 100 ms
+    typeToTerm
+  ;
+
