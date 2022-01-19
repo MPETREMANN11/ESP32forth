@@ -51,14 +51,6 @@ Serial \ Select Serial vocabulary
     #SERIAL2_RATE Serial2.begin
   ;
 
-\ Setup LoRa Frequency - only for example
-: .band8685 ( -- )
-    s" AT+BAND=868500000" LoRaTX $!
-    $0d LoRaTX c+$!
-    $0a LoRaTX c+$!     \ add CR LF code at end of command
-    LoRaTX Serial2.write drop
-  ;
-
 \ input from LoRa transmitter
 : LoRaInput ( -- n )
     Serial2.available if
@@ -69,9 +61,3 @@ Serial \ Select Serial vocabulary
         0 LoRaRX drop cell - !
     then
   ;
-
-\ Usage:
-\ Serial2.init
-\ .band8685
-\ Serial2.available
-\ LoRaInput
