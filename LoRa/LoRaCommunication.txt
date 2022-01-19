@@ -61,10 +61,12 @@ Serial \ Select Serial vocabulary
 
 \ input from LoRa transmitter
 : LoRaInput ( -- n )
-    Serial2.available dup if
-        LoRaRX maxlen$ nip 
+    Serial2.available if
+        LoRaRX maxlen$ nip
         Serial2.readBytes
         LoRaRX drop cell - !
+    else
+        0 LoRaRX drop cell - !
     then
   ;
 
