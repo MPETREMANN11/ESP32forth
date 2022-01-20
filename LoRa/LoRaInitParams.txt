@@ -40,15 +40,17 @@ create --LRset
 
 serial \ Select Serial vocabulary
 
-: serial2-type ( a n -- )
+: serial2-type ( a n -- ) 
     Serial2.write drop ;
 
 : typeToLoRa ( -- )
+    0 echo !    \ disable display echo from terminal
     ['] serial2-type is type
   ;
 
 : typeToTerm ( -- )
     ['] default-type is type
+    -1 echo !   \ enable display echo from terminal
   ;
 
 
