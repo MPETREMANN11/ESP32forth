@@ -128,7 +128,7 @@ create --LRset
   ;
 
 
-\ *** defining defered words ********************************
+ *** defining defered words ********************************
 
 serial \ Select Serial vocabulary
 
@@ -136,11 +136,13 @@ serial \ Select Serial vocabulary
     Serial2.write drop ;
 
 : typeToLoRa ( -- )
+    0 echo !    \ disable display echo from terminal
     ['] serial2-type is type
   ;
 
 : typeToTerm ( -- )
     ['] default-type is type
+    -1 echo !   \ enable display echo from terminal
   ;
 
 
