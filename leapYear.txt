@@ -1,0 +1,19 @@
+\ *********************************************************************
+\ Test if it's a leap year
+\    Filename:      leapYear.txt
+\    Date:          21 jan 2022
+\    Updated:       21 jan 2022
+\    File Version:  1.0
+\    MCU:           gForth / ESP32Forth
+\    Copyright:     Marc PETREMANN
+\    Author:        Marc PETREMANN
+\    GNU General Public License
+\ *********************************************************************
+
+\ leave true if year is leap
+: leap? { year -- fl }
+    year 400 mod 0=
+    year 100 mod 0= invert  year 4 mod 0=  and
+    or
+  ;
+
