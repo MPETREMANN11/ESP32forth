@@ -1,0 +1,139 @@
+\ *********************************************************************
+\ Decoding LoRa transmission with ESP32Forth
+\    Filename:      LoRaSettingUp.txt
+\    Date:          22 jan 2022
+\    Updated:       23 jan 2022
+\    File Version:  1.0
+\    MCU:           ESP32-WROOM-32
+\    Forth:         ESP32forth all versions 7.x++
+\                   with Serial2 extension
+\    Copyright:     Marc PETREMANN
+\    Author:        Marc PETREMANN
+\    GNU General Public License
+\ *********************************************************************
+
+\ require: ../strings.txt
+
+DEFINED? --TRdecod [if] forget --TRdecod  [then]
+create --TRdecod
+
+256 string LoRaRX
+
+\ *** initialize content of LoRaRX ************************************
+
+s" +RCV=55,27,this is a transmission test,-36,40" LoRaRX $!
+$0d LoRaRX c+$!
+$0a LoRaRX c+$!
+
+
+\ *** decode content of LoRaRX ****************************************
+
+2 string $crlf
+  $0d $crlf c+$!
+  $0a $crlf c+$!
+
+\ delete crlf at end of string
+: normalize$ ( addr len -- )
+    2dup + 2 - 2
+    $crlf $= if         \ if end string = crlf
+        2 - swap
+        cell - !        \ substract 2 at length of string
+    else
+        2drop
+    then
+  ;
+
+\ test if string begin with "+RCV="
+: RCV? ( addr len -- fl )
+    dup 0 > if
+        drop 5
+        s" +RCV=" $=
+    else
+        2drop 0
+    then
+  ;
+
+\ RCV analyse
+12  string RCVhead      \ head transmission
+6   string RCVaddr      \ master LoRa address
+4   string RCVlength    \ length transmitted datas
+256 string RCVdata      \ transmitted datas
+5   string RCVrssi      \ Received Signal Strength Indicator
+5   string RCVsnr       \ Signal-to-noise ratio
+
+\ set length of a string to zero
+: 0$! ( addr len -- )
+    drop 0 swap cell - !
+  ;
+
+
+\ set length of all strings to 0
+: initStrings ( -- )
+    RCVhead   0$!
+    RCVaddr   0$!
+    RCVlength 0$!
+    RCVdata   0$!
+    RCVrssi   0$!
+    RCVsnr    0$!
+  ;
+
+
+256 string LoRaRX
+
+s" +RCV=55,27,this is a transmission test,-36,40" LoRaRX $!
+
+: scan$ { char addr len -- addr len' }
+    0                   \ start index
+    begin
+        dup addr + c@
+        char <>
+        over len <
+        and
+    while
+        1+              \ increment index
+    repeat
+    addr swap
+    dup len = if
+        drop 0
+    then
+  ;
+
+\ char , LoRaRX scan$
+\ char $ LoRaRX scan$
+
+DEFINED? --test [if] forget --test  [then]
+create --test
+
+\ duplicate n if n <> 0
+: ?dup ( n -- n | n n )
+    dup 0<> if dup then 
+  ;
+
+variable strPos
+: calcPosition ( -- )
+    0 strPos !
+    RCVhead nip ?dup if
+        strPos +!
+    then
+  ;
+
+
+
+: RXdecode ( -- )
+    LoRaRX RCV? if          \ test if LoRaRX begin with "+RCV="
+        initStrings         \ empty all strings
+        s" +RCV=" RCVhead $!
+    then
+  ;
+
+: shiftLoRaRX ( -- addr len )
+    LoraRX swap strPos @ +
+    swap strPos @ - 
+  ;
+
+RXdecode
+calcPosition
+char , shiftLoRaRX scan$
+
+
+
