@@ -1,8 +1,8 @@
 \ *********************************************************************
 \ strings management for ESP32forth
 \    Filename:      strings.txt
-\    Date:          20/06/2021
-\    Updated:       20/06/2021
+\    Date:          20 jun 2021
+\    Updated:       23 jan 2022
 \    File Version:  1.0
 \    MCU:           ESP32-WROOM-32
 \    Forth:         ESP32forth all versions 7.x++
@@ -11,7 +11,7 @@
 \    GNU General Public License
 \ *********************************************************************
 
-forget --str
+DEFINED? --str [if] forget --str  [then]
 create --str
 
 
@@ -51,6 +51,11 @@ create --str
 \ 200 string test
 \ s1 test $!
 
+\ set length of a string to zero
+: 0$! ( addr len -- )
+    drop 0 swap cell - !
+  ;
+
 \ extract n chars right from string
 : right$  ( str1 n --- str2 )
     0 max over min >r + r@ - r>
@@ -72,4 +77,5 @@ create --str
     + c!
     r> cell - dup @ 1+ swap !
     ;
+
 
