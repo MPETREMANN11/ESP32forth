@@ -56,4 +56,51 @@ create --Dump
     r> base !               \ restore current base
     cr cr
   ;
+  
+  
+
+\ *** Version of code to insert in .ino file ***************************
+\ search in .ino file line:
+\ "\n"
+\ "internals\n"
+\ "( Bring a forth to the top of the vocabulary. )\n"
+\ "transfer forth\n"
+\
+\ and before these lines, insert these code:
+
+
+"0 value START_ADDR\n"
+"0 value END_ADDR\n"
+"0 value 0START_ADDR\n"
+"0 value LINES\n"
+": dump ( start len -- )\n"
+"    cr cr .\" --addr---  \"\n"
+"    .\" 00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F  ------chars-----\"\n"
+"    2dup + to END_ADDR\n"
+"    swap TO START_ADDR\n"
+"    START_ADDR 16 / 16 *\n"
+"    to 0START_ADDR\n"
+"    16 / 1+ to LINES\n"
+"    base @ >r\n"
+"    hex\n"
+"    LINES 0 do\n"
+"        0START_ADDR i 16 * +\n"
+"        cr <# # # # #  [char] - hold # # # # #> type\n"
+"        space space\n"
+"        16 0 do\n"
+"            0START_ADDR j 16 * i + +\n"
+"            c@ <# # # #> type space\n"
+"        loop \n"
+"        space\n"
+"        16 0 do\n"
+"            0START_ADDR j 16 * i + +\n"
+"            c@     dup 32 < over 127 > or\n"
+"            if      drop [char] . emit\n"
+"            else    emit\n"
+"            then\n"
+"        loop \n"
+"    loop\n"
+"    r> base !\n"
+"    cr cr\n"
+"  ;\n"
 
