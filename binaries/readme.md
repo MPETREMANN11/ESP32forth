@@ -13,6 +13,8 @@
         <li>ESP32forthV70610_extended.ino.partitions.bin 3K</li>
         <li>ESP32forthV70610_extended.ino.bin 938K</li>
     </ul>
+    
+    <img src="https://github.com/MPETREMANN11/ESP32forth/blob/main/binaries/ESP32onSerial.jpg"/>
 
 
 
