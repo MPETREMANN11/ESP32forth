@@ -1,0 +1,86 @@
+\ *********************************************************************
+\ VT100 terminal colors and ESC sequences
+\    Filename:      vt100terminal.txt
+\    Date:          29 jan 2022
+\    Updated:       29 jan 2022
+\    File Version:  1.0
+\    MCU:           ESP32Forth
+\    Copyright:     Marc PETREMANN
+\    Author:        Marc PETREMANN
+\    GNU General Public License
+\ *********************************************************************
+
+
+DEFINED? --vt100 [if] forget --vt100  [then]
+create --vt100
+
+\ start escape sequence 
+: .esc[
+    27  emit 
+    91  emit
+  ;
+
+\ set cursor at x y position on screen terminal
+: at-xy ( x y ---)
+    .esc[
+    n.              \ send y position
+    [char] ; emit
+    n.              \ send x position
+    [char] H emit ;
+  
+\ clear entire screen
+: page ( ---)
+    .esc[ ." 2J"
+    0 0 at-xy ;
+
+0 constant black
+1 constant red
+2 constant green
+3 constant yellow
+4 constant blue
+5 constant magenta
+6 constant cyan
+7 constant white
+
+: bold  ( ---)
+    .esc[ ." 1m" ; 
+
+: underline ( ---)
+    .esc[ ." 4m" ; 
+
+: negative ( ---)
+    .esc[ ." 7m" ; 
+
+: normal ( ---)
+    .esc[ ." 0m" ; 
+
+: background ( color ---) 
+    .esc[ 
+    [char] 4 emit
+    n. 
+    [char] m emit ; 
+
+: foreground ( color ---)
+    .esc[ 
+    [char] 3 emit
+    n. 
+    [char] m emit ; 
+
+\ : alternate-font ( ---)
+\     .esc[ ." (0" ; 
+
+\ : ascii-font ( ---)
+\     .esc[ ." (B" ; 
+
+
+
+\ use by MyFFshell
+\ eof
+
+: .chars ( ---)
+    128 32 - for
+        r@ 32 + emit
+    next ;
+
+
+
