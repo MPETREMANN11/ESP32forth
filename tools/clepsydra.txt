@@ -1,0 +1,75 @@
+\ *********************************************************************
+\ Convert decimal time in roman numeral digits
+\   Filename:       clepsydra.txt
+\   author:         Marc PETREMANN
+\   Date:           30 jan 2022
+\   MCU:            ESP32Forth
+\   GNU General Public License
+\ *********************************************************************
+
+\ include strings.txt
+
+DEFINED? --Tempus [if] forget --Tempus  [then]
+create --Tempus
+
+: vector
+    create ( n -- ) 0
+        do ,  loop
+    does>  ( n -- )
+        swap cells + @ execute
+  ;
+
+12 string antiquus   \ vintage in latin
+
+: ,I
+    dup     c@ antiquus c+$! ;
+: ,V
+    dup 1 + c@ antiquus c+$! ;
+: ,X
+    dup 2 + c@ antiquus c+$! ;
+
+:noname  ,I ,X          drop ;
+:noname  ,V ,I ,I ,I    drop ;
+:noname  ,V ,I ,I       drop ;
+:noname  ,V ,I          drop ;
+:noname  ,V             drop ;
+:noname  ,I ,V          drop ;
+:noname  ,I ,I ,I       drop ;
+:noname  ,I ,I          drop ;
+:noname  ,I             drop ;
+
+' drop ( 0 : no output )
+    10 vector ,digit
+
+: ?dup ( n -- n | n n )
+    dup if dup then ;
+
+: roman-rec ( year -- )
+    10 /mod dup
+    if
+        >r over 2 + r> recurse
+    else
+        drop
+    then
+    ,digit
+  ;
+
+: within ( test low high -- flag )
+    -rot over swap >=
+    -rot swap <=
+    and
+  ;
+
+: roman ( n -- c-addr u )
+    dup 0 4000 within 0= if
+        ." EX LIMITO!"
+        drop exit
+    then
+    antiquus 0$!
+     s" IVXLCDM" drop swap roman-rec
+    antiquus
+  ;
+
+
+\ eof
+
