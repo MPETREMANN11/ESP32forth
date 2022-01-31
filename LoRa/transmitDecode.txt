@@ -1,8 +1,8 @@
 \ *********************************************************************
 \ Decoding LoRa transmission with ESP32Forth
-\    Filename:      LoRaSettingUp.txt
+\    Filename:      transmitDecode.txt
 \    Date:          22 jan 2022
-\    Updated:       23 jan 2022
+\    Updated:       31 jan 2022
 \    File Version:  1.0
 \    MCU:           ESP32-WROOM-32
 \    Forth:         ESP32forth all versions 7.x++
@@ -12,7 +12,13 @@
 \    GNU General Public License
 \ *********************************************************************
 
-\ require: ../strings.txt
+DEFINED? string 0<> [if]
+\ include strings.txt
+[then]
+
+\ ( n -- n | n n )
+DEFINED? ?dup 0= [if] : ?dup   dup 0<> if dup then ; [then]
+
 
 DEFINED? --TRdecod [if] forget --TRdecod  [then]
 create --TRdecod
@@ -78,9 +84,12 @@ $0a LoRaRX c+$!
   ;
 
 
-256 string LoRaRX
+
 
 s" +RCV=55,27,this is a transmission test,-36,40" LoRaRX $!
+$0d LoRaRX c+$!
+$0a LoRaRX c+$!
+
 
 : scan$ { char addr len -- addr len' }
     0                   \ start index
@@ -104,36 +113,91 @@ s" +RCV=55,27,this is a transmission test,-36,40" LoRaRX $!
 DEFINED? --test [if] forget --test  [then]
 create --test
 
-\ duplicate n if n <> 0
-: ?dup ( n -- n | n n )
-    dup 0<> if dup then 
-  ;
 
 variable strPos
-: calcPosition ( -- )
+: calcNewPosition ( -- addr len )
     0 strPos !
-    RCVhead nip ?dup if
-        strPos +!
-    then
-  ;
-
-
-
-: RXdecode ( -- )
-    LoRaRX RCV? if          \ test if LoRaRX begin with "+RCV="
-        initStrings         \ empty all strings
-        s" +RCV=" RCVhead $!
-    then
-  ;
-
-: shiftLoRaRX ( -- addr len )
+    RCVhead nip ?dup 
+    if  strPos +!    then
+    RCVaddr nip ?dup
+    if  1+ strPos +! then
+    RCVlength nip ?dup
+    if  1+ strPos +! then
+    RCVdata   nip ?dup
+    if  1+ strPos +! then
+    RCVrssi   nip ?dup
+    if  1+ strPos +! then
     LoraRX swap strPos @ +
     swap strPos @ - 
   ;
 
+: eval$ ( addr len -- n )
+    S>NUMBER? ?dup
+    if drop then 
+  ;
+
+\ extract RCVhead
+: getRCVhead ( -- )
+    s" +RCV=" RCVhead $!
+  ;
+
+\ extract RCVaddr
+: getRCVaddr ( -- )
+    [char] , calcNewPosition scan$
+    RCVaddr $!
+  ;
+
+\ extract RCVlength
+: getRCVlength ( -- )
+    [char] , calcNewPosition scan$
+    RCVlength $!
+  ;
+
+\ extract RCVdata
+: getRCVdata ( -- )
+    calcNewPosition drop
+    RCVlength eval$
+    RCVdata $!
+  ;
+
+\ extract RCVrssi
+: getRCVrssi ( -- )
+    [char] , calcNewPosition scan$
+    RCVrssi $!
+  ;
+
+\ extract RCVrssi
+: getRCVsnr ( -- )
+    calcNewPosition
+    RCVsnr $!
+  ;
+
+: RXdecode ( -- )
+    LoRaRX normalize$
+    \ extract RCVhead
+    LoRaRX RCV? if          \ test if LoRaRX begin with "+RCV="
+        initStrings         \ empty all strings
+        getRCVhead
+        getRCVaddr
+        getRCVlength
+        getRCVdata
+        getRCVrssi
+        getRCVsnr
+    then
+  ;
+
+
+
+: disVars ( -- )
+    cr
+    ." RCVhead.....: " RCVhead      type cr
+    ." RCVaddr.....: " RCVaddr      type cr
+    ." RCVlength...: " RCVlength    type cr
+    ." RCVdata.....: " RCVdata      type cr
+    ." RCVrssi.....: " RCVrssi      type cr
+    ." RCVsnr......: " RCVsnr       type cr
+;
+
 RXdecode
-calcPosition
-char , shiftLoRaRX scan$
-
-
+disVars
 
