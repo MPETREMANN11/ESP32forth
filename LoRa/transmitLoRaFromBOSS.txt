@@ -1,0 +1,146 @@
+\ *********************************************************************
+\ LoRa transmission from BOSS to SLAVx
+\    Filename:      transmitLoRaFromBOSS.txt
+\    Date:          02 feb 2022
+\    Updated:       02 feb 2022
+\    File Version:  1.0
+\    MCU:           ESP32-WROOM-32
+\    Forth:         ESP32forth all versions 7.x++
+\                   with Serial2 extension
+\    Copyright:     Marc PETREMANN
+\    Author:        Marc PETREMANN
+\    GNU General Public License
+\ *********************************************************************
+
+DEFINED? string 0<> [if]
+\ include strings.txt
+[then]
+
+
+DEFINED? --LRset [if] forget --LRset  [then]
+create --LRset
+
+\ *** defining LoRa Setup words *****************************
+
+2 string $crlf
+    $0d $crlf c+$!  
+    $0a $crlf c+$!
+
+: crlf ( -- )       \ same action as cr, but adapted for LoRa
+    $crlf type
+  ;
+
+\ SEND Send data to the appointment address
+: ATsend { addr len address -- }
+    ." AT+SEND="
+    address n.  [char] , emit
+    len     n.  [char] , emit
+    addr len type crlf
+  ;
+
+\ *** defining defered words ********************************
+
+serial \ Select Serial vocabulary
+
+: serial2-type ( a n -- ) 
+    Serial2.write drop 
+  ;
+
+: typeToLoRa ( -- )
+    0 echo !    \ disable display echo from terminal
+    ['] serial2-type is type
+  ;
+
+: typeToTerm ( -- )
+    ['] default-type is type
+    -1 echo !   \ enable display echo from terminal
+  ;
+
+
+\ 115200 speed communication for LoRa REYAX
+115200 value #SERIAL2_RATE
+
+\ definition of OUTput and INput buffers
+256 string LoRaRX   \ buffer LoRa transmitter -> ESP32
+
+\ initialise Serial2
+: Serial2.init ( -- )
+    #SERIAL2_RATE Serial2.begin
+  ;
+
+\ definition of OUTput and INput buffers
+256 string LoRaRX   \ buffer LoRa transmitter -> ESP32
+
+\ input from LoRa transmitter
+: LoRaInput ( -- )
+    Serial2.available if
+        LoRaRX maxlen$ nip
+        Serial2.readBytes
+        LoRaRX drop cell - !
+    else
+        0 LoRaRX drop cell - !
+    then
+  ;
+
+
+: emptyRX ( -- )
+    LoRaINPUT
+  ;
+
+
+: rx. ( -- )
+    LoRaINPUT
+    loRaRX type
+  ;
+
+\ *** Transmission to SLAV1 *****
+
+\ 55 constant LoRaBOSS
+39 constant LoRaSLAV1
+\ 40 constant LoRaSLAV2
+
+
+: toSLAV1 ( addr len -- )
+    emptyRX
+    typeToLoRa 
+    LoRaSLAV1 ATsend
+    typeToTerm
+  ;
+
+
+: REDhigh ( -- )
+    s" LEDred high"     toSLAV1
+  ;
+
+: REDlow ( -- )
+    s" LEDred low"      toSLAV1
+  ;
+
+: YELLOWhigh ( -- )
+    s" ledYELLOW high"  toSLAV1
+  ;
+
+: YELLOWlow ( -- )
+    s" ledYELLOW low"   toSLAV1
+  ;
+
+: GREENhigh ( -- )
+    s" ledGREEN high"   toSLAV1
+  ;
+
+: GREENlow ( -- )
+    s" ledGREEN low"    toSLAV1
+  ;
+
+
+\ eof
+
+\ example of usage from BOSS to send FORTH sequences to SLAV1
+serial2.init
+REDhigh
+
+\ verifying transmission:
+rx.    
+
+\ if display: +OK 
+\ The transfer went well
