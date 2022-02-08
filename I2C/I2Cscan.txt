@@ -1,0 +1,79 @@
+\ *********************************************************************
+\ Scan I2C bus to determine peripherials adresses
+\    Filename:      I2Cscan.txt
+\    Date:          08 feb 2022
+\    Updated:       08 feb 2022
+\    File Version:  1.0
+\    MCU:           ESP32-WROOM-32
+\    Forth:         ESP32forth all versions 7.x++
+\    Copyright:     Marc PETREMANN
+\    Author:        Marc PETREMANN
+\    GNU General Public License
+\ *********************************************************************
+
+DEFINED? --I2Cscan [if] forget --I2Cscan  [then]
+create --I2Cscan
+
+
+\ activate the wire vocabulary
+wire
+\ start the I2C interface using pin 21 and 22 on ESP32 DEVKIT V1 
+\ with 21 used as sda and 22 as scl.
+21 22 wire.begin
+
+: spaces ( n -- )   
+    for
+        space
+    next
+  ;
+
+: .## ( n -- )
+    <# # # #> type
+  ;
+
+\ not all bitpatterns are valid 7bit i2c addresses
+: Wire.7bitaddr? ( a -- f )  
+    dup $07 >=
+    swap $77 <=  and
+  ;
+
+: Wire.detect   ( -- )
+    base @ >r hex
+    cr
+    ."      00 01 02 03 04 05 06 07 08 09 0a 0b 0c 0d 0e 0f"
+    $80 $00 do
+        i $0f and 0= 
+        if     
+             cr i .##  ."  : "
+        then
+        i Wire.7bitaddr? if
+            i  Wire.beginTransmission
+            -1 Wire.endTransmission 0 =
+            if
+                i .## space
+            else
+                ." -- "
+            then
+        else
+            2 spaces
+        then
+    loop
+    cr r> base !
+  ;
+
+Wire.detect
+
+\ eof
+
+\ Wire.detect 
+\      00 01 02 03 04 05 06 07 08 09 0a 0b 0c 0d 0e 0f 
+\ 00 :                      -- -- -- -- -- -- -- -- -- 
+\ 10 : -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
+\ 20 : -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
+\ 30 : -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
+\ 40 : -- -- -- -- -- -- -- -- 48 -- -- -- -- -- -- -- 
+\ 50 : -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
+\ 60 : -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- 
+\ 70 : -- -- -- -- -- -- -- --                         
+
+
