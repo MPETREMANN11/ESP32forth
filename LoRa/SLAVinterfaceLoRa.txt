@@ -1,0 +1,214 @@
+\ *********************************************************************
+\ Interface LoRa with other ESP32Forth application
+\    Filename:      SLAVinterfaceLoRa.txt
+\    Date:          07 feb 2022
+\    Updated:       08 feb 2022
+\    File Version:  1.0
+\    MCU:           ESP32-WROOM-32
+\    Forth:         ESP32forth all versions 7.x++
+\                   with Serial2 extension
+\    Copyright:     Marc PETREMANN
+\    Author:        Marc PETREMANN
+\    GNU General Public License
+\ *********************************************************************
+
+DEFINED? string 0<> [if]
+\ include strings.txt
+[then]
+
+\ ( n -- n | n n )
+DEFINED? ?dup 0= [if] : ?dup   dup 0<> if dup then ; [then]
+
+
+DEFINED? --TRdecod [if] forget --TRdecod  [then]
+create --TRdecod
+
+256 string LoRaRX
+
+
+\ *** decode content of LoRaRX ****************************************
+
+2 string $crlf
+  $0d $crlf c+$!
+  $0a $crlf c+$!
+
+\ delete crlf at end of string
+: normalize$ ( addr len -- )
+    2dup + 2 - 2
+    $crlf $= if         \ if end string = crlf
+        2 - swap
+        cell - !        \ substract 2 at length of string
+    else
+        2drop
+    then
+  ;
+
+\ test if string begin with "+RCV="
+: RCV? ( addr len -- fl )
+    dup 0 > if
+        drop 5
+        s" +RCV=" $=
+    else
+        2drop 0
+    then
+  ;
+
+\ RCV analyse
+12  string RCVhead      \ head transmission
+6   string RCVaddr      \ master LoRa address
+4   string RCVlength    \ length transmitted datas
+256 string RCVdata      \ transmitted datas
+5   string RCVrssi      \ Received Signal Strength Indicator
+5   string RCVsnr       \ Signal-to-noise ratio
+
+\ set length of a string to zero
+: 0$! ( addr len -- )
+    drop 0 swap cell - !
+  ;
+
+
+\ set length of all strings to 0
+: initStrings ( -- )
+    RCVhead   0$!
+    RCVaddr   0$!
+    RCVlength 0$!
+    RCVdata   0$!
+    RCVrssi   0$!
+    RCVsnr    0$!
+  ;
+
+: scan$ { char addr len -- addr len' }
+    0                   \ start index
+    begin
+        dup addr + c@
+        char <>
+        over len <
+        and
+    while
+        1+              \ increment index
+    repeat
+    addr swap
+    dup len = if
+        drop 0
+    then
+  ;
+
+variable strPos
+: calcNewPosition ( -- addr len )
+    0 strPos !
+    RCVhead nip ?dup
+    if  strPos +!    then
+    RCVaddr nip ?dup
+    if  1+ strPos +! then
+    RCVlength nip ?dup
+    if  1+ strPos +! then
+    RCVdata   nip ?dup
+    if  1+ strPos +! then
+    RCVrssi   nip ?dup
+    if  1+ strPos +! then
+    LoraRX swap strPos @ +
+    swap strPos @ -
+  ;
+
+: eval$ ( addr len -- n )
+    S>NUMBER? ?dup
+    if drop then
+  ;
+
+\ extract RCVhead
+: getRCVhead ( -- )
+    s" +RCV=" RCVhead $!
+  ;
+
+\ extract RCVaddr
+: getRCVaddr ( -- )
+    [char] , calcNewPosition scan$
+    RCVaddr $!
+  ;
+
+\ extract RCVlength
+: getRCVlength ( -- )
+    [char] , calcNewPosition scan$
+    RCVlength $!
+  ;
+
+\ extract RCVdata
+: getRCVdata ( -- )
+    calcNewPosition drop
+    RCVlength eval$
+    RCVdata $!
+  ;
+
+\ extract RCVrssi
+: getRCVrssi ( -- )
+    [char] , calcNewPosition scan$
+    RCVrssi $!
+  ;
+
+\ extract RCVrssi
+: getRCVsnr ( -- )
+    calcNewPosition
+    RCVsnr $!
+  ;
+
+: RXdecode ( -- )
+    LoRaRX normalize$
+    \ extract RCVhead
+    LoRaRX RCV? if          \ test if LoRaRX begin with "+RCV="
+        initStrings         \ empty all strings
+        getRCVhead
+        getRCVaddr
+        getRCVlength
+        getRCVdata
+        getRCVrssi
+        getRCVsnr
+    then
+  ;
+
+\ interface LoRa with any embedded program
+: RXinterface ( -- )
+    RCVdata ?dup if
+        evaluate
+    else
+        2drop
+    then
+  ;
+
+
+\ *** LoRa reception loop *********************************
+
+Serial \ Select Serial vocabulary
+
+\ final loop
+: LoRaLoop ( -- )
+    begin
+        Serial2.available   \ not 0 if chars availalble
+        if
+            100 ms          \ ensures that the entire transmission is received
+            LoRaRX maxlen$ nip
+            Serial2.readBytes
+            LoRaRX drop cell - !
+            RXdecode        \ analyse content of LoRa message
+            RXinterface     \ interpret content or RCVdata
+        then
+        pause               \ skip to next task
+    again
+  ;
+
+' LoRaLoop 100 100 task my-loop
+
+
+\ *** Main initialisation *********************************
+
+\ 115200 speed communication for LoRa REYAX
+115200 value #SERIAL2_RATE
+
+Serial
+: mainInit ( -- )
+    cr ." Starting SLAV1 LoRa" cr
+    LEDinit
+    #SERIAL2_RATE Serial2.begin     \ initialise Serial2
+    my-loop start-task
+  ;
+
+startup: mainInit
