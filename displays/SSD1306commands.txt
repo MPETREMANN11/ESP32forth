@@ -1,0 +1,31 @@
+\ *********************************************************************
+\  Manage commands for OLED SSD1306 128x32 display
+\    Filename:      SSD10306commands.txt
+\    Date:          09 feb 2022
+\    Updated:       09 feb 2022
+\    File Version:  1.0
+\    MCU:           ESP32-WROOM-32
+\    Forth:         ESP32forth all versions 7.x++
+\    Copyright:     Marc PETREMANN
+\    Author:        Marc PETREMANN
+\    GNU General Public License
+\ *********************************************************************
+
+DEFINED? --SSD1306 [if] forget --SSD1306  [then]
+create --SSD1306
+
+
+\ activate the wire vocabulary
+wire
+\ start the I2C interface using pin 21 and 22 on ESP32 DEVKIT V1 
+\ with 21 used as sda and 22 as scl.
+21 22 wire.begin
+
+\ set adress of OLED SSD1306 display
+$3c constant SSD1305addr
+
+
+
+
+
+
