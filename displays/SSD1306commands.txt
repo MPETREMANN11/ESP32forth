@@ -14,12 +14,7 @@
 DEFINED? --SSD1306 [if] forget --SSD1306  [then]
 create --SSD1306
 
-
-\ activate the wire vocabulary
-Wire
-
-
-\ *** Manage OLED display 128x32 ********
+Wire        \ activate the wire vocabulary
 
 \ define SSD1306 128x32 ram size
 128 constant DISPLAY_WIDTH
@@ -64,7 +59,7 @@ $3c constant addrSSD1306
     swap c!
   ;
 
-
+\ Initialize SSD105 128x32 display
 stream: dispSetup
     CTRL_COMMANDS c,
     $ae c, ( DISP_SLEEP )
@@ -90,6 +85,7 @@ stream: dispSetup
     $af c, ( DISP_ON )
     ;stream
 
+\ Reset SSD105 128x32 display
 stream: dispReset
     CTRL_COMMANDS c,
     $21 c,  \ COL START_END
@@ -100,7 +96,7 @@ stream: dispReset
     $03 c,  \ end
     ;stream
 
-
+\ main INITialization for SSD1306 128x32 OLED display
 : dispInit ( -- )
     \ start the I2C interface using pin 21 and 22 on ESP32 DEVKIT V1
     \ with 21 used as sda and 22 as scl.
@@ -108,3 +104,25 @@ stream: dispReset
     dispSetup
     dispReset
   ;
+
+stream: dispOn      \ toggle display on
+    CTRL_COMMANDS c,
+    $af c, \ DISPLAYON
+    ;stream
+
+stream: dispOff     \ toggle display off
+    CTRL_COMMANDS c,
+    $ae c, \ DISPLAYOFF
+    ;stream
+
+stream: dispInvert  \ invert display mode
+    CTRL_COMMANDS c,
+    $a7 c,  \ INVERTDISPLAY
+    ;stream
+
+stream: dispNormal  \ set display mode normal
+    CTRL_COMMANDS c,
+    $a6 c, \ NORMALDISPLAY
+    ;stream
+
+
