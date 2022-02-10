@@ -1,8 +1,8 @@
 \ *********************************************************************
-\  Manage commands for OLED SSD1306 128x32 display
+\ Manage commands for OLED SSD1306 128x32 display
 \    Filename:      SSD10306commands.txt
 \    Date:          09 feb 2022
-\    Updated:       09 feb 2022
+\    Updated:       10 feb 2022
 \    File Version:  1.0
 \    MCU:           ESP32-WROOM-32
 \    Forth:         ESP32forth all versions 7.x++
@@ -16,16 +16,95 @@ create --SSD1306
 
 
 \ activate the wire vocabulary
-wire
-\ start the I2C interface using pin 21 and 22 on ESP32 DEVKIT V1 
-\ with 21 used as sda and 22 as scl.
-21 22 wire.begin
+Wire
+
+
+\ *** Manage OLED display 128x32 ********
+
+\ define SSD1306 128x32 ram size
+128 constant DISPLAY_WIDTH
+ 32 constant DISPLAY_HEIGHT
+DISPLAY_WIDTH DISPLAY_HEIGHT * 8 / constant SSDramSize
+
+\  control: $00 for commands
+\           $40 for datas
+$00 constant CTRL_COMMANDS
+$40 constant CTRL_DATAS
+
 
 \ set adress of OLED SSD1306 display
-$3c constant SSD1305addr
+$3c constant addrSSD1306
+
+\ send a data array to SSD1306 connected via I2C bus
+: toSSD1306 ( addr len -- )
+    addrSSD1306 Wire.beginTransmission
+    Wire.write drop
+    addrSSD1306 Wire.endTransmission drop
+  ;
 
 
+\ define a command or data stream for SSD1306
+: stream: ( comp: <name> | exec: -- addr len )
+    \ set nothing as execute action by default
+    \ ['] nothing is stream.action
+    create
+        here    \ leave current dictionnary pointer on stack
+        0 c,    \ initial lenght data is 0
+    does>
+        dup 1+ swap c@
+        toSSD1306
+  ;
+
+\ store at <WORD> addr length of datas compiled beetween
+\ <WORD> and here
+: ;stream ( addr-var len ---)
+    dup 1+ here
+    swap -      \ calculate cdata length
+    \ store c in first byte of word defined by stream:
+    swap c!
+  ;
 
 
+stream: dispSetup
+    CTRL_COMMANDS c,
+    $ae c, ( DISP_SLEEP )
+    $d5 c, ( SET_DISP_CLOCK )
+    $80 c,
+    $a8 c, ( SET_MULTIPLEX_RATIO )
+    $3f c,
+    $d3 c, ( SET_VERTICAL_OFFSET )
+    $00 c,
+    $40 c, ( SET_DISP_START_LINE )
+    $8d c, ( CHARGE_PUMP_REGULATOR )
+    $14 c, ( CHARGE_PUMP_ON )
+    $20 c, ( MEM_ADDRESSING )
+    $00 c,
+    $a0 c, ( SET_SEG_REMAP_0 )
+    $c0 c, ( SET_COM_SCAN_NORMAL )
+    $da c, ( SETCOMPINS )
+    $02 c, \ or $12 ???
+    $db c, ( SET_VCOM_DESELECT_LEVEL )
+    $40 c,
+    $a4 c, ( RESUME_TO_RAM_CONTENT )
+    $a6 c, ( NORMALDISPLAY )
+    $af c, ( DISP_ON )
+    ;stream
+
+stream: dispReset
+    CTRL_COMMANDS c,
+    $21 c,  \ COL START_END
+    $00 c,  \ start
+    $7f c,  \ end
+    $22 c,  \ PAGE START_END
+    $00 c,  \ start
+    $03 c,  \ end
+    ;stream
 
 
+: dispInit ( -- )
+    \ start the I2C interface using pin 21 and 22 on ESP32 DEVKIT V1
+    \ with 21 used as sda and 22 as scl.
+    21 22 wire.begin drop
+    dispSetup
+    dispReset
+  ;
