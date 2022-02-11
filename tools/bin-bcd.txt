@@ -1,0 +1,19 @@
+\ *********************************************************************
+\ BINARY from and to BCD conversion
+\    Filename:      bin-bcd.txt
+\    Date:          19/11/2019
+\    File Version:  1.0
+\    MCU:           ESP32Forth all versions
+\    Copyright:     Marc PETREMANN
+\    Author:        Marc PETREMANN
+\    GNU General Public License
+\ *********************************************************************
+
+: bin>bcd ( c -- c )        \ convert binary to BCD format
+    10 u/mod 4 lshift or
+  ;
+
+: bcd>bin ( c --- c)        \ convert BCD to binary format
+    16 u/mod 10 * + 
+  ;
+
