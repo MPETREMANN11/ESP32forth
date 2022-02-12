@@ -1,8 +1,8 @@
 \ *********************************************************************
-\ Russian characters set 866 
+\ Russian characters set 866
 \    Filename:      SSD1306-5x8rusFonts.txt
 \    Date:          11 feb 2022
-\    Updated:       11 feb 2022
+\    Updated:       12 feb 2022
 \    File Version:  1.0
 \    MCU:           ESP32-WROOM-32
 \    Forth:         ESP32forth all versions 7.x++
@@ -14,74 +14,241 @@
 DEFINED? --rusFont [if] forget --rusFont  [then]
 create --rusFont
 
-
 hex
+create FONTS   \ 5x8
+  00 c, 00 c, 00 c, 00 c, 00 c, \   (+00)
+  00 c, 00 c, 4f c, 00 c, 00 c, \ !
+  00 c, 03 c, 00 c, 03 c, 00 c, \ "
+  14 c, 3e c, 14 c, 3e c, 14 c, \ #
+  24 c, 2a c, 7f c, 2a c, 12 c, \ $
+  63 c, 13 c, 08 c, 64 c, 63 c, \ %
+  36 c, 49 c, 55 c, 22 c, 50 c, \ &
+  00 c, 00 c, 07 c, 00 c, 00 c, \ '
+  00 c, 1c c, 22 c, 41 c, 00 c, \ (
+  00 c, 41 c, 22 c, 1c c, 00 c, \ )
+  0a c, 04 c, 1f c, 04 c, 0a c, \ * (+10)
+  04 c, 04 c, 1f c, 04 c, 04 c, \ +
+  50 c, 30 c, 00 c, 00 c, 00 c, \ ,
+  08 c, 08 c, 08 c, 08 c, 08 c, \ -
+  60 c, 60 c, 00 c, 00 c, 00 c, \ .
+  00 c, 60 c, 1c c, 03 c, 00 c, \ /
+  3e c, 41 c, 49 c, 41 c, 3e c, \ 0
+  00 c, 02 c, 7f c, 00 c, 00 c, \ 1
+  46 c, 61 c, 51 c, 49 c, 46 c, \ 2
+  21 c, 49 c, 4d c, 4b c, 31 c, \ 3
+  18 c, 14 c, 12 c, 7f c, 10 c, \ 4 (+20)
+  4f c, 49 c, 49 c, 49 c, 31 c, \ 5
+  3e c, 51 c, 49 c, 49 c, 32 c, \ 6
+  01 c, 01 c, 71 c, 0d c, 03 c, \ 7
+  36 c, 49 c, 49 c, 49 c, 36 c, \ 8
+  26 c, 49 c, 49 c, 49 c, 3e c, \ 9
+  00 c, 33 c, 33 c, 00 c, 00 c, \ :
+  00 c, 53 c, 33 c, 00 c, 00 c, \ ;
+  00 c, 08 c, 14 c, 22 c, 41 c, \ <
+  14 c, 14 c, 14 c, 14 c, 14 c, \ =
+  41 c, 22 c, 14 c, 08 c, 00 c, \ > (+30)
+  06 c, 01 c, 51 c, 09 c, 06 c, \ ?
+  3e c, 41 c, 49 c, 15 c, 1e c, \ @
+  78 c, 16 c, 11 c, 16 c, 78 c, \ A
+  7f c, 49 c, 49 c, 49 c, 36 c, \ B
+  3e c, 41 c, 41 c, 41 c, 22 c, \ C
+  7f c, 41 c, 41 c, 41 c, 3e c, \ D
+  7f c, 49 c, 49 c, 49 c, 49 c, \ E
+  7f c, 09 c, 09 c, 09 c, 09 c, \ F
+  3e c, 41 c, 41 c, 49 c, 7b c, \ G
+  7f c, 08 c, 08 c, 08 c, 7f c, \ H (+40)
+  00 c, 41 c, 7f c, 41 c, 00 c, \ I
+  38 c, 40 c, 40 c, 41 c, 3f c, \ J
+  7f c, 08 c, 08 c, 14 c, 63 c, \ K
+  7f c, 40 c, 40 c, 40 c, 40 c, \ L
+  7f c, 06 c, 18 c, 06 c, 7f c, \ M
+  7f c, 06 c, 18 c, 60 c, 7f c, \ N
+  3e c, 41 c, 41 c, 41 c, 3e c, \ O
+  7f c, 09 c, 09 c, 09 c, 06 c, \ P
+  3e c, 41 c, 51 c, 21 c, 5e c, \ Q
+  7f c, 09 c, 19 c, 29 c, 46 c, \ R (+50)
+  26 c, 49 c, 49 c, 49 c, 32 c, \ S
+  01 c, 01 c, 7f c, 01 c, 01 c, \ T
+  3f c, 40 c, 40 c, 40 c, 7f c, \ U
+  0f c, 30 c, 40 c, 30 c, 0f c, \ V
+  1f c, 60 c, 1c c, 60 c, 1f c, \ W
+  63 c, 14 c, 08 c, 14 c, 63 c, \ X
+  03 c, 04 c, 78 c, 04 c, 03 c, \ Y
+  61 c, 51 c, 49 c, 45 c, 43 c, \ Z
+  00 c, 7f c, 41 c, 00 c, 00 c, \ [
+  00 c, 03 c, 1c c, 60 c, 00 c, \ \ (+60)
+  00 c, 41 c, 7f c, 00 c, 00 c, \ ]
+  0c c, 02 c, 01 c, 02 c, 0c c, \ ^
+  40 c, 40 c, 40 c, 40 c, 40 c, \ _
+  00 c, 01 c, 02 c, 04 c, 00 c, \ `
+  20 c, 54 c, 54 c, 54 c, 78 c, \ a
+  7f c, 48 c, 44 c, 44 c, 38 c, \ b
+  38 c, 44 c, 44 c, 44 c, 44 c, \ c
+  38 c, 44 c, 44 c, 48 c, 7f c, \ d
+  38 c, 54 c, 54 c, 54 c, 18 c, \ e
+  08 c, 7e c, 09 c, 09 c, 00 c, \ f (+70)
+  0c c, 52 c, 52 c, 54 c, 3e c, \ g
+  7f c, 08 c, 04 c, 04 c, 78 c, \ h
+  00 c, 00 c, 7d c, 00 c, 00 c, \ i
+  00 c, 40 c, 3d c, 00 c, 00 c, \ j
+  7f c, 10 c, 28 c, 44 c, 00 c, \ k
+  00 c, 00 c, 3f c, 40 c, 00 c, \ l
+  7c c, 04 c, 18 c, 04 c, 78 c, \ m
+  7c c, 08 c, 04 c, 04 c, 78 c, \ n
+  38 c, 44 c, 44 c, 44 c, 38 c, \ o (+80)
+  7f c, 12 c, 11 c, 11 c, 0e c, \ p
+  0e c, 11 c, 11 c, 12 c, 7f c, \ q
+  00 c, 7c c, 08 c, 04 c, 04 c, \ r
+  48 c, 54 c, 54 c, 54 c, 24 c, \ s
+  04 c, 3e c, 44 c, 44 c, 00 c, \ t
+  3c c, 40 c, 40 c, 20 c, 7c c, \ u
+  1c c, 20 c, 40 c, 20 c, 1c c, \ v
+  1c c, 60 c, 18 c, 60 c, 1c c, \ w
+  44 c, 28 c, 10 c, 28 c, 44 c, \ x (+90)
+  46 c, 28 c, 10 c, 08 c, 06 c, \ y
+  44 c, 64 c, 54 c, 4c c, 44 c, \ z
+  00 c, 08 c, 77 c, 41 c, 00 c, \ {
+  00 c, 00 c, 7f c, 00 c, 00 c, \ |
+  00 c, 41 c, 77 c, 08 c, 00 c, \ }
+  10 c, 08 c, 18 c, 10 c, 08 c, \ ~
+
+create RUS_FONTS   \ 5x8
 \ Codepage 866 Russian (Cyrillic II)
-$7c c, $12 c, $11 c, $12 c, $7c c, \	$80=128	А
-$7f c, $49 c, $49 c, $49 c, $31 c, \	$81=129	Б
-$7f c, $45 c, $45 c, $45 c, $3a c, \	$82=130	В
-$7f c, $01 c, $01 c, $01 c, $03 c, \	$83=131	Г
-$60 c, $3f c, $21 c, $3f c, $60 c, \	$84=132	Д
-$7f c, $49 c, $49 c, $49 c, $41 c, \	$85=133	Е
-$73 c, $0c c, $7f c, $0c c, $73 c, \	$86=134	Ж
-$22 c, $41 c, $49 c, $49 c, $36 c, \	$87=135	З
-$7f c, $10 c, $08 c, $04 c, $7f c, \	$88=136	И
-$7e c, $20 c, $11 c, $08 c, $7e c, \	$89=137	Й
-$7f c, $08 c, $14 c, $22 c, $41 c, \	$8A=138	К (+10)
-$40 c, $3f c, $01 c, $01 c, $7f c, \	$8B=139	Л
-$7f c, $06 c, $08 c, $06 c, $7f c, \	$8C=140	М
-$7f c, $08 c, $08 c, $08 c, $7f c, \	$8D=141	Н
-$3e c, $41 c, $41 c, $41 c, $3e c, \	$8E=142	О
-$7f c, $01 c, $01 c, $01 c, $7f c, \	$8F=143	П								  \
-$7f c, $09 c, $09 c, $09 c, $06 c, \	$90=144	Р
-$3e c, $41 c, $41 c, $41 c, $22 c, \	$91=145	С
-$03 c, $01 c, $7f c, $01 c, $03 c, \	$92=146	Т
-$61 c, $26 c, $18 c, $06 c, $01 c, \	$93=147	У
-$1c c, $22 c, $7f c, $22 c, $1c c, \	$94=148	Ф (+20)
-$63 c, $14 c, $08 c, $14 c, $63 c, \	$95=149	Х
-$3f c, $20 c, $20 c, $3f c, $60 c, \	$96=150	Ц
-$07 c, $08 c, $08 c, $08 c, $7f c, \	$97=151	Ч
-$7f c, $40 c, $7f c, $40 c, $7f c, \	$98=152	Ш
-$3f c, $20 c, $3f c, $20 c, $7f c, \	$99=153	Щ
-$01 c, $7f c, $48 c, $48 c, $30 c, \	$9A=154	Ъ
-$7f c, $48 c, $78 c, $00 c, $7f c, \	$9B=155	Ы
-$7f c, $48 c, $48 c, $30 c, $00 c, \	$9C=156	Ь
-$41 c, $49 c, $49 c, $2a c, $1c c, \	$9D=157	Э
-$7f c, $10 c, $3e c, $41 c, $3e c, \	$9E=158	Ю (+30)
-$66 c, $19 c, $09 c, $09 c, $7f c, \	$9F=159	Я												  \
-$20 c, $54 c, $54 c, $78 c, $40 c, \	$A0=160	а
-$3e c, $49 c, $45 c, $45 c, $38 c, \	$A1=161	б
-$7c c, $54 c, $54 c, $58 c, $20 c, \	$A2=162	в
-$7c c, $04 c, $04 c, $0c c, $00 c, \	$A3=163	г
-$38 c, $45 c, $45 c, $49 c, $3e c, \	$A4=164	д
-$38 c, $54 c, $54 c, $54 c, $18 c, \	$A5=165	е
-$4c c, $30 c, $7c c, $30 c, $4c c, \	$A6=166	ж
-$28 c, $44 c, $54 c, $28 c, $00 c, \	$A7=167	з
-$7c c, $20 c, $10 c, $7c c, $00 c, \	$A8=168	и (+40)
-$7c c, $21 c, $11 c, $7c c, $00 c, \	$A9=169	й
-$7c c, $10 c, $28 c, $44 c, $00 c, \	$AA=170	к
-$40 c, $3c c, $04 c, $04 c, $7c c, \	$AB=171	л
-$7c c, $08 c, $10 c, $08 c, $7c c, \	$AC=172	м
-$7c c, $10 c, $10 c, $7c c, $00 c, \	$AD=173	н
-$38 c, $44 c, $44 c, $44 c, $38 c, \	$AE=174	о
-$7c c, $04 c, $04 c, $7c c, $00 c, \	$AF=175	п
+  7c c, 12 c, 11 c, 12 c, 7c c, \	$80=128	А (+00)
+  7f c, 49 c, 49 c, 49 c, 31 c, \	$81=129	Б
+  7f c, 45 c, 45 c, 45 c, 3a c, \	$82=130	В
+  7f c, 01 c, 01 c, 01 c, 03 c, \	$83=131	Г
+  60 c, 3f c, 21 c, 3f c, 60 c, \	$84=132	Д
+  7f c, 49 c, 49 c, 49 c, 41 c, \	$85=133	Е
+  73 c, 0c c, 7f c, 0c c, 73 c, \	$86=134	Ж
+  22 c, 41 c, 49 c, 49 c, 36 c, \	$87=135	З
+  7f c, 10 c, 08 c, 04 c, 7f c, \	$88=136	И
+  7e c, 20 c, 11 c, 08 c, 7e c, \	$89=137	Й
+  7f c, 08 c, 14 c, 22 c, 41 c, \	$8A=138	К (+10)
+  40 c, 3f c, 01 c, 01 c, 7f c, \	$8B=139	Л
+  7f c, 06 c, 08 c, 06 c, 7f c, \	$8C=140	М
+  7f c, 08 c, 08 c, 08 c, 7f c, \	$8D=141	Н
+  3e c, 41 c, 41 c, 41 c, 3e c, \	$8E=142	О
+  7f c, 01 c, 01 c, 01 c, 7f c, \	$8F=143	П								  \
+  7f c, 09 c, 09 c, 09 c, 06 c, \	$90=144	Р
+  3e c, 41 c, 41 c, 41 c, 22 c, \	$91=145	С
+  03 c, 01 c, 7f c, 01 c, 03 c, \	$92=146	Т
+  61 c, 26 c, 18 c, 06 c, 01 c, \	$93=147	У
+  1c c, 22 c, 7f c, 22 c, 1c c, \	$94=148	Ф (+20)
+  63 c, 14 c, 08 c, 14 c, 63 c, \	$95=149	Х
+  3f c, 20 c, 20 c, 3f c, 60 c, \	$96=150	Ц
+  07 c, 08 c, 08 c, 08 c, 7f c, \	$97=151	Ч
+  7f c, 40 c, 7f c, 40 c, 7f c, \	$98=152	Ш
+  3f c, 20 c, 3f c, 20 c, 7f c, \	$99=153	Щ
+  01 c, 7f c, 48 c, 48 c, 30 c, \	$9A=154	Ъ
+  7f c, 48 c, 78 c, 00 c, 7f c, \	$9B=155	Ы
+  7f c, 48 c, 48 c, 30 c, 00 c, \	$9C=156	Ь
+  41 c, 49 c, 49 c, 2a c, 1c c, \	$9D=157	Э
+  7f c, 10 c, 3e c, 41 c, 3e c, \	$9E=158	Ю (+30)
+  66 c, 19 c, 09 c, 09 c, 7f c, \	$9F=159	Я												  \
+  20 c, 54 c, 54 c, 78 c, 40 c, \	$A0=160	а
+  3e c, 49 c, 45 c, 45 c, 38 c, \	$A1=161	б
+  7c c, 54 c, 54 c, 58 c, 20 c, \	$A2=162	в
+  7c c, 04 c, 04 c, 0c c, 00 c, \	$A3=163	г
+  38 c, 45 c, 45 c, 49 c, 3e c, \	$A4=164	д
+  38 c, 54 c, 54 c, 54 c, 18 c, \	$A5=165	е
+  4c c, 30 c, 7c c, 30 c, 4c c, \	$A6=166	ж
+  28 c, 44 c, 54 c, 28 c, 00 c, \	$A7=167	з
+  7c c, 20 c, 10 c, 7c c, 00 c, \	$A8=168	и (+40)
+  7c c, 21 c, 11 c, 7c c, 00 c, \	$A9=169	й
+  7c c, 10 c, 28 c, 44 c, 00 c, \	$AA=170	к
+  40 c, 3c c, 04 c, 04 c, 7c c, \	$AB=171	л
+  7c c, 08 c, 10 c, 08 c, 7c c, \	$AC=172	м
+  7c c, 10 c, 10 c, 7c c, 00 c, \	$AD=173	н
+  38 c, 44 c, 44 c, 44 c, 38 c, \	$AE=174	о
+  7c c, 04 c, 04 c, 7c c, 00 c, \	$AF=175	п
 \ don't include graphical characters set
-$fc c, $28 c, $44 c, $44 c, $38 c, \	$E0=224	р (+49)
-$38 c, $44 c, $44 c, $44 c, $28 c, \	$E1=225	с
-$04 c, $04 c, $7c c, $04 c, $04 c, \	$E2=226	т
-$4c c, $50 c, $50 c, $50 c, $3c c, \	$E3=227	у
-$38 c, $44 c, $fe c, $44 c, $38 c, \	$E4=228	ф
-$44 c, $28 c, $10 c, $28 c, $44 c, \	$E5=229	х
-$7c c, $40 c, $40 c, $7c c, $c0 c, \	$E6=230	ц
-$1c c, $10 c, $10 c, $7c c, $00 c, \	$E7=231	ч
-$7c c, $40 c, $7c c, $40 c, $7c c, \	$E8=232	ш
-$7c c, $40 c, $7c c, $40 c, $fc c, \	$E9=233	щ
-$04 c, $7c c, $50 c, $70 c, $00 c, \	$EA=234	ъ
-$7c c, $50 c, $70 c, $00 c, $7c c, \	$EB=235	ы
-$00 c, $7c c, $50 c, $70 c, $00 c, \	$EC=236	ь
-$28 c, $44 c, $54 c, $38 c, $00 c, \	$ED=237	э
-$7c c, $10 c, $38 c, $44 c, $38 c, \	$EE=238	ю
-$08 c, $54 c, $34 c, $14 c, $7c c, \	$EF=239	я
-$7e c, $4b c, $4a c, $4b c, $42 c, \	$f0=240	Ё
-$38 c, $55 c, $54 c, $55 c, $18 c, \	$f1=241	ё
+
+create EXT_RUS_FONTS   \ 5x8
+  fc c, 28 c, 44 c, 44 c, 38 c, \	$E0=224	р (+00)
+  38 c, 44 c, 44 c, 44 c, 28 c, \	$E1=225	с
+  04 c, 04 c, 7c c, 04 c, 04 c, \	$E2=226	т
+  4c c, 50 c, 50 c, 50 c, 3c c, \	$E3=227	у
+  38 c, 44 c, fe c, 44 c, 38 c, \	$E4=228	ф
+  44 c, 28 c, 10 c, 28 c, 44 c, \	$E5=229	х
+  7c c, 40 c, 40 c, 7c c, c0 c, \	$E6=230	ц
+  1c c, 10 c, 10 c, 7c c, 00 c, \	$E7=231	ч
+  7c c, 40 c, 7c c, 40 c, 7c c, \	$E8=232	ш
+  7c c, 40 c, 7c c, 40 c, fc c, \	$E9=233	щ
+  04 c, 7c c, 50 c, 70 c, 00 c, \	$EA=234	ъ (+10)
+  7c c, 50 c, 70 c, 00 c, 7c c, \	$EB=235	ы
+  00 c, 7c c, 50 c, 70 c, 00 c, \	$EC=236	ь
+  28 c, 44 c, 54 c, 38 c, 00 c, \	$ED=237	э
+  7c c, 10 c, 38 c, 44 c, 38 c, \	$EE=238	ю
+  08 c, 54 c, 34 c, 14 c, 7c c, \	$EF=239	я
+  7e c, 4b c, 4a c, 4b c, 42 c, \	$f0=240	Ё
+  38 c, 55 c, 54 c, 55 c, 18 c, \	$f1=241	ё
 decimal
+
+DEFINED? between? invert [IF]
+: between? ( n min-inc max-inc -- f ) 
+    rot >r r@ >= swap r> <= and 
+  ;
+[THEN]
+
+\ Translates ASCII to address of bitpatterns:
+\ c in interval [32..127]
+\ Translates russian character code to address of bitpatterns:
+\ c in interval [128..175][224..241]
+: a>bp ( c -- c-adr )
+    dup
+    32 127 between? if
+        32 - 5 * FONTS +
+    else
+        dup
+        128 175 between? if
+            128 - 5 * RUSS_FONTS +
+        else
+            dup
+            224 241 between? if
+                224 - 48 + 5 * RUSS_FONTS +
+            else
+                drop
+            then
+        then
+    then
+  ;
+
+\ Draw character:
+: txChar ( c --)
+    \ if 'cr' go to next line
+    dup $0d =
+    if
+        crLine drop
+        exit
+    then
+    \ otherwise, display character
+    addrSSD1306 Wire.beginTransmission
+    CTRL_DATAS Wire.tx
+    a>bp                \ start addr
+    5 0
+    do
+        dup i + c@      \ get byte and inc addr
+        Wire.tx         \ transmit byte
+    loop
+    drop
+    $00 Wire.tx  \ transmit 'blank'
+    addrSSD1306 Wire.endTransmission drop
+  ;
+
+\ display string to SSD1306 OLED screen
+: txString ( adr len --)
+    for
+        dup c@ ruTxChar
+        1+
+    next
+    drop
+  ;
+
+
+
+\ exemple for test
+dispinit
+dispClear
+
+
