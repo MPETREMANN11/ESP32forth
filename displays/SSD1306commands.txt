@@ -2,7 +2,7 @@
 \ Manage commands for OLED SSD1306 128x32 display
 \    Filename:      SSD10306commands.txt
 \    Date:          09 feb 2022
-\    Updated:       11 feb 2022
+\    Updated:       12 feb 2022
 \    File Version:  1.0
 \    MCU:           ESP32-WROOM-32
 \    Forth:         ESP32forth all versions 7.x++
@@ -45,7 +45,7 @@ $3c constant addrSSD1306
 
 
 \ define a command or data stream for SSD1306
-: stream: ( comp: <name> | exec: -- addr len )
+: streamCreate: ( comp: <name> | exec: -- addr len )
     \ set nothing as execute action by default
     \ ['] nothing is stream.action
     create
@@ -58,15 +58,15 @@ $3c constant addrSSD1306
 
 \ store at <WORD> addr length of datas compiled beetween
 \ <WORD> and here
-: ;stream ( addr-var len ---)
+: ;endStream ( addr-var len ---)
     dup 1+ here
     swap -      \ calculate cdata length
-    \ store c in first byte of word defined by stream:
+    \ store c in first byte of word defined by streamCreate:
     swap c!
   ;
 
 \ Initialize SSD105 128x32 display
-stream: dispSetup
+streamCreate: dispSetup
     CTRL_COMMANDS c,
     $ae c, ( DISP_SLEEP )
     $d5 c, ( SET_DISP_CLOCK )
@@ -89,10 +89,10 @@ stream: dispSetup
     $a4 c, ( RESUME_TO_RAM_CONTENT )
     $a6 c, ( NORMALDISPLAY )
     $af c, ( DISP_ON )
-    ;stream
+    ;endStream
 
 \ Reset SSD105 128x32 display
-stream: dispReset
+streamCreate: dispReset
     CTRL_COMMANDS c,
     $21 c,  \ COL START_END
     $00 c,  \ start
@@ -100,7 +100,7 @@ stream: dispReset
     $22 c,  \ PAGE START_END
     $00 c,  \ start
     $03 c,  \ end
-    ;stream
+    ;endStream
 
 \ main INITialization for SSD1306 128x32 OLED display
 : dispInit ( -- )
@@ -111,25 +111,25 @@ stream: dispReset
     dispReset
   ;
 
-stream: dispOn      \ toggle display on
+streamCreate: dispOn      \ toggle display on
     CTRL_COMMANDS c,
     $af c, \ DISPLAYON
-    ;stream
+    ;endStream
 
-stream: dispOff     \ toggle display off
+streamCreate: dispOff     \ toggle display off
     CTRL_COMMANDS c,
     $ae c, \ DISPLAYOFF
-    ;stream
+    ;endStream
 
-stream: dispInvert  \ invert display mode
+streamCreate: dispInvert  \ invert display mode
     CTRL_COMMANDS c,
     $a7 c,  \ INVERTDISPLAY
-    ;stream
+    ;endStream
 
-stream: dispNormal  \ set display mode normal
+streamCreate: dispNormal  \ set display mode normal
     CTRL_COMMANDS c,
     $a6 c, \ NORMALDISPLAY
-    ;stream
+    ;endStream
 
 0 value currentPage
 : setLine ( -- )
@@ -156,9 +156,9 @@ stream: dispNormal  \ set display mode normal
   ;
 
 : crLine ( ---)
-    currentPage 1+ 3 and to currentPage
     setLine
     lineClear
+    currentPage 1+ 3 and to currentPage
   ;
 
 : dispClear ( ---)
@@ -166,5 +166,15 @@ stream: dispNormal  \ set display mode normal
     4 for
         crLine
     next
+  ;
+
+\ adjust display contrast
+: setContrast ( [0..254] -- )
+    >r
+    addrSSD1306 Wire.beginTransmission
+    CTRL_COMMANDS Wire.tx
+    $81 Wire.tx     \ SETCONTRAST
+    r>  Wire.tx     \ value between 00..fe
+    addrSSD1306 Wire.endTransmission drop
   ;
 
