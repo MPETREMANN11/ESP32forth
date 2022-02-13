@@ -202,11 +202,11 @@ DEFINED? between? invert [IF]
     else
         dup
         128 175 between? if
-            128 - 5 * RUSS_FONTS +
+            128 - 5 * RUS_FONTS +
         else
             dup
             224 241 between? if
-                224 - 48 + 5 * RUSS_FONTS +
+                224 - 5 * EXT_RUS_FONTS +
             else
                 drop
             then
@@ -217,8 +217,7 @@ DEFINED? between? invert [IF]
 \ Draw character:
 : txChar ( c --)
     \ if 'cr' go to next line
-    dup $0d =
-    if
+    dup $0d = if
         crLine drop
         exit
     then
@@ -226,22 +225,23 @@ DEFINED? between? invert [IF]
     addrSSD1306 Wire.beginTransmission
     CTRL_DATAS Wire.tx
     a>bp                \ start addr
-    5 0
-    do
-        dup i + c@      \ get byte and inc addr
-        Wire.tx         \ transmit byte
-    loop
-    drop
-    $00 Wire.tx  \ transmit 'blank'
-    addrSSD1306 Wire.endTransmission drop
+    ?dup if
+        5 0 do
+            dup i + c@      \ get byte and inc addr
+            Wire.tx         \ transmit byte
+        loop
+        drop
+        $00 Wire.tx  \ transmit 'blank'
+        addrSSD1306 Wire.endTransmission drop
+    then
   ;
 
 \ display string to SSD1306 OLED screen
-: txString ( adr len --)
-    for
-        dup c@ ruTxChar
+: txString ( adr len -- )
+    0 do
+        dup c@ txchar
         1+
-    next
+    loop
     drop
   ;
 
@@ -250,5 +250,16 @@ DEFINED? between? invert [IF]
 \ exemple for test
 dispinit
 dispClear
+
+\ display: ИГОР
+32 string test
+   bl test c+$!
+  136 test c+$!
+  131 test c+$!
+  142 test c+$!
+  144 test c+$!
+
+crLine
+test txString
 
 
