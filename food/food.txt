@@ -1,0 +1,37 @@
+\ *********************************************************************
+\ FOOD  Forth Object Oriented Dialect
+\    Filename:      food.txt
+\    Date:          14 feb 2022
+\    Updated:       14 feb 2022
+\    File Version:  1.0
+\    MCU:           ESP32-WROOM-32
+\    Forth:         ESP32forth all versions 7.x++
+\    Copyright:     Marc PETREMANN / Michel ZUPAN
+\    Author:        Michel ZUPAN sep 1989
+\    Adaptation:    Marc PETREMANN
+\    GNU General Public License
+\ *********************************************************************
+
+\ FOOD  Forth Object-Oriented Dialect
+\ Version zéro 9/89 Michel ZUPAN
+
+DEFINED? --food [if] forget --food  [then]
+create --food
+
+variable Active                         \ pointeur classe active
+variable ClassLink                      \ lien dernière classe définie
+
+
+\ Classes, sub-classes, super-classes
+\ ------------------------------------
+
+\ define sub-class of active class
+: subclass   ( comp: -- <class-name> | exec: -- )      
+    create 
+        here Active    dup @ , !
+        here ClassLink dup @ , !
+        immediate
+    does> 
+        Active ! 
+  ;
+
