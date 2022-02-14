@@ -78,7 +78,7 @@ variable ClassLink                      \ lien dernière classe définie
   ;
 
 \ display list of defined classes
-: classes   ( --- )
+: classes   ( -- )
     ClassLink
     begin
         @ ?dup
@@ -88,4 +88,14 @@ variable ClassLink                      \ lien dernière classe définie
     repeat
   ;
 
+\ display active class
+: .active   ( --- )
+    Active @ ?dup
+    if
+        ." active class: "
+        cell 2* - >name .id  ( @TODO: bug to correct here )
+    else 
+        ." no active class "
+    then
+  ;
 
