@@ -18,6 +18,12 @@
 DEFINED? --food [if] forget --food  [then]
 create --food
 
+DEFINED? off invert [if] 
+: off ( addr -- )
+    0 swap !  ;
+[then]
+
+
 variable Active                         \ pointeur classe active
 variable ClassLink                      \ lien dernière classe définie
 
@@ -35,3 +41,29 @@ variable ClassLink                      \ lien dernière classe définie
         Active ! 
   ;
 
+\ define new class
+: class      ( comp: -- <class-name> | exec: -- )       
+    Active off 
+    subclass 
+  ;
+
+\ define super class of active class
+: superclass ( <nom-classe> --- )
+    Active @ 
+    class 
+    Active @ swap ! 
+  ;
+
+
+\ Classes management
+\ -------------------
+
+\ class2 sub-class of class1 ?
+: subclass? ( class1 class2 -- fl)      
+    begin 
+        2dup = 2dup 0= and 
+    while 
+        drop @ 
+    repeat 
+    -rot 2drop 
+  ;
