@@ -8,6 +8,9 @@
 <h4>.active ( -- )</h4>
 <p>Display active class</p>
 
+<h4>subclass ( comp: -- <class-name> | exec: -- )</h4>
+<p>Define sub-class of active class</p>
+
 <h4>class ( comp: -- <class-name> | exec: -- )</h4>
 <p>Define new class</p>
 <pre>
@@ -20,3 +23,10 @@ data
 array
 .active   \ display: active class: array
 </pre>
+
+<h4>superclass ( comp: -- <class-name> | exec: -- )</h4>
+<p>Define super class of active class</p>
+
+
+  
+  
