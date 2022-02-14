@@ -94,8 +94,138 @@ variable ClassLink                      \ lien dernière classe définie
     if
         ." active class: "
         cell 2* - >name .id  ( @TODO: bug to correct here )
-    else 
+    else
         ." no active class "
     then
   ;
+
+
+
+DEFINED? --tt [IF] forget --tt  [THEN]
+create --tt
+
+
+\ Classes procedures and variables
+\ ----------------------------------
+
+\ --- after this line: @TODO: to debug ---
+
+\ translate procedure-method
+: (procedure) ( adr -- cfa )
+    begin
+        @ dup 2+ @
+        Active @ subclass? over 0= or
+    until
+        dup 0= if
+            cr .active true ?missing
+    then
+    4 + @
+  ;
+
+\ Define procedure for active class
+: Procedure   ( proc-name> --- )
+    variable immediate
+    does>
+        (procedure)
+        state @  if
+            ,
+        else
+            execute
+        then
+  ;
+
+\ Define Variable for active class
+: ClassVar    ( <nom-cl.var> --- )
+    variable immediate
+    does>
+        (procedure)
+        state @  if
+            [compile] literal
+        then
+  ;
+
+
+\ Methods
+\ --------
+
+vocabulary Methods
+
+\ vectorize a method
+: Method  ( <procedure> cfa -- )     ( @TODO: to debug.... )   
+    here ' >body 
+    dup @ , ! 
+    Active @ , , 
+  ;
+
+\ cfa of latest defined word
+: That    ( -- cfa )
+    current @ @
+  ;
+
+\ affect a value to a class variable
+\  : For     ( <classvar>  n -- )
+\   method ;                              \ (synonyme de method ! )
+
+
+
+\ Application: class data
+\ ------------------------
+
+only forth also definitions
+
+class data
+ClassVar  DataSize
+
+procedure Object
+procedure D! ( Data Store )
+procedure D@ ( Data Fetch )
+
+procedure array
+procedure ?indice
+procedure cell
+
+methods definitions
+
+: (DataCreate)
+  create active @ , immediate
+         [compile] DataSize here over erase allot
+         immediate
+  does>  dup @ active ! 2+
+         state @ if [compile] literal then ;
+that method Object
+
+: (?indice) ( n adr -- n adr )
+  2dup @ u> abort" indice hors limite" ;
+that method ?indice
+
+: (cell)  ( n adr -- adr )
+  dup 2+ @ rot * + 4 + ;
+that method cell
+
+: (array)
+  create active @ , dup , [compile] DataSize dup ,
+         * here over erase allot
+         immediate
+  does>  dup @ active ! 2+
+         state @ if [compile] literal then
+         [compile] ?indice
+         [compile] cell ;
+that method array
+
+forth definitions
+
+data subclass entier
+  2 for DataSize
+' ! method D!
+' @ method D@
+
+data subclass simple
+   1 for DataSize
+' c! method D!
+' c@ method D@
+
+data subclass double
+   4 for DataSize
+' 2! method D!
+' 2@ method D@
 
