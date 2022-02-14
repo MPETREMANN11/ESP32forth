@@ -18,12 +18,12 @@
 DEFINED? --food [IF] forget --food  [THEN]
 create --food
 
-DEFINED? off invert [IF] 
+DEFINED? off invert [IF]
 : off ( addr -- )
     0 swap !  ;
 [THEN]
 
-DEFINED? off invert [IF] 
+DEFINED? off invert [IF]
 : ?dup ( n -- n | n n )
     dup if dup then  ;
 [THEN]
@@ -36,26 +36,26 @@ variable ClassLink                      \ lien dernière classe définie
 \ ------------------------------------
 
 \ define sub-class of active class
-: subclass   ( comp: -- <class-name> | exec: -- )      
-    create 
+: subclass   ( comp: -- <class-name> | exec: -- )
+    create
         here Active    dup @ , !
         here ClassLink dup @ , !
         immediate
-    does> 
-        Active ! 
+    does>
+        Active !
   ;
 
 \ define new class
-: class      ( comp: -- <class-name> | exec: -- )       
-    Active off 
-    subclass 
+: class      ( comp: -- <class-name> | exec: -- )
+    Active off
+    subclass
   ;
 
 \ define super class of active class
 : superclass ( <nom-classe> --- )
-    Active @ 
-    class 
-    Active @ swap ! 
+    Active @
+    class
+    Active @ swap !
   ;
 
 
@@ -64,35 +64,28 @@ variable ClassLink                      \ lien dernière classe définie
 
 \ display name field address of a word
 : .id ( nfa -- )
-    type space 
+    type space
   ;
 
 \ class2 sub-class of class1 ?
-: subclass? ( class1 class2 -- fl)      
-    begin 
-        2dup = 2dup 0= and 
-    while 
-        drop @ 
-    repeat 
-    -rot 2drop 
+: subclass? ( class1 class2 -- fl)
+    begin
+        2dup = 2dup 0= and
+    while
+        drop @
+    repeat
+    -rot 2drop
   ;
 
 \ display list of defined classes
 : classes   ( --- )
     ClassLink
-    begin 
-        @ ?dup 
-    while 
-        dup 6 - >name .id  ( @TODO: bug to correct here )
-    repeat 
+    begin
+        @ ?dup
+    while
+        dup cell 2* - cell -
+        >name .id
+    repeat
   ;
 
-\ display active class
-: .active   ( --- )                     
-    Active @ ?dup 
-    if 
-        body> >name .id  ( @TODO: bug to correct here )
-    else ." no class " 
-    then
-        ." active class " 
-  ;
+
