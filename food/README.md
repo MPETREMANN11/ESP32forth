@@ -4,7 +4,7 @@
 <p>Display list of defined classes</p>
 
 
-<h4>class</h4>
+<h4>class ( comp: -- <class-name> | exec: -- )</h4>
 <p>Define new class</p>
 <code>
 class data
