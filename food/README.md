@@ -13,13 +13,10 @@
 <code>
 class data
 class array
-  
 classes
   \ display: data array
-  
 data
 .active   \ display: active class: data
-
 array
 .active   \ display: active class: array
 </code>
