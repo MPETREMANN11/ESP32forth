@@ -10,7 +10,7 @@
 
 <h4>class ( comp: -- <class-name> | exec: -- )</h4>
 <p>Define new class</p>
-<code>
+<pre>
 class data
 class array
 classes
@@ -19,4 +19,4 @@ data
 .active   \ display: active class: data
 array
 .active   \ display: active class: array
-</code>
+</pre>
