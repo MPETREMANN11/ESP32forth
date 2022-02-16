@@ -20,6 +20,12 @@ create --missing
     dup if dup then  ;
 
 
+\ stop execution of word
+: abort  ( -- )
+    postpone quit 
+  ; immediate
+
+
 \ stop execution of word and send error message
 : abort"  ( comp: -- <str> | exec: -- )
     [  ' ." ,  ]
@@ -27,9 +33,14 @@ create --missing
   ; immediate
 
 
-\ store 0 in addr
+\ definition of boolean constants
+ 0 constant FALSE
+-1 constant TRUE
+
+
+\ store FALSE in addr
 : off ( addr -- )
-    0 swap !  ;
+    FALSE swap !  ;
 
 
 \ case of endof endcase  structure
@@ -39,4 +50,6 @@ internals
 : endof ['] branch , here 0 , swap here swap ! ; immediate
 : endcase ['] drop , begin ?dup while here swap ! repeat ; immediate
 forth
+
+
 
