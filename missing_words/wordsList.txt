@@ -15,9 +15,48 @@ DEFINED? --missing [if] forget --missing  [then]
 create --missing
 
 
+\ inverse rotation
+: -rot ( n1 n2 n3 -- n3 n1 n2 ) 
+    rot rot
+  ;
+
+
 \ duplicate n if n is not =0
 : ?dup ( n -- n | n n )
-    dup if dup then  ;
+    dup if dup then
+  ;
+
+
+\ transfert double precision value to return stack
+: 2>r ( d -- ) ( r: -- d )
+    postpone swap 
+    postpone >r postpone >r
+  ; immediate
+
+
+\ transfert double precision value from return stack
+: 2r> ( r: d -- ) ( -- d )
+    postpone r> postpone r> 
+    postpone swap
+  ; immediate
+
+
+\ duplicate double precision value
+: 2dup ( d1 -- d1 d1 )
+    over over
+  ;
+
+
+\ swap double precision
+: 2swap ( d1 d2 -- d2 d1 )
+    rot >r rot r> 
+  ;
+
+
+\ duplicate second double precison value
+: 2over ( d1 d2 -- d1 d2 d1 )
+    2>r 2dup 2r> 2swap 
+  ;
 
 
 \ stop execution of word
@@ -50,6 +89,21 @@ internals
 : endof ['] branch , here 0 , swap here swap ! ; immediate
 : endcase ['] drop , begin ?dup while here swap ! repeat ; immediate
 forth
+
+
+\ display n spaces
+: spaces ( n -- )
+    for aft space then next
+  ;
+
+
+\ Perform a comparison of test with low limit and high
+: within ( test low high -- flag )
+    -rot over swap >=
+    -rot swap <=
+    and
+  ;
+
 
 
 
