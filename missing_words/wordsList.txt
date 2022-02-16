@@ -31,3 +31,12 @@ create --missing
 : off ( addr -- )
     0 swap !  ;
 
+
+\ case of endof endcase  structure
+internals
+: case 0 ; immediate
+: of ['] over , ['] = , ['] 0branch , here 0 , ['] drop , ; immediate
+: endof ['] branch , here 0 , swap here swap ! ; immediate
+: endcase ['] drop , begin ?dup while here swap ! repeat ; immediate
+forth
+
