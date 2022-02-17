@@ -59,6 +59,41 @@ create --missing
   ;
 
 
+
+
+\ leave fl if u1 < u2
+: u< ( u1 u2 -- fl )
+    2dup xor 0< if
+        swap drop 0< exit 
+    then
+    - 0< 
+  ; 
+
+
+\ leave fl if u1 < u2
+: u> ( u1 u2 -- fl )
+    swap u< 
+  ; 
+
+
+\ leave min absolute from u1 or u2
+: umin ( u1 u2 -- u1|u2 )
+    2dup swap u< if
+        swap
+    then
+    drop
+  ; 
+
+
+\ leave max absolute from u1 or u2
+: umax  ( u1 u2 -- u1|u2 )
+    2dup u< if
+        swap
+    then
+    drop
+  ; 
+
+
 \ stop execution of word
 : abort  ( -- )
     postpone quit 
