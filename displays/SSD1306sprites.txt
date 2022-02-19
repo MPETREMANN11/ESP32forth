@@ -1,0 +1,93 @@
+\ *********************************************************************
+\ Display sprites on SSD1306 OLED 128x32
+\    Filename:      SSD1306sprites.txt
+\    Date:          19 feb 2022
+\    Updated:       19 feb 2022
+\    File Version:  1.0
+\    MCU:           ESP32-WROOM-32
+\    Forth:         ESP32forth all versions 7.x++
+\    Copyright:     Marc PETREMANN
+\    Author:        Marc PETREMANN
+\    GNU General Public License
+\ *********************************************************************
+
+DEFINED? --sprites [if] forget --sprites  [then]
+create --sprites
+
+\ === require part of SSD1306commands.txt =============================
+
+\ include SSD1306commands.txt
+
+create hearthSprite
+    12 c,   binary
+    01100000 c,
+    10010000 c,
+    00001000 c,
+    00001000 c,
+    00010000 c,
+    01100000 c,
+    00010000 c,
+    00001000 c,
+    00001000 c,
+    10010000 c,
+    01100000 c,
+    00000000 c,
+
+    00000000 c,
+    00000001 c,
+    00000010 c,
+    00000100 c,
+    00001000 c,
+    00110000 c,
+    00001000 c,
+    00000100 c,
+    00000010 c,
+    00000001 c,
+    00000000 c,
+    00000000 c,
+decimal
+
+
+: charPos { position width -- }
+    addrSSD1306 Wire.beginTransmission
+    CTRL_COMMANDS Wire.tx
+    $21 Wire.tx  \ COL START_END
+    position    Wire.tx  \ start
+    position width + 1- Wire.tx  \ end
+    $22 Wire.tx  \ PAGE START_END
+    $00 Wire.tx  \ start
+    $01 Wire.tx  \ end
+    addrSSD1306 Wire.endTransmission drop
+  ;
+
+
+\ 0 value startSeg
+
+\ : incPosSeg ( n ---)
+\     1+ startSeg + to startSeg \ increment x pos
+\   ;
+
+Wire 
+
+: spriteDisplay { spriteAddr -- }
+    0 { startSeg }
+    spriteAddr c@ charPos
+    spriteAddr c@ +to startSeg
+    addrSSD1306 Wire.beginTransmission
+    CTRL_DATAS Wire.tx
+    spriteAddr 1+ { spriteIndex }
+    spriteAddr c@ 2* 0
+    do
+        spriteAddr c@ Wire.tx
+        1 +to spriteAddr
+    loop
+    addrSSD1306 Wire.endTransmission drop
+  ;
+
+
+dispInit
+dispClear
+
+hearthSprite spriteDisplay
+
+
