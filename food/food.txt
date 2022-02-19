@@ -2,7 +2,7 @@
 \ FOOD Forth Object Oriented Dialect
 \    Filename:      food.txt
 \    Date:          14 feb 2022
-\    Updated:       14 feb 2022
+\    Updated:       19 feb 2022
 \    File Version:  1.0
 \    MCU:           ESP32-WROOM-32
 \    Forth:         ESP32forth all versions 7.x++
@@ -18,6 +18,7 @@
 DEFINED? --food [IF] forget --food  [THEN]
 create --food
 
+
 DEFINED? off invert [IF]
 : off ( addr -- )
     0 swap !  ;
@@ -28,9 +29,45 @@ DEFINED? off invert [IF]
     dup if dup then  ;
 [THEN]
 
+\ stop execution of word
+: abort  ( -- )
+    postpone quit 
+  ; immediate
+
+\ primitive for abort"
+: (abort")  ( f addr len -- )
+    rot if
+        type
+        quit
+    else
+        drop drop
+    then
+  ;
+
+\ stop execution of word and send error message
+: abort"  ( comp: -- <str> | exec: fl -- )
+    [  ' s" , ] 
+    postpone (abort")
+  ; immediate
+
+
+\ display error if current word is used in definition
+: noCompile ( -- )
+    state @ if  
+        abort" execution only "
+    then
+  ;
+
+
+vocabulary food  food definitions
+
 variable Active                         \ pointeur classe active
 variable ClassLink                      \ lien dernière classe définie
 
+
+forth definitions
+
+food
 
 \ Classes, sub-classes, super-classes
 \ ------------------------------------
