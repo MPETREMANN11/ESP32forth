@@ -1,0 +1,25 @@
+\ *********************************************************************
+\ Graphics for OLED SSD1306 display
+\    Filename:      SSD10306graphics.txt
+\    Date:          20 feb 2022
+\    Updated:       21 feb 2022
+\    File Version:  1.0
+\    MCU:           ESP32-WROOM-32
+\    Forth:         ESP32forth all versions 7.x++
+\    Copyright:     Marc PETREMANN
+\    Author:        Marc PETREMANN
+\    GNU General Public License
+\ *********************************************************************
+
+DEFINED? --oledGraphics [if] forget --oledGraphics  [then]
+create --oledGraphics
+
+\ include SSD1306commands.txt
+
+DISPLAY_HEIGHT 8 / 
+DISPLAY_WIDTH *  constant oledBufferSize
+
+
+create oledBuffer
+    oledBufferSize  allot
+    
