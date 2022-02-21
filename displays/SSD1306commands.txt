@@ -2,7 +2,7 @@
 \ Manage commands for OLED SSD1306 128x32 display
 \    Filename:      SSD10306commands.txt
 \    Date:          09 feb 2022
-\    Updated:       12 feb 2022
+\    Updated:       21 feb 2022
 \    File Version:  1.0
 \    MCU:           ESP32-WROOM-32
 \    Forth:         ESP32forth all versions 7.x++
@@ -14,18 +14,71 @@
 DEFINED? --SSD1306 [if] forget --SSD1306  [then]
 create --SSD1306
 
-Wire        \ activate the wire vocabulary
+vocabulary SSD1306
+only forth also   Wire also
+SSD1306 definitions
+
+\ for SSD1306_128_64
+\     128 constant SSD1306_LCDWIDTH
+\      64 constant SSD1306_LCDHEIGHT
+
+\ for SSD1306_128_32
+    128 constant SSD1306_LCDWIDTH
+     32 constant SSD1306_LCDHEIGHT
+
+\ definition of SSD1306 display dimensions in pixels
+SSD1306_LCDWIDTH  constant DISPLAY_WIDTH
+SSD1306_LCDHEIGHT constant DISPLAY_HEIGHT
+
+
+$91 constant SSD1306_SETCONTRAST
+$a4 constant SSD1306_DISPLAYALLON_RESUME
+$a5 constant SSD1306_DISPLAYALLON
+$a6 constant SSD1306_NORMALDISPLAY
+$a7 constant SSD1306_INVERTDISPLAY
+$ae constant SSD1306_DISPLAYOFF
+$af constant SSD1306_DISPLAYON
+$d3 constant SSD1306_SETDISPLAYOFFSET
+$da constant SSD1306_SETCOMPINS
+$db constant SSD1306_SETVCOMDETECT
+$d5 constant SSD1306_SETDISPLAYCLOCKDIV
+$d9 constant SSD1306_SETPRECHARGE
+$d8 constant SSD1306_SETMULTIPLEX
+\ $00 constant SSD1306_SETLOWCOLUMN
+\ $10 constant SSD1306_SETHIGHCOLUMN
+$40 constant SSD1306_SETSTARTLINE
+$20 constant SSD1306_MEMORYMODE
+$21 constant SSD1306_COLUMNADDR
+$22 constant SSD1306_PAGEADDR
+$c0 constant SSD1306_COMSCANINC
+$c8 constant SSD1306_COMSCANDEC
+$a0 constant SSD1306_SEGREMAP
+$8d constant SSD1306_CHARGEPUMP
+$01 constant SSD1306_EXTERNALVCC
+$02 constant SSD1306_SWITCHCAPVCC
+
+\ Scrolling constants
+$2f constant SSD1306_ACTIVATE_SCROLL
+$2e constant SSD1306_DEACTIVATE_SCROLL
+$a3 constant SSD1306_SET_VERTICAL_SCROLL_AREA
+$26 constant SSD1306_RIGHT_HORIZONTAL_SCROLL
+$27 constant SSD1306_LEFT_HORIZONTAL_SCROLL
+$29 constant SSD1306_VERTICAL_AND_RIGHT_HORIZONTAL_SCROLL
+$2a constant SSD1306_VERTICAL_AND_LEFT_HORIZONTAL_SCROLL
+
+\ Addressing modes
+$00 constant HORIZONTAL_ADDRESSING_MODE
+$01 constant VERTICAL_ADDRESSING_MODE
+$02 constant PAGE_ADDRESSING_MODE
+
+\ define SSD1306 128x32 ram size
+SSD1306_LCDWIDTH SSD1306_LCDHEIGHT * 8 / constant SSDramSize
 
 \ Send code c to I2C bus
-: Wire.tx ( c -- )
+: send ( c -- )
     >r 0 <# r> hold #>
     Wire.write drop
   ;
-
-\ define SSD1306 128x32 ram size
-128 constant DISPLAY_WIDTH
- 32 constant DISPLAY_HEIGHT
-DISPLAY_WIDTH DISPLAY_HEIGHT * 8 / constant SSDramSize
 
 \  control: $00 for commands
 \           $40 for datas
@@ -33,27 +86,30 @@ $00 constant CTRL_COMMANDS
 $40 constant CTRL_DATAS
 
 
-\ set adress of OLED SSD1306 display
+
+
+\ set adress of OLED SSD1306 display 128x32 pixels
 $3c constant addrSSD1306
 
 \ send a data array to SSD1306 connected via I2C bus
-: toSSD1306 ( addr len -- )
-    addrSSD1306 Wire.beginTransmission
-    Wire.write drop
-    addrSSD1306 Wire.endTransmission drop
-  ;
+\ : toSSD1306 ( addr len -- )
+\     addrSSD1306 Wire.beginTransmission
+\     Wire.write drop
+\     addrSSD1306 Wire.endTransmission drop
+\   ;
 
 
 \ define a command or data stream for SSD1306
 : streamCreate: ( comp: <name> | exec: -- addr len )
-    \ set nothing as execute action by default
-    \ ['] nothing is stream.action
     create
         here    \ leave current dictionnary pointer on stack
         0 c,    \ initial lenght data is 0
     does>
         dup 1+ swap c@
-        toSSD1306
+        \ send a data array to SSD1306 connected via I2C bus
+        addrSSD1306 Wire.beginTransmission
+        Wire.write drop
+        addrSSD1306 Wire.endTransmission drop
   ;
 
 \ store at <WORD> addr length of datas compiled beetween
@@ -65,39 +121,35 @@ $3c constant addrSSD1306
     swap c!
   ;
 
+
 \ Initialize SSD105 128x32 display
 streamCreate: dispSetup
     CTRL_COMMANDS c,
-    $ae c, ( DISP_SLEEP )
-    $d5 c, ( SET_DISP_CLOCK )
-    $80 c,
-    $a8 c, ( SET_MULTIPLEX_RATIO )
-    $3f c,
-    $d3 c, ( SET_VERTICAL_OFFSET )
-    $00 c,
-    $40 c, ( SET_DISP_START_LINE )
-    $8d c, ( CHARGE_PUMP_REGULATOR )
-    $14 c, ( CHARGE_PUMP_ON )
-    $20 c, ( MEM_ADDRESSING )
-    $00 c,
-    $a0 c, ( SET_SEG_REMAP_0 )
-    $c0 c, ( SET_COM_SCAN_NORMAL )
-    $da c, ( SETCOMPINS )
-    $02 c, \ or $12 ???
-    $db c, ( SET_VCOM_DESELECT_LEVEL )
-    $40 c,
-    $a4 c, ( RESUME_TO_RAM_CONTENT )
-    $a6 c, ( NORMALDISPLAY )
-    $af c, ( DISP_ON )
+    SSD1306_DISPLAYOFF c,
+    SSD1306_SETDISPLAYCLOCKDIV c,  $80 c,
+    SSD1306_SETMULTIPLEX c,   $1f c,
+    SSD1306_SETDISPLAYOFFSET c,   $00 c,
+    SSD1306_SETSTARTLINE $00 or  c,
+    SSD1306_CHARGEPUMP c,  $14 c,   ( CHARGE_PUMP_ON )
+    SSD1306_SEGREMAP $01 or c,   ( Reverse mapping )
+    SSD1306_COMSCANDEC c,
+    SSD1306_SETCOMPINS c,   $02 c,
+    SSD1306_SETCONTRAST c,   $7f c,
+    SSD1306_SETPRECHARGE c,   $22 c,
+    SSD1306_SETVCOMDETECT c,   $40 c,
+    SSD1306_MEMORYMODE c,  HORIZONTAL_ADDRESSING_MODE c,
+    SSD1306_DISPLAYALLON_RESUME c,
+    SSD1306_NORMALDISPLAY c,
+    SSD1306_DISPLAYON c,
     ;endStream
 
 \ Reset SSD105 128x32 display
 streamCreate: dispReset
     CTRL_COMMANDS c,
-    $21 c,  \ COL START_END
+    SSD1306_COLUMNADDR c,
     $00 c,  \ start
     $7f c,  \ end
-    $22 c,  \ PAGE START_END
+    SSD1306_PAGEADDR c,
     $00 c,  \ start
     $03 c,  \ end
     ;endStream
@@ -121,36 +173,59 @@ streamCreate: dispOff     \ toggle display off
     $ae c, \ DISPLAYOFF
     ;endStream
 
-streamCreate: dispInvert  \ invert display mode
-    CTRL_COMMANDS c,
-    $a7 c,  \ INVERTDISPLAY
-    ;endStream
 
-streamCreate: dispNormal  \ set display mode normal
-    CTRL_COMMANDS c,
-    $a6 c, \ NORMALDISPLAY
-    ;endStream
+
+SSD1306_NORMALDISPLAY value _SSD1306_DISPLAY
+
+\ set display mode normal
+: dispNormal  ( -- )
+    addrSSD1306 Wire.beginTransmission
+    CTRL_COMMANDS send
+    SSD1306_NORMALDISPLAY send
+    addrSSD1306 Wire.endTransmission drop
+    SSD1306_NORMALDISPLAY to _SSD1306_DISPLAY
+  ;
+
+\ invert display mode
+: dispInvert  
+    addrSSD1306 Wire.beginTransmission
+    CTRL_COMMANDS send
+    SSD1306_INVERTDISPLAY send
+    addrSSD1306 Wire.endTransmission drop
+    SSD1306_INVERTDISPLAY to _SSD1306_DISPLAY
+  ;
+
+: OledInvert ( -- )
+    \ test if actual display mode is normal
+    _SSD1306_DISPLAY SSD1306_NORMALDISPLAY = if
+        dispInvert
+    else
+        dispNormal
+    then
+  ;
+
 
 0 value currentPage
 : setLine ( -- )
     addrSSD1306 Wire.beginTransmission
-    CTRL_COMMANDS Wire.tx
-    $21 Wire.tx  \ COL START_END
-    $00 Wire.tx  \ start
-    $7f Wire.tx  \ end
-    $22 Wire.tx  \ PAGE START_END
-    currentPage Wire.tx  \ start
-    currentPage Wire.tx  \ end
+    CTRL_COMMANDS send
+    $21 send  \ COL START_END
+    $00 send  \ start
+    $7f send  \ end
+    $22 send  \ PAGE START_END
+    currentPage send  \ start
+    currentPage send  \ end
     addrSSD1306 Wire.endTransmission drop
   ;
 
 
 : lineClear ( -- )
     addrSSD1306 Wire.beginTransmission
-    CTRL_DATAS Wire.tx
-    DISPLAY_WIDTH
-    for
-        $00 Wire.tx  \ send commands or datas
+    CTRL_DATAS send
+    DISPLAY_WIDTH for
+        aft
+            $00 send  \ send commands or datas
+        then
     next
     addrSSD1306 Wire.endTransmission drop
   ;
@@ -161,20 +236,30 @@ streamCreate: dispNormal  \ set display mode normal
     currentPage 1+ 3 and to currentPage
   ;
 
-: dispClear ( ---)
-    0 to currentPage
-    4 for
-        crLine
+: OledCLS  ( -- )
+    addrSSD1306 Wire.beginTransmission
+    CTRL_DATAS send
+    DISPLAY_HEIGHT 8 / for
+        aft
+            DISPLAY_WIDTH for
+                aft
+                    $00 send
+                then
+            next
+        then
     next
+    addrSSD1306 Wire.endTransmission drop
   ;
 
 \ adjust display contrast
 : setContrast ( [0..254] -- )
     >r
     addrSSD1306 Wire.beginTransmission
-    CTRL_COMMANDS Wire.tx
-    $81 Wire.tx     \ SETCONTRAST
-    r>  Wire.tx     \ value between 00..fe
+    CTRL_COMMANDS send
+    SSD1306_SETCONTRAST send
+    r>  send     \ value between 00..fe
     addrSSD1306 Wire.endTransmission drop
   ;
+
+
 
