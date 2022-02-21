@@ -91,12 +91,22 @@ $40 constant CTRL_DATAS
 \ set adress of OLED SSD1306 display 128x32 pixels
 $3c constant addrSSD1306
 
+\ begin I2C transmssion to SSD1306 OLED display
+: SSD1306beginTransmission ( -- )
+    addrSSD1306 Wire.beginTransmission
+  ;
+
+\ end I2C transmssion to SSD1306 OLED display
+: SSD1306endTransmission ( -- )
+    addrSSD1306 Wire.endTransmission drop
+  ;
+
 \ send a data array to SSD1306 connected via I2C bus
-\ : toSSD1306 ( addr len -- )
-\     addrSSD1306 Wire.beginTransmission
-\     Wire.write drop
-\     addrSSD1306 Wire.endTransmission drop
-\   ;
+: sendStringToSSD1306 ( addr len -- )
+    SSD1306beginTransmission
+    Wire.write drop
+    SSD1306endTransmission
+  ;
 
 
 \ define a command or data stream for SSD1306
@@ -107,9 +117,7 @@ $3c constant addrSSD1306
     does>
         dup 1+ swap c@
         \ send a data array to SSD1306 connected via I2C bus
-        addrSSD1306 Wire.beginTransmission
-        Wire.write drop
-        addrSSD1306 Wire.endTransmission drop
+        sendStringToSSD1306
   ;
 
 \ store at <WORD> addr length of datas compiled beetween
@@ -179,19 +187,19 @@ SSD1306_NORMALDISPLAY value _SSD1306_DISPLAY
 
 \ set display mode normal
 : dispNormal  ( -- )
-    addrSSD1306 Wire.beginTransmission
+    SSD1306beginTransmission
     CTRL_COMMANDS send
     SSD1306_NORMALDISPLAY send
-    addrSSD1306 Wire.endTransmission drop
+    SSD1306endTransmission
     SSD1306_NORMALDISPLAY to _SSD1306_DISPLAY
   ;
 
 \ invert display mode
 : dispInvert  
-    addrSSD1306 Wire.beginTransmission
+    SSD1306beginTransmission
     CTRL_COMMANDS send
     SSD1306_INVERTDISPLAY send
-    addrSSD1306 Wire.endTransmission drop
+    SSD1306endTransmission
     SSD1306_INVERTDISPLAY to _SSD1306_DISPLAY
   ;
 
@@ -207,27 +215,27 @@ SSD1306_NORMALDISPLAY value _SSD1306_DISPLAY
 
 0 value currentPage
 : setLine ( -- )
-    addrSSD1306 Wire.beginTransmission
+    SSD1306beginTransmission
     CTRL_COMMANDS send
-    $21 send  \ COL START_END
+    SSD1306_COLUMNADDR send
     $00 send  \ start
     $7f send  \ end
-    $22 send  \ PAGE START_END
+    SSD1306_PAGEADDR send
     currentPage send  \ start
     currentPage send  \ end
-    addrSSD1306 Wire.endTransmission drop
+    SSD1306endTransmission
   ;
 
 
 : lineClear ( -- )
-    addrSSD1306 Wire.beginTransmission
+    SSD1306beginTransmission
     CTRL_DATAS send
     DISPLAY_WIDTH for
         aft
             $00 send  \ send commands or datas
         then
     next
-    addrSSD1306 Wire.endTransmission drop
+    SSD1306endTransmission
   ;
 
 : crLine ( ---)
@@ -237,7 +245,7 @@ SSD1306_NORMALDISPLAY value _SSD1306_DISPLAY
   ;
 
 : OledCLS  ( -- )
-    addrSSD1306 Wire.beginTransmission
+    SSD1306beginTransmission
     CTRL_DATAS send
     DISPLAY_HEIGHT 8 / for
         aft
@@ -248,18 +256,15 @@ SSD1306_NORMALDISPLAY value _SSD1306_DISPLAY
             next
         then
     next
-    addrSSD1306 Wire.endTransmission drop
+    SSD1306endTransmission
   ;
 
 \ adjust display contrast
 : setContrast ( [0..254] -- )
     >r
-    addrSSD1306 Wire.beginTransmission
+    SSD1306beginTransmission
     CTRL_COMMANDS send
     SSD1306_SETCONTRAST send
     r>  send     \ value between 00..fe
-    addrSSD1306 Wire.endTransmission drop
+    SSD1306endTransmission
   ;
-
-
-
