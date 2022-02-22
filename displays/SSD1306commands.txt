@@ -2,7 +2,7 @@
 \ Manage commands for OLED SSD1306 128x32 display
 \    Filename:      SSD10306commands.txt
 \    Date:          09 feb 2022
-\    Updated:       21 feb 2022
+\    Updated:       22 feb 2022
 \    File Version:  1.0
 \    MCU:           ESP32-WROOM-32
 \    Forth:         ESP32forth all versions 7.x++
@@ -85,21 +85,21 @@ $3c constant addrSSD1306
     addrSSD1306 Wire.beginTransmission
   ;
 
+\ memoryze transmitted bytes, interval [00..31]
+variable maxBytesSended
+
 \ end I2C transmssion to SSD1306 OLED display
 : SSD1306endTransmission ( -- )
     -1 Wire.endTransmission drop
+    0 maxBytesSended !
   ;
-
-\ memoryze transmitted bytes, interval [00..31]
-0 variable maxBytesSended
 
 \ if sended bytes > 32 end and restart transmission
 : incrementMaxBytes ( -- )
     1 maxBytesSended +!
     maxBytesSended @ 31 > if
-        SSD1306endTransmission 10 ms
+        SSD1306endTransmission
         SSD1306beginTransmission
-        0 maxBytesSended !
     then
   ;
 
@@ -144,7 +144,7 @@ streamCreate: dispSetup
     CTRL_COMMANDS c,
     SSD1306_DISPLAYOFF c,
     SSD1306_SETDISPLAYCLOCKDIV c,  $80 c,
-    SSD1306_SETMULTIPLEX c,   $1f c,
+    SSD1306_SETMULTIPLEX c,   DISPLAY_HEIGHT 1- c,
     SSD1306_SETDISPLAYOFFSET c,   $00 c,
     SSD1306_SETSTARTLINE $00 or  c,
     SSD1306_CHARGEPUMP c,  $14 c,   ( CHARGE_PUMP_ON )
@@ -163,6 +163,7 @@ streamCreate: dispSetup
 \ Reset SSD105 128x32 display
 streamCreate: dispReset
     CTRL_COMMANDS c,
+    SSD1306_DISPLAYOFF c,
     SSD1306_MEMORYMODE c,  HORIZONTAL_ADDRESSING_MODE c,
     SSD1306_COLUMNADDR c,   \ $21
     $00 c,  \ start
@@ -170,6 +171,7 @@ streamCreate: dispReset
     SSD1306_PAGEADDR c,     \ $22
     $00 c,  \ start
     $07 c,  \ end
+    SSD1306_DISPLAYON c,
     ;endStream
 
 \ main INITialization for SSD1306 128x32 OLED display
