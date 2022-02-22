@@ -2,7 +2,7 @@
 \ Display characters for OLED SSD1306 128x32 display
 \    Filename:      SSD10306dispChars.txt
 \    Date:          11 feb 2022
-\    Updated:       11 feb 2022
+\    Updated:       22 feb 2022
 \    File Version:  1.0
 \    MCU:           ESP32-WROOM-32
 \    Forth:         ESP32forth all versions 7.x++
@@ -119,16 +119,6 @@ decimal
     32 - 5 * FONTS +
   ;
 
-\ adjust display contrast
-: setContrast ( [0..254] -- )
-    >r
-    addrSSD1306 Wire.beginTransmission
-    CTRL_COMMANDS Wire.tx
-    $81 Wire.tx     \ SETCONTRAST
-    r>  Wire.tx     \ value between 00..fe
-    addrSSD1306 Wire.endTransmission drop
-  ;
-
 \ Draw character:
 : txChar ( c --)
     \ if 'cr' go to next line
@@ -138,24 +128,21 @@ decimal
         exit
     then
     \ otherwise, display character
-    addrSSD1306 Wire.beginTransmission
-    CTRL_DATAS Wire.tx
+    SSD1306beginTransmission
+    CTRL_DATAS Wire.send
     a>bp                \ start addr
-    5 0
-    do
-        dup i + c@      \ get byte and inc addr
-        Wire.tx         \ transmit byte
-    loop
-    drop
-    $00 Wire.tx  \ transmit 'blank'
-    addrSSD1306 Wire.endTransmission drop
+    5 Wire.write drop
+    $00 Wire.send  \ transmit 'blank'
+    SSD1306endTransmission
   ;
 
 \ display string to SSD1306 OLED screen
 : txString ( adr len --)
-    for
-        dup c@ txChar
-        1+
+    for 
+        aft
+            dup c@ txChar
+            1+
+        then
     next
     drop
   ;
@@ -163,7 +150,13 @@ decimal
 
 \ exemple for test
 dispinit
-dispClear
-s" This the first line" txString crLine
-s" Ici deuxieme ligne" txString crLine
+OledCLS
+0 setLine
+s" This the first line" txString 
+1 setline
+s" Ici deuxieme ligne" txString 
+2 setLine
+s" Ici troisieme ligne" txString 
+3 setLine
+s" Ici quatrieme ligne" txString
 
