@@ -2,7 +2,7 @@
 \ Graphics for OLED SSD1306 display
 \    Filename:      SSD10306graphics.txt
 \    Date:          20 feb 2022
-\    Updated:       21 feb 2022
+\    Updated:       23 feb 2022
 \    File Version:  1.0
 \    MCU:           ESP32-WROOM-32
 \    Forth:         ESP32forth all versions 7.x++
@@ -22,4 +22,23 @@ DISPLAY_WIDTH *  constant oledBufferSize
 
 create oledBuffer
     oledBufferSize  allot
+
+: emptyOledBuffer ( -- )
+    oledBuffer oledBufferSize 0 fill
+  ;
     
+\ retrieves the address of the buffer corresponding to the coordinates x y
+: getXYaddrFromBuffer { x y -- addr }
+    y 8 /  128 *        \ determine page in OLED display
+    x +                 \ calculate offset in this page
+    oledBuffer +
+  ;
+
+
+\ define word as COLOR constant
+: color: ( n -- <name> )
+    constant
+  ;
+
+$00 color: BLACK
+$ff color: WHITE 
