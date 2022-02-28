@@ -2,7 +2,7 @@
 \ Russian characters set 866
 \    Filename:      SSD1306-5x8rusFonts.txt
 \    Date:          11 feb 2022
-\    Updated:       12 feb 2022
+\    Updated:       28 feb 2022
 \    File Version:  1.0
 \    MCU:           ESP32-WROOM-32
 \    Forth:         ESP32forth all versions 7.x++
@@ -214,6 +214,10 @@ DEFINED? between? invert [IF]
     then
   ;
 
+only forth
+SSD1306 also
+Wire also
+
 \ Draw character:
 : txChar ( c --)
     \ if 'cr' go to next line
@@ -222,26 +226,23 @@ DEFINED? between? invert [IF]
         exit
     then
     \ otherwise, display character
-    addrSSD1306 Wire.beginTransmission
-    CTRL_DATAS Wire.tx
+    SSD1306beginTransmission
+    CTRL_DATAS Wire.send
     a>bp                \ start addr
-    ?dup if
-        5 0 do
-            dup i + c@      \ get byte and inc addr
-            Wire.tx         \ transmit byte
-        loop
-        drop
-        $00 Wire.tx  \ transmit 'blank'
-        addrSSD1306 Wire.endTransmission drop
-    then
+    5 Wire.write drop
+    $00 Wire.send  \ transmit 'blank'
+    SSD1306endTransmission
   ;
 
+
 \ display string to SSD1306 OLED screen
-: txString ( adr len -- )
-    0 do
-        dup c@ txchar
-        1+
-    loop
+: txString ( adr len --)
+    for 
+        aft
+            dup c@ txChar
+            1+
+        then
+    next
     drop
   ;
 
@@ -249,17 +250,56 @@ DEFINED? between? invert [IF]
 
 \ exemple for test
 dispinit
-dispClear
+oledCLS
 
-\ display: ИГОР
-32 string test
-   bl test c+$!
-  136 test c+$!
-  131 test c+$!
-  142 test c+$!
-  144 test c+$!
 
-crLine
-test txString
+128 string Ukraine
+  144 Ukraine c+$!
+  142 Ukraine c+$!
+  145 Ukraine c+$!
+  145 Ukraine c+$!
+  136 Ukraine c+$!
+  159 Ukraine c+$!
+32 Ukraine c+$!
+  132 Ukraine c+$!
+  142 Ukraine c+$!
+  139 Ukraine c+$!
+  134 Ukraine c+$!
+  141 Ukraine c+$!
+  128 Ukraine c+$!
+32 Ukraine c+$!
+  142 Ukraine c+$!
+  145 Ukraine c+$!
+  146 Ukraine c+$!
+  128 Ukraine c+$!
+  141 Ukraine c+$!
+  142 Ukraine c+$!
+  130 Ukraine c+$!
+  136 Ukraine c+$!
+  146 Ukraine c+$!
+  156 Ukraine c+$!
+13 Ukraine c+$!
+  130 Ukraine c+$!
+  146 Ukraine c+$!
+  142 Ukraine c+$!
+  144 Ukraine c+$!
+  134 Ukraine c+$!
+  133 Ukraine c+$!
+  141 Ukraine c+$!
+  136 Ukraine c+$!
+  133 Ukraine c+$!
+  130 Ukraine c+$!
+13 Ukraine c+$!
+  130 Ukraine c+$!
+32 Ukraine c+$!
+  147 Ukraine c+$!
+  138 Ukraine c+$!
+  144 Ukraine c+$!
+  128 Ukraine c+$!
+  136 Ukraine c+$!
+  141 Ukraine c+$!
+  147 Ukraine c+$!
 
+OledCLS
+Ukraine txString
 
