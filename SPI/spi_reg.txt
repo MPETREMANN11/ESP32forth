@@ -1,0 +1,175 @@
+\ *********************************************************************
+\ Words define SPI registers
+\    Filename:      spi_reg.txt
+\    Date:          10 mar 2022
+\    Updated:       19 mar 2022
+\    File Version:  0.0
+\    MCU:           ESP32-WROOM-32
+\    Forth:         ESP32forth all versions 7.x++
+\    Copyright:     Marc PETREMANN
+\    Author:        Marc PETREMANN
+\    GNU General Public License
+\ *********************************************************************
+
+DEFINED? --spi-regs [if] forget --spi-regs  [then]
+create --spi-regs
+
+
+\ in C language:
+\ #define SPI_CTRL_REG(i)          (REG_SPI_BASE(i) + 0x8)
+
+
+vocabulary spi-regs  spi-regs definitions
+
+
+: SpiREG:
+    create ( addr1 addr2 addr3 addr4 -- <name> )
+        >r >r >r , r> , r> , r> ,
+    does>  ( index -- addrx )
+        swap cell * + @
+  ;
+
+\ === Control and configuration registers ===
+
+\  Bit order and QIO/DIO/QOUT/DOUT mode settings
+$3FF43008 $3FF42008 $3FF64008 $3FF65008 SpiREG: SPI_CTRL_REG
+
+\ Timing configuration
+$3FF43014 $3FF42014 $3FF64014 $3FF65014 SpiREG: SPI_CTRL2_REG
+
+\ Clock configuration
+$3FF43018 $3FF42018 $3FF64018 $3FF65018 SpiREG: SPI_CLOCK_REG
+
+\ Polarity and CS configuration
+ $3FF43034 $3FF42034 $3FF64034 $3FF65034 SpiREG: SPI_PIN_REG
+
+
+\ === Slave mode configuration registers =====
+
+\ Slave mode configuration and interrupt status
+$3FF43038 $3FF42038 $3FF64038 $3FF65038 SpiREG: SPI_SLAVE_REG
+
+\ Slave data bit lengths
+$3FF4303C $3FF4203C $3FF6403C $3FF6503C SpiREG: SPI_SLAVE1_REG
+
+\ Dummy cycle length configuration
+$3FF43040 $3FF42040 $3FF64040 $3FF65040 SpiREG: SPI_SLAVE2_REG
+
+\ Slave status/Part of lower master address
+$3FF43030 $3FF42030 $3FF64030 $3FF65030 SpiREG: SPI_SLV_WR_STATUS_REG
+
+\ Write-buffer operation length
+$3FF43048 $3FF42048 $3FF64048 $3FF65048 SpiREG: SPI_SLV_WRBUF_DLEN_REG
+
+\ Read-buffer operation length
+$3FF4304C $3FF4204C $3FF6404C $3FF6504C SpiREG: SPI_SLV_RDBUF_DLEN_REG
+
+\ Read data operation length
+$3FF43064 $3FF42064 $3FF64064 $3FF65064 SpiREG: SPI_SLV_RD_BIT_REG
+
+
+\ === User ­defined command mode registers ====
+
+\ Start user-defined command
+$3FF43000 $3FF42000 $3FF64000 $3FF65000 SpiREG: SPI_CMD_REG
+
+\ Address data
+$3FF43004 $3FF42004 $3FF64004 $3FF65004 SpiREG: SPI_ADDR_REG
+
+\ User defined command configuration
+$3FF4301C $3FF4201C $3FF6401C $3FF6501C SpiREG: SPI_USER_REG
+
+\ Address and dummy cycle configuration
+$3FF43020 $3FF42020 $3FF64020 $3FF65020 SpiREG: SPI_USER1_REG
+
+\ Command length and value configuration
+$3FF43024 $3FF42024 $3FF64024 $3FF65024 SpiREG: SPI_USER2_REG
+
+\ MOSI	length
+$3FF43028 $3FF42028 $3FF64028 $3FF65028 SpiREG: SPI_MOSI_DLEN_REG
+
+\ SPI data register 0 - 15
+$3FF43080 $3FF42080 $3FF64080 $3FF65080 SpiREG: SPI_W0_REG
+$3FF43084 $3FF42084 $3FF64084 $3FF65084 SpiREG: SPI_W1_REG
+$3FF43088 $3FF42088 $3FF64088 $3FF65088 SpiREG: SPI_W2_REG
+$3FF4308C $3FF4208C $3FF6408C $3FF6508C SpiREG: SPI_W3_REG
+$3FF43090 $3FF42090 $3FF64090 $3FF65090 SpiREG: SPI_W4_REG
+$3FF43094 $3FF42094 $3FF64094 $3FF65094 SpiREG: SPI_W5_REG
+$3FF43098 $3FF42098 $3FF64098 $3FF65098 SpiREG: SPI_W6_REG
+$3FF4309C $3FF4209C $3FF6409C $3FF6509C SpiREG: SPI_W7_REG
+$3FF430A0 $3FF420A0 $3FF640A0 $3FF650A0 SpiREG: SPI_W8_REG
+$3FF430A4 $3FF420A4 $3FF640A4 $3FF650A4 SpiREG: SPI_W9_REG
+$3FF430A8 $3FF420A8 $3FF640A8 $3FF650A8 SpiREG: SPI_W10_REG
+$3FF430AC $3FF420AC $3FF640AC $3FF650AC SpiREG: SPI_W11_REG
+$3FF430B0 $3FF420B0 $3FF640B0 $3FF650B0 SpiREG: SPI_W12_REG
+$3FF430B4 $3FF420B4 $3FF640B4 $3FF650B4 SpiREG: SPI_W13_REG
+$3FF430B8 $3FF420B8 $3FF640B8 $3FF650B8 SpiREG: SPI_W14_REG
+$3FF430BC $3FF420BC $3FF640BC $3FF650BC SpiREG: SPI_W15_REG
+
+\ === DMA configuration registers =============
+
+\ DMA configuration register
+$3FF43100 $3FF42100 $3FF64100 $3FF65100 SpiREG: SPI_DMA_CONF_REG
+
+\ DMA outlink address and configuration
+$3FF43104 $3FF42104 $3FF64104 $3FF65104 SpiREG: SPI_DMA_OUT_LINK_REG
+
+\ DMA inlink address and configuration
+$3FF43108 $3FF42108 $3FF64108 $3FF65108 SpiREG: SPI_DMA_IN_LINK_REG
+
+\ DMA status
+$3FF4310C $3FF4210C $3FF6410C $3FF6510C SpiREG: SPI_DMA_STATUS_REG
+
+\ Descriptor address where an error occurs
+$3FF43120 $3FF42120 $3FF64120 $3FF65120 SpiREG: SPI_IN_ERR_EOF_DES_ADDR_REG
+
+\ Descriptor address where EOF occurs
+$3FF43124 $3FF42124 $3FF64124 $3FF65124 SpiREG: SPI_IN_SUC_EOF_DES_ADDR_REG
+
+\ Current descriptor pointer
+$3FF43128 $3FF42128 $3FF64128 $3FF65128 SpiREG: SPI_INLINK_DSCR_REG
+
+\ Next descriptor data pointer
+$3FF4312C $3FF4212C $3FF6412C $3FF6512C SpiREG: SPI_INLINK_DSCR_BF0_REG
+
+\ Current descriptor data pointer
+$3FF43130 $3FF42130 $3FF64130 $3FF65130 SpiREG: SPI_INLINK_DSCR_BF1_REG
+
+\ Relative buffer address where EOF occurs
+$3FF43134 $3FF42134 $3FF64134 $3FF65134 SpiREG: SPI_OUT_EOF_BFR_DES_ADDR_REG
+
+\ Descriptor address where EOF occurs
+$3FF43138 $3FF42138 $3FF64138 $3FF65138 SpiREG: SPI_OUT_EOF_DES_ADDR_REG
+
+\ Current descriptor pointer
+$3FF4313C $3FF4213C $3FF6413C $3FF6513C SpiREG: SPI_OUTLINK_DSCR_REG
+
+\ Next descriptor data pointer
+$3FF43140 $3FF42140 $3FF64140 $3FF65140 SpiREG: SPI_OUTLINK_DSCR_BF0_REG
+
+\ Current descriptor data pointer
+$3FF43144 $3FF42144 $3FF64144 $3FF65144 SpiREG: SPI_OUTLINK_DSCR_BF1_REG
+
+\ DMA memory read status
+$3FF43148 $3FF42148 $3FF64148 $3FF65148 SpiREG: SPI_DMA_RSTATUS_REG
+
+\ DMA memory write status
+$3FF4314C $3FF4214C $3FF6414C $3FF6514C SpiREG: SPI_DMA_TSTATUS_REG
+
+\ === DMA interrupt registers =================
+
+\ Raw interrupt status
+$3FF43114 $3FF42114 $3FF64114 $3FF65114 SpiREG: SPI_DMA_INT_RAW_REG
+
+\ Masked interrupt status
+$3FF43118 $3FF42118 $3FF64118 $3FF65118 SpiREG: SPI_DMA_INT_ST_REG
+
+\ Interrupt enable bits
+$3FF43110 $3FF42110 $3FF64110 $3FF65110 SpiREG: SPI_DMA_INT_ENA_REG
+
+\ Interrupt clear bits
+$3FF4311C $3FF4211C $3FF6411C $3FF6511C SpiREG: SPI_DMA_INT_CLR_REG
+
+
+
+
