@@ -1,0 +1,48 @@
+\ *********************************************************************
+\ Structures examples for ESP32forth
+\    Filename:      structExamples.txt
+\    Date:          21 mar 20222
+\    Updated:       21 mar 2022
+\    File Version:  1.0
+\    MCU:           ESP32-WROOM-32
+\    Forth:         ESP32forth all versions 7.0616++
+\    Copyright:     Marc PETREMANN
+\    Author:        Marc PETREMANN
+\    GNU General Public License
+\ *********************************************************************
+
+DEFINED? --strucExample [if] forget --strucExample  [then]
+create --strucExample
+
+
+structures also
+struct YMDHMS
+    ptr field >year
+    ptr field >month
+    ptr field >day
+    ptr field >hour
+    ptr field >min
+    ptr field >sec
+
+create DateTime
+    cell 6 * allot
+
+2022 DateTime >year  !
+  03 DateTime >month !
+  21 DateTime >day   !
+  22 DateTime >hour  !
+  36 DateTime >min   !
+  15 DateTime >sec   !
+
+: .date ( date -- )
+    >r
+    ."  YEAR: " r@ >year    @ . cr
+    ." MONTH: " r@ >month   @ . cr
+    ."   DAY: " r@ >day     @ . cr
+    ."    HH: " r@ >hour    @ . cr
+    ."    MM: " r@ >min     @ . cr
+    ."    SS: " r@ >sec     @ . cr
+    r> drop
+  ;
+
+DateTime .date
