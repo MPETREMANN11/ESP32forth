@@ -1,0 +1,85 @@
+\ *********************************************************************
+\ tools for REGISTERS definitions and manipulations
+\    Filename:      registersDefinitions.txt
+\    Date:          02 apr 2022
+\    Updated:       02 apr 2022
+\    MCU:           ESP32-WROOM-32
+\    Forth:         ESP32forth all versions 7.x++
+\    Copyright:     Marc PETREMANN
+\    Author:        Marc PETREMANN
+\    GNU General Public License
+\ *********************************************************************
+
+DEFINED? --defREG [if] forget --defREG  [then]
+create --defREG
+
+\ clear mas in addr
+: mclr { mask addr -- }
+    addr @  mask invert and
+    addr !
+  ;
+
+\ set mask in addr
+: mset { mask addr -- }
+    addr @  mask or
+    addr !
+  ;
+
+\ test mask in addr
+: mtst { mask addr -- x }
+    addr @  mask and
+  ;
+
+\ define a register, similar as constant
+: defREG:
+    create ( addr1 -- <name> )
+        ,
+    does>  ( -- regAddr )
+        @
+  ;
+
+\ display reg content
+: .reg ( reg -- )
+    base @ >r
+    binary
+    @ <# 
+    4 for
+        aft
+            8 for
+                aft  #  then
+            next
+            bl hold
+        then
+    next
+    #> 
+    cr space ." 33222222 22221111 11111100 00000000"
+    cr space ." 10987654 32109876 54321098 76543210"
+    cr type
+    r> base !
+  ;
+
+: defMASK:
+    create ( mask0 position -- )
+        lshift ,
+    does> ( -- mask1 )
+        @
+  ;
+
+
+\ == EXAMPLES: ======
+
+$3FF48484 defREG: RTCIO_PAD_DAC1_REG       \ DAC1 configuration register
+$3FF48488 defREG: RTCIO_PAD_DAC2_REG       \ DAC2 configuration register
+$3FF48898 defREG: SENS_SAR_DAC_CTRL1_REG   \ DAC control
+$3FF4889c defREG: SENS_SAR_DAC_CTRL2_REG   \ DAC output control
+
+
+1 25 defMASK: mSENS_DAC_CLK_INV
+
+
+$ffff 0 defMASK: mSENS_SW_FSTEP
+
+mSENS_SW_FSTEP $ffffffff and
+SENS_SAR_DAC_CTRL1_REG mset
+SENS_SAR_DAC_CTRL1_REG .reg
+
