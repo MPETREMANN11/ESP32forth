@@ -27,14 +27,15 @@
     was successful, we can find this source code like this: <code>editor l</code></p>
     <p>What should display the content of our block.</p>
 
-    <p>To compile this code, just type the block number, 0 for our example,
+<p>To compile this code, just type the block number, 0 for our example,
     followed by <code>load</code>. It is easy to verify that the content of the block
     was successfully compiled by typing <code>words</code>.</p>
     <p>To compile the contents of this block automatically when ESP32Forth starts,
     we will put this loading command in the file <i>/spiffs/autoexec.fs</i>
     like this:</p>
 
-<code>s" 1 load"  s" /spiffs/autoexec.fs " dump-file </code>
+<p><code>s" 1 load"  s" /spiffs/autoexec.fs " dump-file </code></p>
+
     <p>The system will automatically attempt to mount SPIFFS filesystem at /spiffs. It 
     will then at start attempt to load <i>/spiffs/autoexec.fs</i>.</p>
     <p>One way this feature can be used to load a bloc.</p>
