@@ -19,7 +19,7 @@
     <p>This code will be rewritten by removing all comment lines and
      compacting the FORTH code.</p>
      
-     <h3 id='loadBloc'>Load code into a block</h3>
+     <h3>Load code into a block</h3>
     <p>This source code will be loaded into a FORTH source code block. In order not to saturate
     the ESP32Forth interpreter, this code will be transferred several times, by copy-paste.</p>
     <h3 id='compileBloc'>Compilation of block content</h3>
