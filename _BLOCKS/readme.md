@@ -12,7 +12,7 @@
         ESP32Forth.</li>
     </ul>
 
-   <h3 id='prepareCode'>Prepare your FORTH code</h3>
+   <h3>Prepare your FORTH code</h3>
     <p>The solution we propose uses block files. It consists of
      put the source code of our definitions in a file located on our ESP32Forth board.</p>
     <p>Let's take the code from <a href="listing/page/text/strings">strings management for ESP32forth</a>.</p>
@@ -22,7 +22,8 @@
      <h3>Load code into a block</h3>
     <p>This source code will be loaded into a FORTH source code block. In order not to saturate
     the ESP32Forth interpreter, this code will be transferred several times, by copy-paste.</p>
-    <h3 id='compileBloc'>Compilation of block content</h3>
+
+<h3>Compilation of block content</h3>
     <p>Unplug the ESP32 board. Plug it back in. If saving source code in an edit block
     was successful, we can find this source code like this: <code>editor l</code></p>
     <p>What should display the content of our block.</p>
