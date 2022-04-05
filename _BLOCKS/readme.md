@@ -6,7 +6,7 @@
     <ul>
         <li>integrate these definitions at the beginning of your FORTH code. But this lengthens your code
         under development;</li>
-        <li>use the include directive from <a href='article/installation_myFFshell'>myFFshell</a></li>
+        <li>use the include directive from myFFshell</li>
         <li>modify ESP32Forth source code and integrate these definitions, recompile ESP32Forth and upload
         this custom version. The disadvantage is that it will be necessary to modify each new version of
         ESP32Forth.</li>
@@ -15,11 +15,10 @@
    <h3>Prepare your FORTH code</h3>
     <p>The solution we propose uses block files. It consists of
      put the source code of our definitions in a file located on our ESP32Forth board.</p>
-    <p>Let's take the code from <a href="listing/page/text/strings">strings management for ESP32forth</a>.</p>
-    <p>This code will be rewritten by removing all comment lines and
+    <p>The code will be rewritten by removing all comment lines and
      compacting the FORTH code.</p>
      
-     <h3>Load code into a block</h3>
+<h3>Load code into a block</h3>
     <p>This source code will be loaded into a FORTH source code block. In order not to saturate
     the ESP32Forth interpreter, this code will be transferred several times, by copy-paste.</p>
 
