@@ -1,0 +1,21 @@
+3 list
+editor
+  0 r \ strings management for ESP32forth
+  1 r : $= ( addr1 len1 addr2 len2 --- fl ) str= ;
+  2 r : string  ( n --- names_strvar ) \ define a strvar
+  3 r   create dup ,  0 ,  allot does> cell+ cell+  dup cell - @ ;
+  4 r : maxlen$  over cell - cell - @ ;
+  5 r : $!  ( str strvar --- )  \ store str into strvar
+  6 r   maxlen$ nip rot min 2dup swap cell - ! cmove ;
+  7 r : 0$! ( addr len -- ) drop 0 swap cell - ! ;
+  8 r : right$  ( str1 n --- str2 ) 0 max over min >r + r@ - r> ;
+  9 r : left$  ( str1 n --- str2 ) 0 max min ;
+ 10 r : mid$  ( str1 pos len --- str2 )
+ 11 r   >r over swap - right$ r> left$ ;
+ 12 r : c+$! ( c str1 -- ) over >r + c! r> cell - dup @ 1+ swap ! ;
+ 13 r : input$ ( addr len -- )
+ 14 r   over swap maxlen$ nip accept swap cell - ! ;
+ 15 r
+save-buffers
+forth
+
