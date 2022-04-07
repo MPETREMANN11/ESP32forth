@@ -1,0 +1,20 @@
+2 list
+editor
+  0 r \ DUMP tool for ESP32Forth
+  1 r 0 value START_ADDR    0 value END_ADDR
+  2 r 0 value 0START_ADDR   0 value LINES
+  3 r : dump ( start len -- )
+  4 r cr cr ." --addr---  "
+  5 r ." 00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F  "
+  6 r ." ------chars-----"
+  7 r 2dup + to END_ADDR   swap TO START_ADDR   
+  8 r START_ADDR 16 / 16 *   to 0START_ADDR
+  9 r 16 / 1+ to LINES  base @ >r   hex
+ 10 r LINES 0 do 0START_ADDR i 16 * +  
+ 11 r cr <# # # # #  [char] - hold # # # # #> type space space 
+ 12 r 16 0 do 0START_ADDR j 16 * i + +  c@ <# # # #> type space loop 
+ 13 r space 16 0 do 0START_ADDR j 16 * i + + c@ 
+ 14 r dup 32 < over 127 > or if drop [char] . emit 
+ 15 r else emit then loop loop r> base !  cr cr ;
+save-buffers
+
