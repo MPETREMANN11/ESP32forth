@@ -1,0 +1,19 @@
+\ *********************************************************************
+\ DAC simple usage
+\    Filename:      DACusage.txt
+\    Date:          22 apr 2022
+\    Updated:       22 apr 2022
+\    MCU:           ESP32-WROOM-32
+\    Forth:         ESP32forth all versions 7.x++
+\    Copyright:     Marc PETREMANN
+\    Author:        Marc PETREMANN
+\    GNU General Public License
+\ *********************************************************************
+
+DEFINED? --DACusage [if] forget --DACusage  [then]
+create --DACusage
+
+
+25 constant PIN_DAC1
+26 constant PIN_DAC2
+
