@@ -17,3 +17,32 @@ create --DACusage
 25 constant PIN_DAC1
 26 constant PIN_DAC2
 
+\ for example: set GPIO25 to 1 Volt
+PIN_DAC1 77 dacWrite    \  77 * 3,3 / 255 = 1.
+
+
+\ r must be in interval 0..3.3
+\ leave n in interval 0..255
+: VtoN ( r -- n )
+    100e F* F>S
+    2550 * 3300 /
+  ;
+
+\ example:
+\ 2.65e VtoN .     \ display 204
+
+: VtoDAC ( pin volt -- )
+    VtoN dacWrite
+  ;
+\ example:
+\ PIN_DAC1 2.65e VtoDAC
+
+\ volt in interval 0..3.3
+: vDAC1 ( volt -- )
+    VtoN PIN_DAC1
+    swap dacWrite
+  ;
+
+2.8e vDAC1
+
+
