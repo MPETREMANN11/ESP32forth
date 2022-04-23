@@ -42,7 +42,16 @@ PIN_DAC1 77 dacWrite    \  77 * 3,3 / 255 = 1.
     VtoN PIN_DAC1
     swap dacWrite
   ;
+\ example:
+\ 2.8e vDAC1
 
-2.8e vDAC1
-
+\ triangular signal generation 
+: triangularSignal ( --)
+    256 for
+        aft
+            10 ms
+            PIN_DAC1 r@ dacWrite
+        then
+    next
+  ;
 
