@@ -1,0 +1,43 @@
+\ *********************************************************************
+\ DAC directy accesss
+\    Filename:      DACdirectAccess.txt
+\    Date:          30 dec 2021
+\    Updated:       23 apr 2022
+\    MCU:           ESP32-WROOM-32
+\    Forth:         ESP32forth all versions 7.x++
+\    Copyright:     Marc PETREMANN
+\    Author:        Marc PETREMANN
+\    GNU General Public License
+\ *********************************************************************
+
+DEFINED? --DAdirect [if] forget --DAdirect  [then]
+create --DAdirect
+
+\ include registersDefinition.txt
+
+25 constant PIN_DAC1
+26 constant PIN_DAC2
+
+\ The two 8-bit DAC channels can be configured independently. 
+\ For each DAC channel, the output analog voltage
+\ can be calculated as follows:
+\ DACn_OUT = VDD3P3_RTC · PDACn_DAC/256
+
+\ Registers set for DAC control
+$3FF48484 defREG: RTCIO_PAD_DAC1_REG       \ DAC1 configuration register
+$3FF48488 defREG: RTCIO_PAD_DAC2_REG       \ DAC2 configuration register
+$3FF48898 defREG: SENS_SAR_DAC_CTRL1_REG   \ DAC control
+$3FF4889c defREG: SENS_SAR_DAC_CTRL2_REG   \ DAC output control
+
+$01 18 defMASK: RTCIO_PAD_PDAC1_XPD_DAC
+$01 22 defMASK: SENS_DAC_DIG_FORCE
+$03 22 defMASK: SENS_DAC_SCALE1
+
+
+
+\ dec. CC
+defREG: SENS_SAR_DAC_DC1
+defREG: SENS_SAR_DAC_DC2
+
+
+
