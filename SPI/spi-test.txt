@@ -1,0 +1,37 @@
+\ *********************************************************************
+\ Test SPI port
+\    Date:          15 jun 2022
+\    Updated:       15 jun 2022
+\    File Version:  0.0
+\    MCU:           ESP32-WROOM-32
+\    Forth:         ESP32forth all versions 7.x++
+\    Copyright:     Marc PETREMANN
+\    Author:        Marc PETREMANN
+\    GNU General Public License
+\ *********************************************************************
+
+\ require SPI vocabulary:
+\ SPI.begin SPI.end SPI.setHwCs SPI.setBitOrder SPI.setDataMode SPI.setFrequency
+\ SPI.setClockDivider SPI.getClockDivider SPI.transfer SPI.transfer8 SPI.transfer16
+\ SPI.transfer32 SPI.transferBytes SPI.transferBits SPI.write SPI.write16
+\ SPI.write32 SPI.writeBytes SPI.writePixels SPI.writePattern SPI-builtins
+
+DEFINED? --spi-test [if] forget --spi-test  [then]
+create --spi-test
+
+\ define HSPI pins
+12 constant HSPI_MISO
+13 constant HSPI_MOSI
+14 constant HSPI_SCLK
+15 constant HSPI_CS
+
+\ select SPI vocabulary
+SPI
+
+: init.HSPI ( -- )
+    HSPI_SCLK HSPI_MISO HSPI_MOSI HSPI_CS SPI.begin
+    40000000 SPI.setFrequency
+  ;
+
+
+
