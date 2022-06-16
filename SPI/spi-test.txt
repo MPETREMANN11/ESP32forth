@@ -1,7 +1,7 @@
 \ *********************************************************************
 \ Test SPI port
 \    Date:          15 jun 2022
-\    Updated:       15 jun 2022
+\    Updated:       16 jun 2022
 \    File Version:  0.0
 \    MCU:           ESP32-WROOM-32
 \    Forth:         ESP32forth all versions 7.x++
@@ -11,10 +11,8 @@
 \ *********************************************************************
 
 \ require SPI vocabulary:
-\ SPI.begin SPI.end SPI.setHwCs SPI.setBitOrder SPI.setDataMode SPI.setFrequency
-\ SPI.setClockDivider SPI.getClockDivider SPI.transfer SPI.transfer8 SPI.transfer16
-\ SPI.transfer32 SPI.transferBytes SPI.transferBits SPI.write SPI.write16
-\ SPI.write32 SPI.writeBytes SPI.writePixels SPI.writePattern SPI-builtins
+\ link: https://esp32.arduino-forth.com/article/SPI_implementation
+\ link: https://esp32.arduino-forth.com/article/SPI_words
 
 DEFINED? --spi-test [if] forget --spi-test  [then]
 create --spi-test
@@ -25,13 +23,18 @@ create --spi-test
 14 constant HSPI_SCLK
 15 constant HSPI_CS
 
+\ define SPI port frequency
+4000000 constant SPI_FREQ
+
 \ select SPI vocabulary
 SPI
 
+\ initialize HSPI port
 : init.HSPI ( -- )
     HSPI_SCLK HSPI_MISO HSPI_MOSI HSPI_CS SPI.begin
-    40000000 SPI.setFrequency
+    SPI_FREQ SPI.setFrequency
   ;
+
 
 
 
