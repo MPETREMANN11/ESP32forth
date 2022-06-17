@@ -53,3 +53,79 @@ only FORTH  SPI also
     MAX7219.deselect
   ;
 
+: MAX7219.normal   ( -- ) 
+    $0c $01 MAX7219.send 
+  ;
+
+: MAX7219.shutdown ( -- ) 
+    $0c $00 MAX7219.send
+  ;
+
+: MAX7219.intensity  ( c -- )  
+    $0a swap MAX7219.send 
+  ;
+
+: MAX7219.decode     ( c -- )  
+    $09 swap MAX7219.send 
+  ;
+
+: MAX7219.scan.limit ( c -- )  
+    $0b swap MAX7219.send 
+  ;
+
+: MAX7219.set.digit  ( cbits cdigit -- ) 
+    swap MAX7219.send 
+  ;
+
+: MAX7219.test.on  ( -- ) 
+    $0f $01 MAX7219.send 
+  ;
+
+: MAX7219.test.off ( -- ) 
+    $0f $00 MAX7219.send 
+  ;
+
+\ all LEDs on full, 232mA needed
+: disp-test-1 ( -- ) 
+    init.VSPI
+    MAX7219.test.on
+    begin key? until
+    MAX7219.test.off
+    SPI.end
+  ;
+
+\ left 4 LEDs on first row, 42mA needed
+: disp-test-2 ( -- ) 
+    init.VSPI
+    MAX7219.normal
+    $03 MAX7219.intensity
+    $00 MAX7219.scan.limit
+    $f0 $01 MAX7219.set.digit
+    begin key? until
+    MAX7219.shutdown
+    SPI.end
+  ;
+
+
+\ draw face, 18mA needed
+: disp-test-3 ( -- ) 
+    init.VSPI
+    MAX7219.normal
+    $01 MAX7219.intensity
+    $07 MAX7219.scan.limit
+    $00 MAX7219.decode
+    [ 2 base ! ]
+    00000000 $01 MAX7219.set.digit
+    01100110 $02 MAX7219.set.digit
+    00000000 $03 MAX7219.set.digit
+    00011000 $04 MAX7219.set.digit
+    00011000 $05 MAX7219.set.digit
+    10000001 $06 MAX7219.set.digit
+    01000010 $07 MAX7219.set.digit
+    00111100 $08 MAX7219.set.digit
+    [ decimal ]
+    begin key? until
+    MAX7219.shutdown
+    SPI.end
+  ;
+
