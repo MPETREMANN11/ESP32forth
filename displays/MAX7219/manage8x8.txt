@@ -27,7 +27,7 @@ create --MAX7219
 4000000 constant SPI_FREQ
 
 \ select SPI vocabulary
-SPI
+only FORTH  SPI also
 
 \ initialize HSPI port
 : init.VSPI ( -- )
@@ -36,4 +36,20 @@ SPI
     SPI_FREQ SPI.setFrequency
   ;
 
+\ CS select for MAX7219
+: MAX7219.select ( -- )
+    VSPI_CS LOW digitalWrite
+  ;
+
+\ CS deselect for MAX7219
+: MAX7219.deselect ( -- )
+    VSPI_CS HIGH digitalWrite
+  ;
+
+\ send two bytes to MAX7219 thru SPI port
+: MAX7219.send ( c1 c2 -- )
+    MAX7219.select
+    swap SPI.write SPI.write
+    MAX7219.deselect
+  ;
 
