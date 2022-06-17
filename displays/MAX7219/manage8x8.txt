@@ -1,0 +1,39 @@
+\ *********************************************************************
+\ Manage 8x8 MAX7219 led display
+\    Date:          17 jun 2022
+\    Updated:       17 jun 2022
+\    File Version:  0.0
+\    MCU:           ESP32-WROOM-32
+\    Forth:         ESP32forth all versions 7.x++
+\    Copyright:     Marc PETREMANN
+\    Author:        Marc PETREMANN
+\    GNU General Public License
+\ *********************************************************************
+
+\ require SPI vocabulary:
+\ link: https://esp32.arduino-forth.com/article/SPI_implementation
+\ link: https://esp32.arduino-forth.com/article/SPI_words
+
+DEFINED? --MAX7219 [if] forget --MAX7219  [then]
+create --MAX7219
+
+\ define VSPI pins
+19 constant VSPI_MISO
+23 constant VSPI_MOSI
+18 constant VSPI_SCLK
+05 constant VSPI_CS
+
+\ define SPI port frequency
+4000000 constant SPI_FREQ
+
+\ select SPI vocabulary
+SPI
+
+\ initialize HSPI port
+: init.VSPI ( -- )
+    VSPI_CS OUTPUT pinMode
+    VSPI_SCLK VSPI_MISO VSPI_MOSI VSPI_CS SPI.begin
+    SPI_FREQ SPI.setFrequency
+  ;
+
+
