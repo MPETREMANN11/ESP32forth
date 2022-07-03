@@ -1,0 +1,116 @@
+\ *********************************************************************
+\ Blinking a LED by timers
+\    Date:          02 jul 2022
+\    Updated:       03 jul 2022
+\    File Version:  0.0
+\    MCU:           ESP32-WROOM-32
+\    Forth:         ESP32forth all versions 7.x++
+\    Copyright:     Marc PETREMANN
+\    Author:        Marc PETREMANN
+\    GNU General Public License
+\ *********************************************************************
+
+DEFINED? --BLINK [if] forget --BLINK  [then]
+create --BLINK
+
+
+
+\ **************************************************************
+\ **  CLASSIC VERSION VERSION INSPIRED FROM C VERSION
+\ **************************************************************
+
+\ /*
+\  * This ESP32 code is created by esp32io.com
+\  * This ESP32 code is released in the public domain
+\  * For more detail (instruction and wiring diagram), 
+\  *  visit https://esp32io.com/tutorials/esp32-led-blink
+\  */
+\ 
+\ // the code in setup function runs only one time when ESP32 starts
+\ void setup() {
+\   // initialize digital pin GIOP18 as an output.
+\   pinMode(18, OUTPUT);
+\ }
+\ 
+\ // the code in loop function is executed repeatedly infinitely
+\ void loop() {
+\   digitalWrite(18, HIGH); // turn the LED on
+\   delay(500);             // wait for 500 milliseconds
+\   digitalWrite(18, LOW);  // turn the LED off
+\   delay(500);             // wait for 500 milliseconds
+\ }
+
+18 constant myLED
+
+: led.blink ( -- )
+    LED output pinMode
+    begin
+        HIGH myLED pin 
+        500 ms
+        LOW myLED  pin
+        500 ms
+    key? until
+  ;
+
+
+\ **************************************************************
+\ **  FACTORIZED VERSION
+\ **************************************************************
+
+18 constant myLED
+
+: led.on ( -- )      
+    HIGH myLED pin
+  ;
+        
+: led.off ( -- )      
+    LOW myLED pin
+  ;
+        
+: waiting ( -- )
+    500 ms
+  ;
+        
+: led.blink ( -- )
+    LED output pinMode
+    begin
+        led.on      waiting
+        led.off     waiting
+    key? until
+  ;
+
+
+
+\ **************************************************************
+\ **  VERSION USING TIMERS
+\ **************************************************************
+
+18 constant myLED
+
+0 value LED_STATE        
+
+: led.on ( -- )      
+    HIGH myLED pin
+    -1 to LED_STATE
+  ;
+        
+: led.off ( -- )      
+    LOW myLED pin
+    0  to LED_STATE
+  ;
+     
+timers  \ select timers vocabulary
+: led.toggle ( -- )
+    LED_STATE if
+        led.off
+    else
+        led.on
+    then
+    0 rerun
+  ;
+
+: led.blink
+    myLED output pinMode
+    ['] led.toggle 500000 0 interval
+  ;
+
