@@ -7,6 +7,7 @@
 \    Forth:         ESP32forth all versions 7.x++
 \    Copyright:     Marc PETREMANN
 \    Author:        Marc PETREMANN
+\    Article link:  https://esp32.arduino-forth.com/article/timers_blink
 \    GNU General Public License
 \ *********************************************************************
 
