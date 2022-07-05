@@ -1,0 +1,47 @@
+\ *********************************************************************
+\ configurable timer for housekeeper
+\    Date:          05 jul 2022
+\    Updated:       05 jul 2022
+\    File Version:  0.0
+\    MCU:           ESP32-WROOM-32
+\    Forth:         ESP32forth all versions 7.x++
+\    Copyright:     Marc PETREMANN
+\    Author:        Marc PETREMANN
+\    GNU General Public License
+\ *********************************************************************
+
+DEFINED? --CONFTIMER [if] forget --CONFTIMER  [then]
+create --CONFTIMER
+
+\ myLIGHTS connceted on GPIO18
+18 constant myLIGHTS
+
+\ define max time for normal or extended cycle, in seconds
+ 60 constant MAX_LIGHT_TIME_NORMAL_CYCLE
+600 constant MAX_LIGHT_TIME_EXXTENDED_CYCLE
+        
+\ max time set for normal or extended cycle , in seconds
+0 value MAX_LIGHT_TIME
+   
+timers
+\ stop lights if MAX_LIGHT_TIME equal 0
+: cycle.stop ( -- )
+    -1 +to MAX_LIGHT_TIME       \ decrease max time for 1 second
+    MAX_LIGHT_TIME 0 = if
+        LOW myLIGHTS pin        \ light off
+    else
+        0 rerun
+    then
+  ;
+        
+\ initialize timer 0 
+' cycle.stop 1000000 0 interval
+
+\ start a light cycle, n is delay in seconds
+: cycle.start ( n -- )
+    1+ to MAX_LIGHT_TIME           \ set max time
+    myLIGHTS output pinMode
+    HIGH myLIGHTS pin           \ light on
+    0 rerun
+  ;
+
