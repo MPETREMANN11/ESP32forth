@@ -4,7 +4,8 @@
 \    Updated:       05 jul 2022
 \    File Version:  0.0
 \    MCU:           ESP32-WROOM-32
-\    Forth:         ESP32forth all versions 7.x++
+\    Forth:         ESP32forth all versions 7.0.6.16+
+\                   developped for versions 7.0.6.18
 \    Copyright:     Marc PETREMANN
 \    Author:        Marc PETREMANN
 \    Article link:  https://esp32.arduino-forth.com/article/timers_housemaid
@@ -54,12 +55,12 @@ interrupts                          \ select interrupts vocabulary
 
 \ interrupt activated for upraising signal
 : intPosEdge ( -- )
-    button GPIO_INTR_POSEDGE gpio_set_intr_type drop
+    button #GPIO_INTR_POSEDGE gpio_set_intr_type drop
   ;
 
 \ interrupt activated for falldown signal
 : intNegEdge ( -- )
-    button GPIO_INTR_NEGEDGE gpio_set_intr_type drop
+    button #GPIO_INTR_NEGEDGE gpio_set_intr_type drop
   ;
 
 03 constant CYCLE_SHORT     \ light duration for short press button, in seconds
@@ -74,17 +75,18 @@ variable msTicksPositiveEdge
 \ word executed by interruption
 : getButton ( -- )
     button gpio_intr_disable drop
-    70000 0 do loop  \ anti rebond 
+    70000 0 do loop  \ anti button bounce
     button digitalRead 1 =
     if
         ms-ticks msTicksPositiveEdge !
         intNegEdge
     else
         intPosEdge
-        ms-ticks msTicksPositiveEdge @ -  
+        ms-ticks msTicksPositiveEdge @ -
         DELAY_LIMIT >
         if      CYCLE_LONG  cr ." BEEP"
-        else    CYCLE_SHORT    then
+        else    CYCLE_SHORT cr ." ----"
+        then
     then
     cycle.start
     button gpio_intr_enable drop
