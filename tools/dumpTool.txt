@@ -2,7 +2,7 @@
 \ DUMP tool for ESP32Forth
 \    Filename:      dumpTool.txt
 \    Date:          12 jan 2022
-\    Updated:       27 jan 2022
+\    Updated:       09 july 2022
 \    File Version:  1.0
 \    MCU:           ESP32-WROOM-32
 \    Forth:         ESP32forth all versions 7.x++
@@ -11,24 +11,22 @@
 \    GNU General Public License
 \ *********************************************************************
 
-DEFINED? --Dump [if] forget --Dump  [then]
-create --Dump
-
-
-0 value START_ADDR      \ first address to dump
-0 value END_ADDR        \ latest address to dump
-0 value 0START_ADDR     \ first address for dump loop
-0 value LINES           \ number of lines for dump loop
+\ locals variables in DUMP:
+\ START_ADDR      \ first address to dump
+\ END_ADDR        \ latest address to dump
+\ 0START_ADDR     \ first address for dump loop
+\ LINES           \ number of lines for dump loop
+\ myBASE          \ current numeric base
           
-: dump ( start len -- )
+: dumpx ( start len -- )
+    0 0 0 0 0 { START_ADDR  END_ADDR  0START_ADDR  LINES  myBASE }
     cr cr ." --addr---  "
     ." 00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F  ------chars-----"
-    2dup + to END_ADDR         \ store latest address to dump
-    swap TO START_ADDR             \ store START address to dump
-    START_ADDR 16 / 16 *
-    to 0START_ADDR                  \ calc. addr for loop start
+    2dup + to END_ADDR              \ store latest address to dump
+    swap to START_ADDR              \ store START address to dump
+    START_ADDR 16 / 16 * to 0START_ADDR  \ calc. addr for loop start
     16 / 1+ to LINES
-    base @ >r                       \ save current base
+    base @ to myBASE                \ save current base
     hex
     \ outer loop
     LINES 0 do
@@ -53,57 +51,6 @@ create --Dump
             then
         loop 
     loop
-    r> base !               \ restore current base
+    myBASE base !               \ restore current base
     cr cr
   ;
-
-
-
-
-\ *** Version of code to insert in .ino file ***************************
-\ search in .ino file line:
-\ "\n"
-\ "internals\n"
-\ "( Bring a forth to the top of the vocabulary. )\n"
-\ "transfer forth\n"
-\
-\ and before these lines, insert these code:
-
-
-"0 value START_ADDR\n"
-"0 value END_ADDR\n"
-"0 value 0START_ADDR\n"
-"0 value LINES\n"
-": dump ( start len -- )\n"
-"    cr cr .\" --addr---  \"\n"
-"    .\" 00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F  ------chars-----\"\n"
-"    2dup + to END_ADDR\n"
-"    swap TO START_ADDR\n"
-"    START_ADDR 16 / 16 *\n"
-"    to 0START_ADDR\n"
-"    16 / 1+ to LINES\n"
-"    base @ >r\n"
-"    hex\n"
-"    LINES 0 do\n"
-"        0START_ADDR i 16 * +\n"
-"        cr <# # # # #  [char] - hold # # # # #> type\n"
-"        space space\n"
-"        16 0 do\n"
-"            0START_ADDR j 16 * i + +\n"
-"            c@ <# # # #> type space\n"
-"        loop \n"
-"        space\n"
-"        16 0 do\n"
-"            0START_ADDR j 16 * i + +\n"
-"            c@     dup 32 < over 127 > or\n"
-"            if      drop [char] . emit\n"
-"            else    emit\n"
-"            then\n"
-"        loop \n"
-"    loop\n"
-"    r> base !\n"
-"    cr cr\n"
-"  ;\n"
-
-
-
