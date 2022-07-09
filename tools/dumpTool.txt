@@ -18,7 +18,7 @@
 \ LINES           \ number of lines for dump loop
 \ myBASE          \ current numeric base
           
-: dumpx ( start len -- )
+: dump ( start len -- )
     0 0 0 0 0 { START_ADDR  END_ADDR  0START_ADDR  LINES  myBASE }
     cr cr ." --addr---  "
     ." 00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F  ------chars-----"
