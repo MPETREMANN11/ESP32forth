@@ -1,0 +1,44 @@
+\ *********************************************************************
+\ soft RTC for ESP32
+\    Date:          10 jul 2022
+\    Updated:       10 jul 2022
+\    File Version:  0.0
+\    MCU:           ESP32-WROOM-32
+\    Forth:         ESP32forth all versions 7.0.6.16+
+\                   developped for versions 7.0.6.18
+\    Copyright:     Marc PETREMANN
+\    Author:        Marc PETREMANN
+\    Article link:  https://esp32.arduino-forth.com/article/timers_housemaid
+\    GNU General Public License
+\ *********************************************************************
+
+DEFINED? --SOFTRTC [if] forget --SOFTRTC  [then]
+create --SOFTRTC
+
+0 value currentTime
+
+\ store current time
+: RTC.set-time { hh mm ss -- }
+    hh 3600 *
+    mm 60 *
+    ss + +  1000 *
+    MS-TICKS - to currentTime
+  ;
+
+\ fetch current time in seconds
+: RTC.get-time ( -- hh mm ss )
+    currentTime MS-TICKS + 1000 /
+    3600 /mod swap 60 /mod swap
+  ;
+
+\ used for SS and MM part of time display
+: :## ( n -- n' )
+    #  6 base ! #  decimal  [char] : hold
+  ;
+
+\ display current time
+: RTC.display-time ( -- )
+    currentTime MS-TICKS + 1000 /
+    <# :## :## #S #> type
+  ;
+
