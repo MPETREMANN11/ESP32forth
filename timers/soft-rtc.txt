@@ -39,6 +39,6 @@ create --SOFTRTC
 \ display current time
 : RTC.display-time ( -- )
     currentTime MS-TICKS + 1000 /
-    <# :## :## #S #> type
+    <# :## :## 24 mod #S #> type
   ;
 
