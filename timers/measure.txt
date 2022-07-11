@@ -1,0 +1,28 @@
+\ *********************************************************************
+\ measures the execution time of a FORTH word
+\    Date:          11 jul 2022
+\    Updated:       11 jul 2022
+\    File Version:  0.0
+\    MCU:           ESP32-WROOM-32
+\    Forth:         ESP32forth all versions 7.0.6.16+
+\                   developped for versions 7.0.6.18
+\    Copyright:     Marc PETREMANN
+\    Author:        Marc PETREMANN
+\    Article link:  https://esp32.arduino-forth.com/article/timers_housemaid
+\    GNU General Public License
+\ *********************************************************************
+
+DEFINED? --MEASURE [if] forget --MEASURE  [then]
+create --MEASURE
+
+: measure: ( -- <word> )
+    ms-ticks >r
+    ' execute
+    ms-ticks r> -
+    cr ." execution time: "
+    <# # # # [char] . hold #s #> type ." sec." cr
+  ;
+
+\ example:
+measure: words
+\ display: execution time: 0.210sec.
