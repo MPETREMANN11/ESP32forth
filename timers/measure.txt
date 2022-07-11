@@ -26,3 +26,7 @@ create --MEASURE
 \ example:
 measure: words
 \ display: execution time: 0.210sec.
+
+\ other example, with parameters:
+here 100 measure: dump
+\ display: execution time: 0.043sec.
