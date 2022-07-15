@@ -1,0 +1,82 @@
+\ *********************************************************************
+\ sockets errors
+\    Filename:      socketErrno.txt
+\    Date:          15 july 2022
+\    Updated:       15 july 2022
+\    File Version:  1.0
+\    MCU:           ESP32-WROOM-32
+\    Forth:         ESP32forth all versions 7.x++
+\    Copyright:     Marc PETREMANN
+\    Author:        Marc PETREMANN
+\    GNU General Public License
+\ *********************************************************************
+
+
+: socketError ( -- )
+    errno
+    dup  1 = if     ." Not owner "                      then
+    dup  2 = if     ." No such file "                   then
+    dup  3 = if     ." No such process "                then
+    dup  4 = if     ." Interrupted system "             then
+    dup  5 = if     ." I/O error "                      then
+    dup  6 = if     ." No such device "                 then
+    dup  7 = if     ." Argument list too long "         then
+    dup  8 = if     ." Exec format error "              then
+    dup  9 = if     ." Bad file number "                then
+    dup 10 = if     ." No children "                    then
+    dup 11 = if     ." No more processes "              then
+    dup 12 = if     ." Not enough core"                 then
+    dup 13 = if     ." Permission denied "              then
+    dup 14 = if     ." Bad address "                    then
+    dup 15 = if     ." Block device required "          then
+    dup 16 = if     ." Mount device busy "              then
+    dup 17 = if     ." File exists "                    then
+    dup 18 = if     ." Cross-device link "              then
+    dup 19 = if     ." No such device "                 then
+    dup 20 = if     ." Not a directory "                then
+    dup 21 = if     ." Is a directory "                 then
+    dup 22 = if     ." Invalid argument "               then
+    dup 23 = if     ." File table overflow "            then
+    dup 24 = if     ." Too many open file "             then
+    dup 25 = if     ." Not a typewriter "               then
+    dup 26 = if     ." Text file busy "                 then
+    dup 27 = if     ." File too large "                 then
+    dup 28 = if     ." No space left on "               then
+    dup 29 = if     ." Illegal seek "                   then
+    dup 30 = if     ." Read-only file system "          then
+    dup 31 = if     ." Too many links "                 then
+    dup 32 = if     ." Broken pipe "                    then
+    dup 35 = if     ." Operation would block "          then
+    dup 36 = if     ." Operation now in progress "      then
+    dup 37 = if     ." Operation already in progress "  then
+    dup 38 = if     ." Socket operation on "            then
+    dup 39 = if     ." Destination address required "   then
+    dup 40 = if     ." Message too long "               then
+    dup 41 = if     ." Protocol wrong typee "           then
+    dup 42 = if     ." Protocol not available "         then
+    dup 43 = if     ." Protocol not supported "         then
+    dup 44 = if     ." Socket type not supported "      then
+    dup 45 = if     ." Operation not supported "        then
+    dup 46 = if     ." Protocol family not supported "  then
+    dup 47 = if     ." Address family not supported "   then
+    dup 48 = if     ." Address already in use "         then
+    dup 49 = if     ." Can't assign requested address " then
+    dup 50 = if     ." Network is down "                then
+    dup 51 = if     ." Network is unreachable "         then
+    dup 52 = if     ." Network dropped connection "     then
+    dup 53 = if     ." Software caused connection "     then
+    dup 54 = if     ." Connection reset by peer "       then
+    dup 55 = if     ." No buffer space available "      then
+    dup 56 = if     ." Socket is already connected "    then
+    dup 57 = if     ." Socket is not connected "        then
+    dup 58 = if     ." Can't send after shutdown "      then
+    dup 59 = if     ." Too many referencese "           then
+    dup 60 = if     ." Connection timed out "           then
+    dup 61 = if     ." Connection refused "             then
+    dup 62 = if     ." Too many levels of nesting "     then
+    dup 63 = if     ." File name too long "             then
+    dup 64 = if     ." Host is down "                   then
+    .
+  ;
+
+
