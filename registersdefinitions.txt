@@ -2,7 +2,7 @@
 \ tools for REGISTERS definitions and manipulations
 \    Filename:      registersDefinitions.txt
 \    Date:          02 apr 2022
-\    Updated:       02 apr 2022
+\    Updated:       19 july 2022
 \    MCU:           ESP32-WROOM-32
 \    Forth:         ESP32forth all versions 7.x++
 \    Copyright:     Marc PETREMANN
@@ -13,29 +13,21 @@
 DEFINED? --defREG [if] forget --defREG  [then]
 create --defREG
 
-\ clear mas in addr
-: mclr { mask addr -- }
-    addr @  mask invert and
-    addr !
-  ;
-
-\ set mask in addr
-: mset { mask addr -- }
-    addr @  mask or
-    addr !
-  ;
-
-\ test mask in addr
-: mtst { mask addr -- x }
-    addr @  mask and
-  ;
-
 \ define a register, similar as constant
 : defREG:
     create ( addr1 -- <name> )
         ,
     does>  ( -- regAddr )
         @
+  ;
+
+: defMASK:
+    create ( mask0 position -- )
+        dup ,
+        lshift ,
+    does> ( -- position mask1 )
+        dup @
+        swap cell + @
   ;
 
 \ display reg content
@@ -58,13 +50,6 @@ create --defREG
     r> base !
   ;
 
-: defMASK:
-    create ( mask0 position -- )
-        lshift ,
-    does> ( -- mask1 )
-        @
-  ;
-
 
 \ == EXAMPLES: ======
 
@@ -74,12 +59,5 @@ $3FF48898 defREG: SENS_SAR_DAC_CTRL1_REG   \ DAC control
 $3FF4889c defREG: SENS_SAR_DAC_CTRL2_REG   \ DAC output control
 
 
-1 25 defMASK: mSENS_DAC_CLK_INV
-
-
+   1 25 defMASK: mSENS_DAC_CLK_INV
 $ffff 0 defMASK: mSENS_SW_FSTEP
-
-mSENS_SW_FSTEP $ffffffff and
-SENS_SAR_DAC_CTRL1_REG mset
-SENS_SAR_DAC_CTRL1_REG .reg
-
