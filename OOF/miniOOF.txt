@@ -1,0 +1,166 @@
+\ *********************************************************************
+\ Mini-OOF by Bernd Paysan https://bernd-paysan.de/mini-oof.html
+\ Adapted for ESP32Forth32 7.0.5.4 and onwards by Bob Edwards July 2022
+\ Mini-OOF offers no protection against a programming errors
+\ ESP32forth multitasker compatible
+\    Filename:      miniOOF.txt
+\    Date:          20 july 2022
+\    Updated:       20 july 2022
+\    MCU:           ESP32-WROOM-32
+\    Forth:         ESP32forth all versions 7.x++
+\    adaptation:    Bob Edwards
+\    version:       4
+\    GNU General Public License
+\ *********************************************************************
+
+DEFINED? *MINI-OOF* [IF] forget *MINI-OOF* [THEN] 
+: *MINI-OOF* ;
+
+\ Words missing from the forth system
+: 2+ 2 + ;
+
+\ 'Do nothing' placeholder - overwritten later with a deferred word
+: NOOP ;
+
+\ remove n chrs from the front of the counted byte block
+: /STRING ( addr1 cnt1 n -- addr2 cnt2 ) 
+  DUP >R -                          \ reduce cnt1
+  SWAP R> +                         \ increase start address
+  SWAP                              \ cleanup
+ ;
+
+: cell-		( n1 -- n1-4 )
+    4 -
+; 
+ 
+\ The object oriented extensions
+ 
+: METHOD 
+    CREATE ( m v -- m' v )
+	OVER ,			\ compile m
+	SWAP CELL+ SWAP		\ m' = m + cell			
+    DOES> ( ... O -- ... )
+	@ OVER @ +		\ calculate the required method address from the object ref.
+	@ EXECUTE		\ read the xt of the method and execute it
+  ;
+
+	
+: VAR ( m v size -- ) 
+    CREATE 
+	OVER ,			\ compile v
+	+			( m v+size )
+    DOES> ( o -- addr )
+	@ +			\ add the vla offset to the object ref to get the val address
+;
+
+: CLASS ( class -- class methods vars )
+    DUP 
+    2@ SWAP  ;			\ read methods and instvars and copy to the stack 
+
+: END-CLASS  ( CLASS METHODtotalspace VARtotalspace "name" -- )
+    CREATE			\ create the class entry in the dict. with the name that follows
+	HERE >R			\ remember the current compilation address - contains VARtotalspace
+	, DUP , 		\ compile VARtotalspace, then METHODtotalspace ( CLASS METHODtotalspace -- )
+	2 CELLS ?DO		\ if new methods have been defined in the class definition
+		['] NOOP ,	\ compile a temporary NOOP for each method defined
+	1 CELLS +LOOP		( CLASS -- )
+	CELL+ DUP CELL+ R>	( CLASS+4 CLASS+8 VARtotalspace -- )
+	ROT			( CLASS+8 VARtotalspace CLASS+4 -- )
+	@			( CLASS+8 VARtotalspace METHODtotalspace -- )
+	2 CELLS			( CLASS+8 VARtotalspace METHODtotalspace 8 -- )
+	/STRING
+	CMOVE ; 		\ copy across the XTs from the parent class
+
+: DEFINES ( xt class -- )
+  '				\ find the XT of the method name in the input stream 
+  >BODY @ + !			\ address [pfa]+class is set to XT, overwriting the NOOP   
+;				\ in the class definition
+
+: NEW ( class -- o )
+  HERE				\ find the next unused code location
+  OVER @ ALLOT			\ read the total var space reqd. and allot that space
+  SWAP				( here class )
+  OVER !			\ store class at [here], leaving here on the stack as o
+;
+
+\ And sometimes derived classes want to access the method of the parent object.
+\ There are two ways to achieve this with this OOF: first, you could use named words,
+\ and second, you could look up the vtable of the parent object
+\ NB use this early binding word within a definition only, it doesn't work outside a definition
+: :: ( class "name" -- )
+  ' >BODY @ + @ ,
+;
+
+CREATE OBJECT 1 cells , 2 cells ,
+
+\ If all classes are derived from a base class with a method INIT, then this is useful to
+\ make INIT automatically run when an object is created
+
+OBJECT CLASS
+    method INIT
+END-CLASS INITOBJECT
+
+: NEW: ( ... o "name" -- )
+    NEW DUP CONSTANT INIT
+;
+
+\ Further sub-Classes are created from INITOBJECT, each having INIT overrridden to suit that classes
+\ initialisation of VARs etc.
+
+\ e.g. heres a class that requires one VAR initialising from a value on the stack
+
+\ INITOBJECT CLASS
+\	VAR myvar
+\ END-CLASS BABA
+\ :noname myvar ! ; BABA DEFINES INIT
+
+\ An object would be created as here, and myvar = 80 automatically
+
+\ 80 BABA NEW: MYBABA
+
+\ To make working with the 'current object' easier ...
+
+\ Rather than have the current object on the top of the data stack all the time, which
+\ gets in the way of input parameters - the following words store the current object at the very bottom of
+\ the data stack, making mini-oof compatible with the esp32forth multitasker. Each task has it's own stack
+\ so each task can store its own copy of the current object it is executing 
+
+\ set up one cell storage space for the current mini-oof object at the bottom of the data stack
+\ run this at the start of a program / start of each task
+: MINIOOF{	( -- )
+    depth 0=			\ is the data stack empty?
+    IF
+        0			\ yes, so just put a placeholder on the stack for current object
+    ELSE
+        0			\ no
+        sp0 cell+ DUP cell+			
+        depth cells cell-
+        cmove			\ move all the data stack contents up by 4 addresses
+    THEN
+;
+
+\ remove storage space for the current mini-oof object from the bottom of the data stack
+\ run this at the end of a program / close down of each task
+: }MINIOOF	( -- )
+    depth 1 =
+    IF
+        DROP
+    ELSE
+        sp0 cell+ DUP cell+ SWAP
+        depth cells cell-
+        cmove>
+        DROP
+    THEN
+;
+
+\ store the current object
+: WITH	( obj -- )
+    sp0 cell+ !
+;
+
+\ read the current object
+: THIS	( -- obj )
+    sp0 cell+ @
+;
+
+
