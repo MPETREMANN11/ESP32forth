@@ -1,0 +1,61 @@
+\ *********************************************************************
+\ tones management and test
+\    Filename:      tones.txt
+\    Date:          20 july 2022
+\    Updated:       20 july 2022
+\    MCU:           ESP32-WROOM-32
+\    Forth:         ESP32forth all versions 7.x++
+\    Copyright:     Marc PETREMANN
+\    Author:        Marc PETREMANN
+\    GNU General Public License
+\ *********************************************************************
+
+DEFINED? --tones [if] forget --tones  [then]
+create --tones
+
+
+0 constant CHANNEL0     \ define PWM channel 0
+25 constant BUZZER      \ buzzer connected to GPI25
+
+
+ledc    \ select ledc vocabulary
+: initTones ( -- )
+    BUZZER CHANNEL0 ledcAttachPin
+  ;
+
+initTones
+
+CHANNEL0 400 1000 * ledcWriteTone drop
+200 ms
+CHANNEL0 340 1000 * ledcWriteTone drop
+200 ms
+CHANNEL0 230 1000 * ledcWriteTone drop
+
+\ frequency notes
+\ source: https://fr.wikipedia.org/wiki/Note_de_musique
+\ frequency is multiplied by 1000
+create NOTES
+\ C          C#        D         D#        E         F         F#        G         G#        A         A#        B
+\ octave -1
+ 15350 ,    17330 ,   18360 ,   19450 ,   20600 ,   21830 ,   23130 ,   24500 ,   25960 ,   27500 ,   29140 ,   30870 ,     
+\ octave 0
+ 32700 ,    34650 ,   36710 ,   38890 ,   41200 ,   43650 ,   46250 ,   49000 ,   51910 ,   55000 ,   58270 ,   61740 ,  
+\ octave 1
+ 65410 ,    69300 ,   73420 ,   77780 ,   82410 ,   87310 ,   92500 ,   98000 ,  103830 ,  110000 ,  116540 ,  123470 ,  
+\ octave 2
+130810 ,   138590 ,  146830 ,  155560 ,  164810 ,  174610 ,  185000 ,  196000 ,  207650 ,  220000 ,  233080 ,  246940 ,  
+\ octave 3
+261630 ,   277180 ,  293660 ,  311130 ,  329630 ,  349230 ,  369990 ,  392000 ,  415300 ,  440000 ,  466160 ,  493880 ,  
+\ octave 4
+523250 ,   554370 ,  587330 ,  622250 ,  659260 ,  698460 ,  739990 ,  783990 ,  830610 ,  880000 ,  932330 ,  987770 ,  
+\ octave 5
+1046500 , 1108730 , 1174660 , 1244510 , 1318510 , 1396910 , 1479980 , 1567980 , 1661220 , 1760000 , 1864660 , 1975530 ,  
+\ octave 6
+2093000 , 2217460 , 2349320 , 2489020 , 2637020 , 2793830 , 2959960 , 3135960 , 3322440 , 3520000 , 3729310 , 3951070 ,  
+\ octave 7
+4186010 , 4434920 , 4698640 , 4978030 , 5274040 , 5587650 , 5919910 , 6271930 , 6644880 , 7040000 , 7458620 , 7902130 ,  
+\ octave 8
+8372020 , 8869840 , 9397280 , 9956060 , 10548080 , 11175300 , 11839820 , 12543860 , 13289760 , 14080000 , 14917240 , 15804260 ,  
+
+
+
