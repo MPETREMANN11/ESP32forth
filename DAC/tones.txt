@@ -2,7 +2,7 @@
 \ tones management and test
 \    Filename:      tones.txt
 \    Date:          20 july 2022
-\    Updated:       20 july 2022
+\    Updated:       21 july 2022
 \    MCU:           ESP32-WROOM-32
 \    Forth:         ESP32forth all versions 7.x++
 \    Copyright:     Marc PETREMANN
@@ -22,14 +22,6 @@ ledc    \ select ledc vocabulary
 : initTones ( -- )
     BUZZER CHANNEL0 ledcAttachPin
   ;
-
-initTones
-
-CHANNEL0 400 1000 * ledcWriteTone drop
-200 ms
-CHANNEL0 340 1000 * ledcWriteTone drop
-200 ms
-CHANNEL0 230 1000 * ledcWriteTone drop
 
 \ frequency notes
 \ source: https://fr.wikipedia.org/wiki/Note_de_musique
@@ -70,6 +62,89 @@ create NOTES
     NOTES + @                       \ fetch frequency of selected note
   ;
 
-\ test: get A in octave 3
-10 get.note .  \ display 440000
+800 constant WHOLE-NOTE-DURATION
 
+WHOLE-NOTE-DURATION value duration
+
+vocabulary music
+music definitions
+
+\ set duration of a whole note
+: o  ( -- )
+    WHOLE-NOTE-DURATION to duration
+  ;
+
+\ set duration of a white note
+: \o  ( -- )
+    WHOLE-NOTE-DURATION 2/ to duration
+  ;
+
+\ set duration of a black note
+: \.  ( -- )
+    WHOLE-NOTE-DURATION 2/ 2/ to duration
+  ;
+
+\ set duration of a half black note
+: '\.  ( -- )
+    WHOLE-NOTE-DURATION 2/ 2/ 2/ to duration
+  ;
+
+\ set duration of a quarter black note
+: ''\.  ( -- )
+    WHOLE-NOTE-DURATION 2/ 2/ 2/ 2/ to duration
+  ;
+
+\ set octave 3
+: O-! 
+    3 to OCTAVE
+  ;
+
+\ decrement octave
+: O--
+    1- +to OCTAVE
+  ;
+
+\ increment octave
+: O-+
+    1 +to OCTAVE
+  ;
+
+: create-note
+    \ compile position in octave
+    create      ( position -- )
+        ,  
+    \ get note frequency in current octave
+    does>
+        @ 1- get.note
+  ;
+
+\ notes in english notation
+ 1 create-note C
+ 2 create-note C#
+ 3 create-note D
+ 4 create-note D#
+ 5 create-note E
+ 6 create-note F
+ 7 create-note F#
+ 8 create-note G
+ 9 create-note G#
+10 create-note A
+11 create-note A#
+12 create-note B
+
+\ notes in french notation
+ 1 create-note DO
+ 2 create-note DO#
+ 3 create-note RE
+ 4 create-note RE#
+ 5 create-note MI
+ 6 create-note FA
+ 7 create-note FA#
+ 8 create-note SOL
+ 9 create-note SOL#
+10 create-note LA
+11 create-note LA#
+12 create-note SI
+
+
+forth definitions
