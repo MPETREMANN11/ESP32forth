@@ -68,6 +68,7 @@ WHOLE-NOTE-DURATION value duration
 
 vocabulary music
 music definitions
+music also
 
 \ set duration of a whole note
 : o  ( -- )
@@ -101,13 +102,25 @@ music definitions
 
 \ decrement octave
 : O--
-    1- +to OCTAVE
+    -1 +to OCTAVE
   ;
 
 \ increment octave
 : O-+
     1 +to OCTAVE
   ;
+
+\ sustain of note, in interval [0..100]
+90 value SUSTAIN
+
+ledc
+\ sustain note in interval [0..100]
+: sustain.note ( -- )
+    duration SUSTAIN 100 */ ms
+    CHANNEL0 0 ledcWriteTone drop
+    duration 100 SUSTAIN - 100 */ ms
+  ;
+
 
 : create-note
     \ compile position in octave
@@ -116,6 +129,8 @@ music definitions
     \ get note frequency in current octave
     does>
         @ 1- get.note
+        CHANNEL0 swap ledcWriteTone drop
+        sustain.note
   ;
 
 \ notes in english notation
@@ -146,5 +161,24 @@ music definitions
 11 create-note LA#
 12 create-note SI
 
+: SIL ( -- )
+    CHANNEL0 0 ledcWriteTone drop
+    duration ms
+  ;
 
 forth definitions
+
+
+
+initTones
+forth also music also
+: fj
+    O-+
+    \.
+    DO RE MI DO
+    DO RE MI DO
+    MI FA SOL
+    MI FA SOL
+  ;
+
+
