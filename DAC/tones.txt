@@ -58,4 +58,18 @@ create NOTES
 8372020 , 8869840 , 9397280 , 9956060 , 10548080 , 11175300 , 11839820 , 12543860 , 13289760 , 14080000 , 14917240 , 15804260 ,  
 
 
+3 value OCTAVE
+\ select octave in interval -1..8
+: set.octave ( n[-1..8] )
+    to OCTAVE
+  ;
+
+\ select note in interval 1..12
+: get.note ( n[1..12] -- )
+    1- OCTAVE 1+ 12 * +  cell *     \ calc. offset in NOTES array
+    NOTES + @                       \ fetch frequency of selected note
+  ;
+
+\ test: get A in octave 3
+10 get.note .  \ display 440000
 
