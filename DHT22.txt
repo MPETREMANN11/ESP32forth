@@ -1,0 +1,231 @@
+\ *********************************************************************
+\ DHT11, DHT22 1-wire Control
+\    Filename:      DHT22.txt
+\    Date:          28 july 2022
+\    Updated:       28 july 2022
+\    File Version:  0.0
+\    MCU:           ESP32-WROOM-32
+\    Forth:         ESP32forth all versions 7.x++
+\    Copyright:     ohiyooo2 / Frank Lin
+\    Original publ. https://ohiyooo2.pixnet.net/blog/post/406078286
+\    Adaptation for GitHub: Marc PETREMANN
+\    GNU General Public License
+\ *********************************************************************
+
+
+\
+\  DHT11, DHT22 1-wire Control Code - ESP32FORTH
+\     Frank Lin 2022.7.20
+\
+
+\
+\   Digital I/O Access Codes
+\
+
+
+: >OUTPUT ( pin --)      \ set the direction of digital I/O to output
+    output pinMode
+;
+
+: <INPUT  ( pin --)      \ set the direction of digital I/O to input
+    input pinMode
+;
+
+: PULLUP ; immediate     \ dummy for syntax sweeter
+
+: ->High ( pin --)       \ put digital I/O to High
+   high digitalWrite
+;
+
+: ->Low  ( pin --)       \ put digital I/O to Low
+   low digitalWrite
+;
+
+: Pin@ ( pin -- status)   \ read the state of digital I/O, 0=low, 1=high
+   digitalRead
+;
+
+: ticks ( -- ticks)
+   ms-ticks
+;
+
+
+\
+\  extension for ESP32FORTH
+\    ESP32FORTH only has catch/throw, no standard ABORT, ABORT"
+\
+
+
+: abort ( --)  -1 throw ;
+
+: abort" ( flag "text" --)
+   state @
+   if
+      postpone if   postpone s"   postpone type   postpone cr
+                    postpone abort
+      postpone then
+   else [char] " parse type cr abort then
+; immediate
+
+
+
+
+\
+\  DHT Sensor, 1-wire data Pin
+\
+
+
+14 constant DHTPin           \ Pin14 as DHT data Pin
+
+: delay  ( n--) for next ;   \ used as the delay timer
+
+\ DIO and delay speed test
+\
+
+: t1 ticks DHTPin 1000000 for DHTPin Pin@ 0= if then next drop ticks swap - . ;
+
+\
+\ result: 642 ms / 1000000 = 0.642 uS per loop
+\
+
+: t2 ticks 1000000 delay ticks swap - . ;
+
+\
+\  result: 96.5 ms / 1000000 = 0.0965 uS for 1 delay
+\
+
+: wait (  --)     \ wait until pulse-high
+   begin DHTPin Pin@ until
+;
+
+\
+\ DHT 1-wire signal:
+\   start: 50uS Low
+\   signal 1:      70 uS Pulse High
+\   signal 0: 26 - 28 uS Pulse High
+
+
+\
+\     112uS / 0.642uS = 174
+\  67.175uS / 0.642uS = 104
+\
+
+
+: signal@  ( --  true=1/false=0)
+   174  ( ~112uS)
+   for
+       DHTPin Pin@ 0=  ( pulse low?)
+       if  r> 104 ( ~ 67.175uS) <  exit  ( length > 70 = 44.825 uS)
+       then
+   next
+   ." Error! Signal not match with expectation!" cr
+   abort
+;
+
+
+: 8bits@ ( --  Data)
+   0  ( data)
+   7 for
+        wait
+        signal@ if 1 r@ lshift or then
+     next
+;
+
+: 40bits@ ( -- n1 n2 n3 n4 n5)
+  4 for 8bits@ next
+;
+
+\
+\  Start Signal
+\   18mS Low, to active communication
+\   then 20 - 40uS High
+\   then wait DHT sends 80uS Low, 80uS High
+\   then receive 40bits data transmition from DHT
+\
+
+\
+\ 20uS = 20/0.0965 ~ 207 delay
+\ 82uS = 82/0.0965 ~ 850 delay
+\ 14uS = 14/0.0965 ~ 145 delay
+\
+
+: start! ( --)
+   DHTPin >OUTPUT
+   DHTPin ->Low
+     20 ms
+   DHTPin ->High
+     145 delay  ( ~ 14uS)
+   DHTPin <INPUT
+
+;
+
+: DHT@ ( -- n1 n2 n3 n4 CheckSum)
+   start!
+   207 delay ( ~ 20uS)
+   wait
+   850 delay ( ~ 82uS)
+   40bits@
+;
+
+
+: >DHT11 ( RHint RHdec Tint Tdec Checksum -- RH Temp)
+   nip  over -  >r    ( RHint RHdec Tint | R: checksum')
+   nip  over r>    -
+   abort" Error: CheckSum not match!!"
+;
+
+
+: ?negate ( n1 n2 -- n3)
+    $80 and if negate then
+;
+
+
+: >DHT22 ( RH.H RH.L T.H T.L Checksum -- RH Temp)
+   >r   2dup + >r
+   swap 8 lshift or  >r  ( RH.H RH.L R: T CS1 CS)
+   2dup + >r             ( RH.H RH.L R: CS2 T CS1 CS)
+   swap 8 lshift or      ( RH R: CS2 T CS1 CS)
+   r> r> swap            ( RH T CS2 R: CS1 CS)
+   r> +                  ( RH T CS3 R: CS)
+   256 u/mod drop
+   r> <>
+   abort" Error: CheckSum not match!!"
+
+   $7fff over and  swap ?negate
+;
+
+: DHT11@ ( -- RH T)
+    DHT@  >DHT11
+    10 * >r  10 * r>
+;
+
+: DHT22@ ( -- RH T)
+    DHT@  >DHT22
+;
+
+
+: .[xx.x]  dup <# # [char] . hold #s swap sign #> type ;
+
+
+: DHT11
+   cr
+   begin
+     DHT11@
+     ." Temperature = "       .[xx.x] ." C , "
+     ." Relative Humidity = " .[xx.x] ." %"    cr
+     2000 ms
+   again
+;
+
+
+: DHT22
+   cr
+   begin
+     DHT22@
+     ." Temperature = "       .[xx.x] ." C , "
+     ." Relative Humidity = " .[xx.x] ." %"    cr
+     2000 ms
+   again
+;
+
+
