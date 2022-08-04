@@ -25,28 +25,24 @@ WiFi
 
 Forth
 
-: bytearray ( size -- ) ( i -- addr ) 
-    create 
-        allot 
-    does> + 
-  ;
-
-700 byteArray buffer
+700 constant bufferSize
+create httpBuffer
+    bufferSize allot
 
 0 buffer 700 erase
 
 HTTP
 
 : run 
-  cr
-  z" http://ws.arduino-forth.com/" HTTP.begin 
-  if
-    HTTP.doGet dup ." Get results: " . cr 0 >
-    if 
-      0 buffer 700 HTTP.getPayload
-      0 buffer z>s dup . cr type
+    cr
+    z" http://ws.arduino-forth.com/" HTTP.begin 
+    if
+        HTTP.doGet dup ." Get results: " . cr 0 >
+        if 
+            httpBuffer bufferSize HTTP.getPayload
+            httpBuffer z>s dup . cr type
+        then
     then
-  then
-  HTTP.end
-;
+    HTTP.end
+  ;
 
