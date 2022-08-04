@@ -1,0 +1,81 @@
+\ *********************************************************************
+\ Get current time with HTTP client
+\    Filename:      httpGetTime.txt
+\    Date:          04 aug 2022
+\    Updated:       04 aug 2022
+\    File Version:  1.0
+\    MCU:           ESP32-WROOM-32
+\    Forth:         ESP32forth all versions 7.x++
+\    Copyright:     Marc PETREMANN
+\    Author:        Marc PETREMANN
+\    GNU General Public License
+\ *********************************************************************
+
+\ need HTT client
+\ ref: https://esp32.arduino-forth.com/article/http_implementation
+
+
+\ PHP code in gettime.php script:
+\ 
+\ <?php
+\ echo date('H i s')." RTC.set-time";
+
+
+WiFi
+
+\ connection to local WiFi LAN
+: myWiFiConnect
+    z" Mariloo"
+    z" 1925144D91DE5373C3C2D7959F"  
+    login
+  ;
+
+Forth
+
+0 value currentTime
+
+\ store current time
+: RTC.set-time { hh mm ss -- }
+    hh 3600 *
+    mm 60 *
+    ss + +  1000 *
+    MS-TICKS - to currentTime
+  ;
+
+\ used for SS and MM part of time display
+: :## ( n -- n' )
+    #  6 base ! #  decimal  [char] : hold
+  ;
+
+\ display current time
+: RTC.display-time ( -- )
+    currentTime MS-TICKS + 1000 /
+    <# :## :## 24 mod #S #> type
+  ;
+
+
+
+700 constant bufferSize
+create httpBuffer
+    bufferSize allot
+
+0 buffer 700 erase
+
+HTTP
+
+: getTime 
+    cr
+    z" http://ws.arduino-forth.com/gettime.php" HTTP.begin 
+    if
+        HTTP.doGet
+        if 
+            httpBuffer bufferSize HTTP.getPayload
+            httpBuffer z>s evaluate
+        then
+    then
+    HTTP.end
+  ;
+
+myWiFiConnect
+getTime
+RTC.display-time
