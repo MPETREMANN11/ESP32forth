@@ -1,0 +1,52 @@
+\ *********************************************************************
+\ Test HTTP client
+\    Filename:      httptest.txt
+\    Date:          04 aug 2022
+\    Updated:       04 aug 2022
+\    File Version:  1.0
+\    MCU:           ESP32-WROOM-32
+\    Forth:         ESP32forth all versions 7.x++
+\    Copyright:     Marc PETREMANN
+\    Author:        Marc PETREMANN
+\    GNU General Public License
+\ *********************************************************************
+
+\ need HTT client
+\ ref: https://esp32.arduino-forth.com/article/http_implementation
+
+WiFi
+
+\ connection to local WiFi LAN
+: myWiFiConnect
+    z" Mariloo"
+    z" 1925144D91DE5373C3C2D7959F"  
+    login
+  ;
+
+Forth
+
+: bytearray ( size -- ) ( i -- addr ) 
+    create 
+        allot 
+    does> + 
+  ;
+
+700 byteArray buffer
+
+0 buffer 700 erase
+
+HTTP
+
+: run 
+  cr
+  z" http://ws.arduino-forth.com/" HTTP.begin 
+  if
+    HTTP.doGet dup ." Get results: " . cr 0 >
+    if 
+      0 buffer 700 HTTP.getPayload
+      0 buffer z>s dup . cr type
+    then
+  then
+  HTTP.end
+;
+
