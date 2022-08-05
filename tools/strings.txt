@@ -76,6 +76,12 @@ create --str
     car addr len + c!
     1 addr cell - +!
   ; 
+  
+\ copy from addr1 len1 to addr2 len2 strings
+: append$ { addr1 len1 addr2 len2 -- }
+    addr1 addr2 len2 + len1 cmove
+    len1 addr2 cell - +!
+  ;
 
 \ work only with strings. Don't use with other arrays
 : input$ ( addr len -- )
