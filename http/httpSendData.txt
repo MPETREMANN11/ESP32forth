@@ -1,0 +1,66 @@
+\ *********************************************************************
+\ Send data to web server with HTTP client
+\    Filename:      httpSendData.txt
+\    Date:          05 aug 2022
+\    Updated:       05 aug 2022
+\    File Version:  1.0
+\    MCU:           ESP32-WROOM-32
+\    Forth:         ESP32forth all versions 7.x++
+\    Copyright:     Marc PETREMANN
+\    Author:        Marc PETREMANN
+\    GNU General Public License
+\ *********************************************************************
+
+\ need HTT client
+\ ref: https://esp32.arduino-forth.com/article/http_implementation
+
+DEFINED? --sendData [if] forget --sendData  [then]
+create --sendData
+
+\ use string words, see: https://github.com/MPETREMANN11/ESP32forth/blob/main/_BLOCKS/strings.blk
+DEFINED? string invert [if] 3 load  [then]
+
+WiFi
+
+\ connection to local WiFi LAN
+: myWiFiConnect
+    z" Mariloo"
+    z" 1925144D91DE5373C3C2D7959F"  
+    login
+  ;
+
+Forth
+
+700 constant bufferSize
+create httpBuffer
+    bufferSize allot
+
+0 buffer 700 erase
+
+HTTP
+
+256 string myUrl    \ declare string variable
+
+: sendData ( str -- ) 
+    s" http://ws.arduino-forth.com/record.php?log=myLog&pwd=myPassWd&temp=" myUrl $!
+    myUrl append$
+    \  cr myUrl type
+    myUrl s>z HTTP.begin 
+    if
+        HTTP.doGet dup 200 =
+        if  drop
+            httpBuffer bufferSize HTTP.getPayload
+            httpBuffer z>s type
+        else
+            cr ." CNX ERR: " .
+        then
+    then
+    HTTP.end
+  ;
+
+\ for test:
+myWiFiConnect
+s" 31.23" sendData
+
+
+
