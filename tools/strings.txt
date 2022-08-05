@@ -2,7 +2,7 @@
 \ strings management for ESP32forth
 \    Filename:      strings.txt
 \    Date:          20 jun 2021
-\    Updated:       29 jan 2022
+\    Updated:       05 aug 2022
 \    File Version:  1.0
 \    MCU:           ESP32-WROOM-32
 \    Forth:         ESP32forth all versions 7.x++
@@ -72,11 +72,10 @@ create --str
     ;
 
 \ append char c to string 
-: c+$!  ( c str1 -- )
-    over >r
-    + c!
-    r> cell - dup @ 1+ swap !
-    ;
+: c+$!  { car addr len -- }
+    car addr len + c!
+    1 addr cell - +!
+  ; 
 
 \ work only with strings. Don't use with other arrays
 : input$ ( addr len -- )
