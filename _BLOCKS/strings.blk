@@ -12,7 +12,7 @@ editor
   9 r : left$  ( str1 n --- str2 ) 0 max min ;
  10 r : mid$  ( str1 pos len --- str2 )
  11 r   >r over swap - right$ r> left$ ;
- 12 r : c+$! ( c str1 -- ) over >r + c! r> cell - dup @ 1+ swap ! ;
+ 12 r : c+$! { car addr len -- } car addr len + c! 1 addr cell - +! ;
  13 r : input$ ( addr len -- )
  14 r   over swap maxlen$ nip accept swap cell - ! ;
  15 r
