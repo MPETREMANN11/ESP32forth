@@ -2,7 +2,7 @@
 \ tones management and test
 \    Filename:      tones.txt
 \    Date:          20 july 2022
-\    Updated:       21 july 2022
+\    Updated:       10 august 2022
 \    MCU:           ESP32-WROOM-32
 \    Forth:         ESP32forth all versions 7.x++
 \    Copyright:     Marc PETREMANN
@@ -29,25 +29,25 @@ ledc    \ select ledc vocabulary
 create NOTES
 \ C          C#        D         D#        E         F         F#        G         G#        A         A#        B
 \ octave -1
- 15350 ,    17330 ,   18360 ,   19450 ,   20600 ,   21830 ,   23130 ,   24500 ,   25960 ,   27500 ,   29140 ,   30870 ,     
+ 15350 ,    17330 ,   18360 ,   19450 ,   20600 ,   21830 ,   23130 ,   24500 ,   25960 ,   27500 ,   29140 ,   30870 ,
 \ octave 0
- 32700 ,    34650 ,   36710 ,   38890 ,   41200 ,   43650 ,   46250 ,   49000 ,   51910 ,   55000 ,   58270 ,   61740 ,  
+ 32700 ,    34650 ,   36710 ,   38890 ,   41200 ,   43650 ,   46250 ,   49000 ,   51910 ,   55000 ,   58270 ,   61740 ,
 \ octave 1
- 65410 ,    69300 ,   73420 ,   77780 ,   82410 ,   87310 ,   92500 ,   98000 ,  103830 ,  110000 ,  116540 ,  123470 ,  
+ 65410 ,    69300 ,   73420 ,   77780 ,   82410 ,   87310 ,   92500 ,   98000 ,  103830 ,  110000 ,  116540 ,  123470 ,
 \ octave 2
-130810 ,   138590 ,  146830 ,  155560 ,  164810 ,  174610 ,  185000 ,  196000 ,  207650 ,  220000 ,  233080 ,  246940 ,  
+130810 ,   138590 ,  146830 ,  155560 ,  164810 ,  174610 ,  185000 ,  196000 ,  207650 ,  220000 ,  233080 ,  246940 ,
 \ octave 3
-261630 ,   277180 ,  293660 ,  311130 ,  329630 ,  349230 ,  369990 ,  392000 ,  415300 ,  440000 ,  466160 ,  493880 ,  
+261630 ,   277180 ,  293660 ,  311130 ,  329630 ,  349230 ,  369990 ,  392000 ,  415300 ,  440000 ,  466160 ,  493880 ,
 \ octave 4
-523250 ,   554370 ,  587330 ,  622250 ,  659260 ,  698460 ,  739990 ,  783990 ,  830610 ,  880000 ,  932330 ,  987770 ,  
+523250 ,   554370 ,  587330 ,  622250 ,  659260 ,  698460 ,  739990 ,  783990 ,  830610 ,  880000 ,  932330 ,  987770 ,
 \ octave 5
-1046500 , 1108730 , 1174660 , 1244510 , 1318510 , 1396910 , 1479980 , 1567980 , 1661220 , 1760000 , 1864660 , 1975530 ,  
+1046500 , 1108730 , 1174660 , 1244510 , 1318510 , 1396910 , 1479980 , 1567980 , 1661220 , 1760000 , 1864660 , 1975530 ,
 \ octave 6
-2093000 , 2217460 , 2349320 , 2489020 , 2637020 , 2793830 , 2959960 , 3135960 , 3322440 , 3520000 , 3729310 , 3951070 ,  
+2093000 , 2217460 , 2349320 , 2489020 , 2637020 , 2793830 , 2959960 , 3135960 , 3322440 , 3520000 , 3729310 , 3951070 ,
 \ octave 7
-4186010 , 4434920 , 4698640 , 4978030 , 5274040 , 5587650 , 5919910 , 6271930 , 6644880 , 7040000 , 7458620 , 7902130 ,  
+4186010 , 4434920 , 4698640 , 4978030 , 5274040 , 5587650 , 5919910 , 6271930 , 6644880 , 7040000 , 7458620 , 7902130 ,
 \ octave 8
-8372020 , 8869840 , 9397280 , 9956060 , 10548080 , 11175300 , 11839820 , 12543860 , 13289760 , 14080000 , 14917240 , 15804260 ,  
+8372020 , 8869840 , 9397280 , 9956060 , 10548080 , 11175300 , 11839820 , 12543860 , 13289760 , 14080000 , 14917240 , 15804260 ,
 
 
 3 value OCTAVE
@@ -56,13 +56,35 @@ create NOTES
     to OCTAVE
   ;
 
+: OCT6 ( -- )    6 set.octave ;
+: OCT5 ( -- )    5 set.octave ;
+: OCT4 ( -- )    4 set.octave ;
+: OCT3 ( -- )    3 set.octave ;
+: OCT2 ( -- )    2 set.octave ;
+: OCT1 ( -- )    1 set.octave ;
+
+\ set octave 3
+: OCT!
+    3 to OCTAVE
+  ;
+
+\ decrement octave
+: OCT-
+    -1 +to OCTAVE
+  ;
+
+\ increment octave
+: OCT+
+    1 +to OCTAVE
+  ;
+
 \ select note in interval 1..12
 : get.note ( n[1..12] -- )
     1- OCTAVE 1+ 12 * +  cell *     \ calc. offset in NOTES array
     NOTES + @                       \ fetch frequency of selected note
   ;
 
-800 constant WHOLE-NOTE-DURATION
+1600 constant WHOLE-NOTE-DURATION
 
 WHOLE-NOTE-DURATION value duration
 
@@ -76,39 +98,25 @@ music also
   ;
 
 \ set duration of a white note
-: \o  ( -- )
+: o|  ( -- )
     WHOLE-NOTE-DURATION 2/ to duration
   ;
 
 \ set duration of a black note
-: \.  ( -- )
+: .|  ( -- )
     WHOLE-NOTE-DURATION 2/ 2/ to duration
   ;
 
 \ set duration of a half black note
-: '\.  ( -- )
+: .|'  ( -- )
     WHOLE-NOTE-DURATION 2/ 2/ 2/ to duration
   ;
 
 \ set duration of a quarter black note
-: ''\.  ( -- )
+: .|"  ( -- )
     WHOLE-NOTE-DURATION 2/ 2/ 2/ 2/ to duration
   ;
 
-\ set octave 3
-: O-! 
-    3 to OCTAVE
-  ;
-
-\ decrement octave
-: O--
-    -1 +to OCTAVE
-  ;
-
-\ increment octave
-: O-+
-    1 +to OCTAVE
-  ;
 
 \ sustain of note, in interval [0..100]
 90 value SUSTAIN
@@ -125,7 +133,7 @@ ledc
 : create-note
     \ compile position in octave
     create      ( position -- )
-        ,  
+        ,
     \ get note frequency in current octave
     does>
         @ 1- get.note
@@ -168,17 +176,56 @@ ledc
 
 forth definitions
 
+DEFINED? --rk [if] forget --rk  [then]
+create --rk
 
+: music-scale ( -- )
+    C C# D D# E F F# G G# A A# B
+  ;
 
 initTones
 forth also music also
-: fj
-    O-+
-    \.
-    DO RE MI DO
-    DO RE MI DO
-    MI FA SOL
-    MI FA SOL
+.|"
+80 to SUSTAIN
+OCT1 music-scale
+OCT2 music-scale
+OCT3 music-scale
+OCT4 music-scale 
+OCT5 music-scale
+OCT6 music-scale
+
+initTones
+forth also music also
+
+: 1stLine ( -- )
+    .|"  ( duration of a quarter black note )
+    OCT5 MI RE# RE DO#     RE DO# DO  OCT4 SI
+    OCT5 DO  OCT4 SI LA# LA     SOL# SOL FA# FA
+    MI RE# RE DO#    RE DO# DO OCT3 SI 
+  ;
+
+: 2ndLine ( -- )
+    .|"  ( duration of a quarter black note )
+    OCT4 DO OCT3 SI FA# FA    SOL# SOL FA# FA
+    MI RE# RE DO#    RE DO DO# OCT2 SI OCT3
+    MI RE# RE DO#    RE DO DO OCT2 SI OCT3
+    MI RE# RE DO#    DO FA FA RE#
+  ;
+
+: 3rdLine ( -- )
+    .|"  ( duration of a quarter black note )
+    MI RE# RE DO#   DO DO# RE RE#
+    MI RE# RE DO#    DO FA FA RE#
+    MI RE# RE DO#    DO DO# RE RE#
+    MI RE# RE DO#    RE DO DO# OCT2 SI OCT3
+  ;
+
+: flightBumbleBee ( -- )
+    initTones
+    1stLine
+    2ndLine
+    3rdLine
   ;
 
 
+flightBumbleBee
