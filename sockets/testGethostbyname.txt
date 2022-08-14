@@ -1,0 +1,43 @@
+\ *********************************************************************
+\ Test gethostbyname
+\    Filename:      testGethostbyname.txt
+\    Date:          14 mar 2022
+\    Updated:       15 july 2022
+\    File Version:  1.0
+\    MCU:           ESP32-WROOM-32
+\    Forth:         ESP32forth all versions 7.x++
+\    Copyright:     Marc PETREMANN
+\    Author:        Marc PETREMANN
+\    GNU General Public License
+\ *********************************************************************
+
+WiFi
+\ connection to local WiFi LAN
+: myWiFiConnect
+    z" Mariloo"
+    z" 1925144D91DE5373C3C2D7XXXX"  
+    login
+  ;
+
+Forth
+
+myWiFiConnect
+
+sockets
+
+: getHostIp ( hostNameZ -- )
+    s>z dup >r
+    gethostbyname ?dup
+    if
+        cr ."  - addr IP: " r@ z>s type 
+        ->h_addr ip.
+    else
+        cr ." UNABLE ACCESS: " r@ z>s type
+    then
+    rdrop
+  ;
+
+s" xxx-fth.com"      getHostIp  
+    \ display: UNABLE ACCESS: xxx-fth.com
+s" esp32-forth.com"  getHostIp  
+    \ display: esp32-forth.com - addr IP: 213.186.33.5
