@@ -1,0 +1,61 @@
+\ *********************************************************************
+\ Display ANSI characters table
+\    Filename:      charTable.txt
+\    Date:          16 aug 2022
+\    Updated:       16 aug 2022
+\    File Version:  1.0
+\    MCU:           ESP32-WROOM-32
+\    Forth:         ESP32forth versions 7.0.7++
+\    Copyright:     Marc PETREMANN
+\    Author:        Marc PETREMANN
+\    GNU General Public License
+\ *********************************************************************
+
+\ To use ANSI characters with Tera Term:
+\ - clic "Setup"
+\ - select "Font" --> "font"
+\ - choose "8514oem"  --> normal --> OEM/DOS
+\       or "Terminal" --> normal --> OEM/DOS
+
+DEFINED? --charTable [if] forget --charTable  [then]
+create --charTable
+
+\ display number in hex or decimal format
+: NNN ( n -- )
+    base @ >r
+    r@ 10 = if
+        <# # # # #> type space
+    then
+    r@ 16 = if
+        <# # # #> type space
+    then
+    rdrop
+  ;
+
+\ display characters table
+: charTable ( -- )
+    page
+    32 0 do
+        cr
+        8 0 do
+            j 8 * i +  >r
+            r@  31 >  r@ 127 < and
+            r@ 159 >  r@ 255 < and   or 
+            if
+                normal
+                r@ NNN
+                r@ emit
+            else
+                3 fg
+                r@ NNN
+                space
+            then
+            2 spaces
+            rdrop
+        loop
+    loop
+    cr normal
+  ;
+
+
+charTable
