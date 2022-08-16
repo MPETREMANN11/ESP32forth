@@ -1,0 +1,68 @@
+\ *********************************************************************
+\ Display text sprite with DOS characters
+\    Filename:      charTable.txt
+\    Date:          16 aug 2022
+\    Updated:       16 aug 2022
+\    File Version:  1.0
+\    MCU:           ESP32-WROOM-32
+\    Forth:         ESP32forth versions 7.0.7++
+\    Copyright:     Marc PETREMANN
+\    Author:        Marc PETREMANN
+\    GNU General Public License
+\ *********************************************************************
+
+\ To use DOS/ANSI characters with Tera Term:
+\ - clic "Setup"
+\ - select "Font" --> "font"
+\ - choose "8514oem"  --> normal --> OEM/DOS
+\       or "Terminal" --> normal --> OEM/DOS
+
+DEFINED? --sprite [if] forget --sprite  [then]
+create --sprite
+
+\ define a sprite
+: sprite: 
+    create  ( dx dy -- <name> )
+        swap c, c,
+    does>   { x0 y0 addr -- }
+        addr c@    { dx }
+        addr 1+ c@ { dy }
+        dy 0 do
+            x0 y0 i + at-xy
+            addr 2 +   i dx * + dx type
+        loop
+  ;
+
+\ dx dy sprite <name>
+\ define a sprite with size dx and height dy, 
+\ example:
+
+11 3 sprite: borders
+$da c,  $c4 c,  $c4 c,  $c4 c,  $c4 c,  $c4 c,  $c4 c,  $c4 c,  $c4 c,  $c4 c,  $bf c,  
+$b3 c,  $20 c,  $20 c,  $20 c,  $20 c,  $20 c,  $20 c,  $20 c,  $20 c,  $20 c,  $b3 c,
+$c0 c,  $c4 c,  $c4 c,  $c4 c,  $c4 c,  $c4 c,  $c4 c,  $c4 c,  $c4 c,  $c4 c,  $d9 c,
+
+\ x0 y0 <name>
+\ display a text sprite at x0 y0 coordinates
+\ example:
+
+ 1 constant red
+ 2 constant green
+ 4 constant blue
+11 constant yellow
+
+: 4sprites
+    page
+    red fg
+    4 2 borders
+    green fg
+    16 2 borders
+    blue fg
+    4 6 borders
+    yellow fg
+    16 6 borders
+    0 20 at-xy
+    normal
+  ;
+4sprites
+
