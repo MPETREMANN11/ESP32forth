@@ -1,0 +1,39 @@
+\ *********************************************************************
+\ Compile chinese characters
+\    Filename:      charTable.txt
+\    Date:          17 aug 2022
+\    Updated:       17 aug 2022
+\    File Version:  1.0
+\    MCU:           ESP32-WROOM-32
+\    Forth:         ESP32forth versions 7.0.6++
+\    Copyright:     Marc PETREMANN
+\    Author:        Marc PETREMANN
+\    GNU General Public License
+\ *********************************************************************
+
+\ Work only with PuTTy terminal
+
+internals
+: chinese: 
+    create ( c1 c2 c3 -- )
+        c, c, c,
+    does>
+        3 serial-type
+  ;
+forth
+
+\ to find UTF8 code for a chinese caracter:
+\ copy charactyer from Google Translate
+\ Example: Good Morning --> 早安 (Zao an)
+\ copy 早 and go in PuTTy terminal:
+\   type key key key    <enter>
+\   paste 早
+\ ESP32forth display stack: 
+\   230 151 169 -->
+
+169 151 230 chinese: Zao
+137 174 229 chinese: An
+
+\ use:
+Zao An  \  <enter>
+\ display 早安
