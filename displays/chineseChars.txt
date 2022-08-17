@@ -25,9 +25,9 @@ forth
 \ to find UTF8 code for a chinese caracter:
 \ copy charactyer from Google Translate
 \ Example: Good Morning --> 早安 (Zao an)
-\ copy 早 and go in PuTTy terminal:
-\   type key key key    <enter>
-\   paste 早
+\ copy 早 and go in PuTTy terminal, type:
+\   key key key    <enter>
+\ paste: 早
 \ ESP32forth display stack: 
 \   230 151 169 -->
 
