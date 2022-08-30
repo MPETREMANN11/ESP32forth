@@ -1,0 +1,140 @@
+\ *********************************************************************
+\ time utilities - days months
+\    Filename:      dayTime.txt
+\    Date:          30 aug 2022
+\    Updated:       30 aug 2022
+\    File Version:  1.0
+\    MCU:           ESP32-WROOM-32
+\    Forth:         ESP32forth all versions 7.x++
+\    Author:        Marc PETREMANN
+\    GNU General Public License
+\ *********************************************************************
+
+
+DEFINED? --time [if] forget --time  [then]
+create --time
+
+\ define days names in english
+:noname s" Saterday" ; 
+:noname s" Friday" ; 
+:noname s" Thursday" ; 
+:noname s" Wednesday" ; 
+:noname s" Tuesday" ; 
+:noname s" Monday" ; 
+:noname s" Sunday" ; 
+  
+create (ENday) ( --- addr) 
+    , , , , , , , 
+  
+\ define days names in french
+:noname s" Samedi" ; 
+:noname s" Vendredi" ; 
+:noname s" Jeudi" ; 
+:noname s" Mercredi" ; 
+:noname s" Mardi" ; 
+:noname s" Lundi" ; 
+:noname s" Dimanche" ; 
+  
+create (FRday) ( --- addr) 
+    , , , , , , , 
+  
+defer (day) 
+
+\ define months names in english
+:noname s" December" ;
+:noname s" November" ;
+:noname s" October" ;
+:noname s" September" ;
+:noname s" August" ;
+:noname s" July" ;
+:noname s" June" ;
+:noname s" May" ;
+:noname s" April" ;
+:noname s" March" ;
+:noname s" February" ;
+:noname s" January" ;
+
+create (ENmonth) ( --- addr) 
+    , , , , , , , , , , , ,
+  
+\ define months names in english
+:noname s" Décembre" ;
+:noname s" Novembre" ;
+:noname s" Octobre" ;
+:noname s" Septembre" ;
+:noname s" Août" ;
+:noname s" Juillet" ;
+:noname s" Juin" ;
+:noname s" Mai" ;
+:noname s" Avril" ;
+:noname s" mars" ;
+:noname s" Février" ;
+:noname s" Janvier" ;
+
+create (FRmonth) ( --- addr)
+    , , , , , , , , , , , ,
+
+defer (month) 
+
+: ENdate  
+    ['] (ENday)   is (day) 
+    ['] (ENmonth) is (month) 
+  ; 
+  
+: FRdate  
+    ['] (FRday)   is (day) 
+    ['] (FRmonth) is (month) 
+  ; 
+  
+: _getString { array length -- addr len }
+    array
+    swap cell *
+    + @ execute
+    length ?dup if
+        min
+    then
+  ;
+
+3 value dayLength
+: getDay ( n -- addr len )       \ n interval [0..6]
+    (day) dayLength _getString
+  ;
+
+3 value monthLength
+: getMonth ( n -- addr len )     \ n interval [0..11]
+    (month) monthLength _getString
+  ;
+
+: .day	( n -- )
+    getDay type 
+  ; 
+
+: .month ( n -- )
+    getMonth type 
+  ; 
+
+\ for tests
+ENdate 
+cr 3 .day 
+cr 5 .month 
+cr 
+
+
+: :NN ( n -- n' ) 
+    decimal # 
+    6 base ! # decimal 
+    [char] : hold 
+  ; 
+
+: HMS ( nSeconds -- addr len ) 
+    <# :NN :NN # # #> 
+  ; 
+
+: .time ( nSeconds -- )
+    HMS type
+  ;
+
+\ for test
+4200 .time   \ display 01:10:00
+
+
