@@ -29,8 +29,22 @@ also forth definitions
 vocabulary asm
 internals definitions
 
-: ca! ( n a -- ) dup cell-base >r cell-shift swap over lshift
-                 swap 255 swap lshift invert r@ @ and or r> ! ;
+( Temporary for platforms without CALLCODE )
+DEFINED? CALLCODE 0= [IF]  create CALLCODE   [THEN]
+
+( Safe memory access, i.e. aligned )
+cell 1- constant cell-mask
+: cell-base ( a -- a ) 
+    cell-mask invert and 
+  ;
+: cell-shift ( a -- a ) 
+    cell-mask and 8 * 
+  ;
+
+: ca! ( n a -- ) 
+    dup cell-base >r cell-shift swap over lshift
+    swap 255 swap lshift invert r@ @ and or r> ! 
+  ;
 
 also asm definitions
 
@@ -38,7 +52,9 @@ variable code-start
 variable code-at
 
 also esp
-: reserve ( n -- ) MALLOC_CAP_EXEC heap_caps_malloc code-start ! ;
+: reserve ( n -- ) 
+    MALLOC_CAP_EXEC heap_caps_malloc code-start ! 
+  ;
 previous
 1024 reserve
 
@@ -55,10 +71,29 @@ code-start @ code-at !
 
 also forth definitions
 
-: code ( "name" ) create ['] callcode @ latestxt !
-                  code-at @ latestxt cell+ ! also asm ;
+: code
+    create   ( -- <name> )
+        ['] callcode @ latestxt !
+        code-at @ latestxt cell+ ! also asm 
+  ;
 
 previous previous previous
-asm
 
+
+
+asm forth 
+
+
+\ Example of Xtensa code assembled with code..end-code
+
+code my2*
+  $004136 code3, ( entry   a1, 32 )
+  $0288   code2, ( l32i.n  a8, a2, 0 )
+  $1188f0 code3, ( slli    a8, a8, 1 )
+  $0289   code2, ( s32i.n  a8, a2, 0 )
+  $f01d   code2, ( retw.n )
+end-code
+
+see my2*
+123 my2* . cr
 
