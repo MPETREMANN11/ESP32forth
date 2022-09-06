@@ -1,0 +1,64 @@
+\ *********************************************************************
+\ Assembler vocabulary for ESP32Forth
+\    Filename:      asmCode.txt
+\    Date:          06 sept 2022
+\    Updated:       06 sept 2022
+\    File Version:  1.0
+\    MCU:           ESP32-WROOM-32
+\    Forth:         ESP32forth all versions 7.07++
+\    Author:        Bradley D. Nelson
+\    Adaptation:    Marc PETREMANN
+\    GNU General Public License
+\ *********************************************************************
+
+\ Copyright 2022 Bradley D. Nelson
+\
+\ Licensed under the Apache License, Version 2.0 (the "License");
+\ you may not use this file except in compliance with the License.
+\ You may obtain a copy of the License at
+\
+\     http://www.apache.org/licenses/LICENSE-2.0
+\
+\ Unless required by applicable law or agreed to in writing, software
+\ distributed under the License is distributed on an "AS IS" BASIS,
+\ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+\ See the License for the specific language governing permissions and
+\ limitations under the License.
+
+also forth definitions
+vocabulary asm
+internals definitions
+
+: ca! ( n a -- ) dup cell-base >r cell-shift swap over lshift
+                 swap 255 swap lshift invert r@ @ and or r> ! ;
+
+also asm definitions
+
+variable code-start
+variable code-at
+
+also esp
+: reserve ( n -- ) MALLOC_CAP_EXEC heap_caps_malloc code-start ! ;
+previous
+1024 reserve
+
+code-start @ code-at !
+
+: chere ( -- a ) code-at @ ;
+: callot ( n -- ) code-at +! ;
+: code1, ( n -- ) chere ca! 1 callot ;
+: code2, ( n -- ) dup code1, 8 rshift code1, ;
+: code3, ( n -- ) dup code2, 16 rshift code1, ;
+: code4, ( n -- ) dup code2, 16 rshift code2, ;
+: code,  code4, ;
+: end-code   previous ;
+
+also forth definitions
+
+: code ( "name" ) create ['] callcode @ latestxt !
+                  code-at @ latestxt cell+ ! also asm ;
+
+previous previous previous
+asm
+
+
