@@ -1,7 +1,7 @@
 \ *********************************************************************
 \ Blinking a LED by timers
 \    Date:          02 jul 2022
-\    Updated:       05 jul 2022
+\    Updated:       28 sep 2022
 \    File Version:  0.0
 \    MCU:           ESP32-WROOM-32
 \    Forth:         ESP32forth all versions 7.x++
@@ -116,4 +116,45 @@ timers  \ select timers vocabulary
     myLED output pinMode
     led.toggle
   ;
+
+
+
+\ **************************************************************
+\ **  VERSION USING TIMERS - AUTO START AT BOOT
+\ **************************************************************
+
+18 constant myLED
+
+0 value LED_STATE        
+
+: led.on ( -- )      
+    HIGH  dup myLED pin
+    to LED_STATE
+  ;
+        
+: led.off ( -- )      
+    LOW  dup myLED pin
+    to LED_STATE
+  ;
+     
+timers also \ select timers vocabulary
+
+: led.toggle ( -- )
+    LED_STATE if
+        led.off
+    else
+        led.on
+    then
+    0 rerun
+  ;
+
+: led.blink ( -- )
+    myLED output pinMode
+    ['] led.toggle 500000 0 interval
+    led.toggle
+  ;
+
+startup: led.blink
+bye
+
 
