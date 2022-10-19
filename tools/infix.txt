@@ -1,0 +1,181 @@
+\ *********************************************************************
+\ convert infix to postfix notation
+\    Filename:      infix.txt
+\    Date:          15 oct 2022
+\    Updated:       19 oct 2022
+\    File Version:  1.0
+\    MCU:           ESP32Forth / eFORTH
+\    Copyright:     Marc PETREMANN
+\    Author:        Marc PETREMANN
+\    GNU General Public License
+\ *********************************************************************
+
+DEFINED? --infix [if] forget --infix  [then]
+create --infix
+
+\ Define operator stack
+80 constant OPERATORS         \ increase value 80 if needed
+cell 2* OPERATORS * constant OP-SIZE
+create op               \ operator stack
+    OP-SIZE allot
+
+\ pointer for operator pointer
+0 value op-pointer
+
+\ get current operator pointer
+: opp@    ( --- addr )
+    op op-pointer +
+  ;
+
+\ increase operator pointer
+: opp+ ( -- )
+    cell 2* +to op-pointer 
+  ;
+
+\ decrease operator pointer
+: opp- ( -- )
+    cell 2* negate +to op-pointer 
+  ;
+
+\ execute or compile word
+: ?interp ( cfa -- )
+    state @             \ 0 = interpret mode, -1 = compile mode
+    if      ,           \ compile word
+    else    execute     \ execute word
+    then
+  ;
+
+\ store cfa and level on operator staock
+: >op     ( cfa level -- )
+    opp+ 
+    opp@ 2!
+  ;
+
+\ get cfa from operator stacl
+: op>     ( -- )
+    opp@ 2@
+    opp- 
+    swap drop ?interp
+  ;
+
+\ get level pointed by current operator stack
+: lev?    ( -- level )
+    op-pointer op + @
+  ;
+
+\ end an algebric formula
+: ]$
+    begin   lev?
+    while   op>
+    repeat
+    forth ; immediate
+
+\ execute part of algebra operator
+: dealing  ( addr --- )
+    2@
+    begin   over lev? > invert
+    while   >r >r op> r> r>
+    repeat
+    >op
+  ;
+
+\ define algebra operator.
+: infix   ( n --- <word1> <word2>   in compilation )
+    '               \ get cfa word1
+    create          \ create word2
+        swap , , 
+        immediate
+    does>
+        dealing 
+  ;
+
+vocabulary algebra    algebra definitions
+7 infix * *    7 infix / /    
+6 infix + +    6 infix - -
+5 infix > >    5 infix < <    5 infix = =
+4 infix invert not
+3 infix and and
+2 infix or or
+
+: noop ;
+
+: (
+    1  ['] noop >op 
+  ; immediate
+
+: )
+    [ forth ]
+    begin   1 lev? <
+    while   op>
+    repeat
+    1 lev? =
+    if    opp-
+    else  ." miss " 40 emit space  
+          -1 throw
+    then 
+  ; immediate
+
+\ start algebric formula
+forth definitions
+: $[
+    op OP-SIZE 0 fill
+    0 to op-pointer
+    algebra 
+  ; immediate
+
+
+\ : tt
+\    $[ ( 2 + 3 ) * ( 4 + 5 ) ]$
+\   ;
+
+
+\ *** examples: ******************************************************
+
+2 value two
+0 value result
+: ex1
+    $[ ( ( two + 3 ) * ( 4 + 1 ) ) ]$
+    to result
+    \ two 3 + 4 1 + *
+  ;
+
+
+: ex2 
+    $[ ( ( 2 + 3 ) * ( 4 - 1 ) / 2 ) ]$
+    \ 2 3 + 4 1 - * 2 /
+  ;
+
+
+: ex3
+    $[ 48 / 2 * ( 9 + 3 ) ]$ 
+    \ 48 2 / 9 3 + *
+  ;
+
+
+-1 constant true
+ 0 constant false
+
+0 value KELVIN
+0 value FAHRENHEIT
+0 value tempCelsius
+: toK ( ---)
+    false to FAHRENHEIT
+    true  to KELVIN
+  ;
+: toF ( ---)
+    false to KELVIN
+    true  to FAHRENHEIT
+  ;
+: .temp ( deg --- deg2)
+    to tempCelsius
+    $[
+        ( ( tempCelsius + 273 ) and KELVIN )   +
+        ( ( ( tempCelsius * 9 / 5 ) + 32 ) and FAHRENHEIT )
+    ]$
+    \ tempCelsius 273 + KELVIN AND tempCelsius 9 * 5 / 32 + FAHRENHEIT AND + .
+    .
+  ;
+\ usage:
+\ 10 ToF .temp 42  ok
+\ 10 toK .temp 283  ok
+
