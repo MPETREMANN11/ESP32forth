@@ -2,9 +2,9 @@
 \ convert infix to postfix notation
 \    Filename:      infix.txt
 \    Date:          15 oct 2022
-\    Updated:       19 oct 2022
-\    File Version:  1.0
-\    MCU:           ESP32Forth / eFORTH
+\    Updated:       20 oct 2022
+\    File Version:  1.1
+\    MCU:           ESP32Forth
 \    Copyright:     Marc PETREMANN
 \    Author:        Marc PETREMANN
 \    GNU General Public License
@@ -178,4 +178,113 @@ forth definitions
 \ usage:
 \ 10 ToF .temp 42  ok
 \ 10 toK .temp 283  ok
+
+
+\ *** Example with filled rectangles **************************
+
+0 value DX      \ current X coordinate
+0 value DY      \ current Y coordinate
+ 
+: dx+  ( ---)   \ increment DX 1 position
+    DX 1+ to DX ;
+ 
+: dy+  ( ---)   \ increment DY 1 position
+    DY 1+ to DY ;
+
+0 value SX    \ x Start rect 1
+0 value EX    \ x End   rect 1
+0 value SY    \ y Start rect 1 
+0 value EY    \ y Etart rect 1 
+
+: inRect? ( --- fl)
+    $[      ( NOT ( DX < SX  ) ) AND 
+            ( NOT ( DX > EX  ) ) AND 
+            ( NOT ( DY < SY  ) ) AND 
+            ( NOT ( DY > EY  ) )
+    ]$  ;
+
+: inLeftRect? ( --- fl)
+    4  to SX    \ x Start rect left
+    40 to EX    \ x End   rect left
+    4  to SY    \ y Start rect left 
+    16 to EY    \ y Etart rect left 
+    inRect?  ;
+ 
+: inRightRect? ( --- fl)
+    22 to SX    \ x Start rect right
+    58 to EX    \ x End   rect right
+    10 to SY    \ y Start rect right 
+    26 to EY    \ y Etart rect right 
+    inRect?  ;
+
+: dispChar ( ---)
+    $[    \ 46  is char .
+          ( 46  * ( ( ( NOT inLeftRect? ) AND ( NOT inRightRect? ) ) abs ) )
+          \ 43  is char +
+        + ( 43  * ( ( ( inLeftRect? ) AND ( NOT inRightRect? ) ) abs ) )
+          \ 88  is char X
+        + ( 88  * ( inLeftRect? AND inRightRect? abs ) )
+          \ 111 is char o
+        + ( 111 * ( ( ( inRightRect? ) and ( NOT inLeftRect? ) ) abs ) )
+    ]$
+    emit
+  ;
+
+\ Execution of see dispChar display:
+\ : dispChar
+\     46 inLeftRect? invert inRightRect? invert AND abs * 
+\     43 inLeftRect? inRightRect? invert AND abs * + 
+\     88 inLeftRect? inRightRect? abs AND * + 
+\     111 inRightRect? inLeftRect? invert AND abs * + 
+\     emit
+\ ;
+
+: graphLoop ( ---)
+    30 for
+        cr
+        120 for
+            dispChar
+            dx+
+        next
+        dy+
+        0 to DX
+    next ;
+
+\ Execution of graphLoop display:
+\ .........................................................................................................................
+\ .........................................................................................................................
+\ .........................................................................................................................
+\ .........................................................................................................................
+\ ....+++++++++++++++++++++++++++++++++++++................................................................................
+\ ....+++++++++++++++++++++++++++++++++++++................................................................................
+\ ....+++++++++++++++++++++++++++++++++++++................................................................................
+\ ....+++++++++++++++++++++++++++++++++++++................................................................................
+\ ....+++++++++++++++++++++++++++++++++++++................................................................................
+\ ....+++++++++++++++++++++++++++++++++++++................................................................................
+\ ....++++++++++++++++++XXXXXXXXXXXXXXXXXXXoooooooooooooooooo..............................................................
+\ ....++++++++++++++++++XXXXXXXXXXXXXXXXXXXoooooooooooooooooo..............................................................
+\ ....++++++++++++++++++XXXXXXXXXXXXXXXXXXXoooooooooooooooooo..............................................................
+\ ....++++++++++++++++++XXXXXXXXXXXXXXXXXXXoooooooooooooooooo..............................................................
+\ ....++++++++++++++++++XXXXXXXXXXXXXXXXXXXoooooooooooooooooo..............................................................
+\ ....++++++++++++++++++XXXXXXXXXXXXXXXXXXXoooooooooooooooooo..............................................................
+\ ....++++++++++++++++++XXXXXXXXXXXXXXXXXXXoooooooooooooooooo..............................................................
+\ ......................ooooooooooooooooooooooooooooooooooooo..............................................................
+\ ......................ooooooooooooooooooooooooooooooooooooo..............................................................
+\ ......................ooooooooooooooooooooooooooooooooooooo..............................................................
+\ ......................ooooooooooooooooooooooooooooooooooooo..............................................................
+\ ......................ooooooooooooooooooooooooooooooooooooo..............................................................
+\ ......................ooooooooooooooooooooooooooooooooooooo..............................................................
+\ ......................ooooooooooooooooooooooooooooooooooooo..............................................................
+\ ......................ooooooooooooooooooooooooooooooooooooo..............................................................
+\ ......................ooooooooooooooooooooooooooooooooooooo..............................................................
+\ ......................ooooooooooooooooooooooooooooooooooooo..............................................................
+\ .........................................................................................................................
+\ .........................................................................................................................
+\ .........................................................................................................................
+\ ......................................................................................................................... ok
+
+
+
+
+
 
