@@ -1,0 +1,40 @@
+\ *********************************************************************
+\ Solar light analyzer
+\    Filename:      solarLightAnalyzer.txt
+\    Date:          04 nov 2022
+\    Updated:       04 nov 2022
+\    File Version:  1.0
+\    MCU:           ESP32-WROOM-32
+\    Forth:         ESP32forth all versions 7.x++
+\    Copyright:     Marc PETREMANN
+\    Author:        Marc PETREMANN
+\    Link:          https://esp32.arduino-forth.com/article/ADC_capteurSoleil
+\    GNU General Public License
+\ *********************************************************************
+
+DEFINED? --SolarAnalyzer [if] forget --SolarAnalyzer  [then]
+create --SolarAnalyzer
+
+\ solar cell connected on pin G34
+34 constant SOLAR_CELL
+
+: init-solar-cell ( -- )
+    SOLAR_CELL input pinMode
+  ;
+
+: solar-cell-read ( -- n )
+    SOLAR_CELL analogRead
+  ;
+
+\ test loop, uncomment for use
+\ : solar-cell-loop ( --)
+\     init-solar-cell
+\     begin
+\         solar-cell-read cr .
+\         200 ms
+\     key? until
+\   ;
+
+\ define value between sunny or cloudy sky
+200 value SOLAR_TRIGGER
+
