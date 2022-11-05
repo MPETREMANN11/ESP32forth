@@ -35,46 +35,66 @@ create --SolarAnalyzer
 \     key? until
 \   ;
 
-17 constant TRIGGER_ON      \ green LED
-16 constant TRIGGER_OFF     \   red LED
+17 constant DEVICE_ON      \ green LED
+16 constant DEVICE_OFF     \   red LED
 
-: init-trigger-state ( -- )
-    TRIGGER_ON  output pinMode
-    TRIGGER_OFF output pinMode
+: init-device-state ( -- )
+    DEVICE_ON  output pinMode
+    DEVICE_OFF output pinMode
   ;
 
 \ define trigger high state delay
-500 value TRIGGER_DELAY
+500 value DEVICE_DELAY
 
-\ set HIGH level of trigger
-: trigger-activation { trigger -- }
-    trigger HIGH digitalWrite
-    TRIGGER_DELAY ?dup
+\ set HIGH level of device
+: device-activation { device -- }
+    device HIGH digitalWrite
+    DEVICE_DELAY ?dup
     if
         ms
-        trigger LOW  digitalWrite
+        device LOW  digitalWrite
+    then
+  ;
+
+\ define device state: 0=LOW, -1=HIGH
+0 value DEVICE_STATE
+
+\ enable device
+: device-ON ( -- )
+    DEVICE_STATE invert
+    if
+        DEVICE_OFF LOW  digitalWrite
+        DEVICE_ON  device-activation
+        -1 to DEVICE_STATE
+    then
+  ;
+
+\ disable device
+: device-OFF ( -- )
+    DEVICE_STATE
+    if
+        DEVICE_ON  LOW  digitalWrite
+        DEVICE_OFF device-activation
+         0 to DEVICE_STATE
     then
   ;
 
 \ define trigger value for sunny or cloudy sky
 300 value SOLAR_TRIGGER
 
-\ define trigger state: 0=LOW, -1=HIGH
-0 value TRIGGER_STATE
-
-: action-ON ( -- )
+\ if solar light > SOLAR_TRIGGER, activate action
+: action-light-level ( -- )
     solar-cell-read SOLAR_TRIGGER >=
-    TRIGGER_STATE invert  AND
     if
-        TRIGGER_ON  trigger-action
+        device-ON
+    else
+        device-OFF
     then
   ;
 
-: action-OFF ( -- )
-    solar-cell-read SOLAR_TRIGGER <
-    TRIGGER_STATE   and
-    if
-        TRIGGER_OFF trigger-action
-    then
-  ;
+
+init-solar-cell
+init-device-state
+
+
 
