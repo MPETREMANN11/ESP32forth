@@ -2,7 +2,7 @@
 \ Solar light analyzer
 \    Filename:      solarLightAnalyzer.txt
 \    Date:          04 nov 2022
-\    Updated:       04 nov 2022
+\    Updated:       05 nov 2022
 \    File Version:  1.0
 \    MCU:           ESP32-WROOM-32
 \    Forth:         ESP32forth all versions 7.x++
@@ -35,6 +35,46 @@ create --SolarAnalyzer
 \     key? until
 \   ;
 
-\ define value between sunny or cloudy sky
-200 value SOLAR_TRIGGER
+17 constant TRIGGER_ON      \ green LED
+16 constant TRIGGER_OFF     \   red LED
+
+: init-trigger-state ( -- )
+    TRIGGER_ON  output pinMode
+    TRIGGER_OFF output pinMode
+  ;
+
+\ define trigger high state delay
+500 value TRIGGER_DELAY
+
+\ set HIGH level of trigger
+: trigger-activation { trigger -- }
+    trigger HIGH digitalWrite
+    TRIGGER_DELAY ?dup
+    if
+        ms
+        trigger LOW  digitalWrite
+    then
+  ;
+
+\ define trigger value for sunny or cloudy sky
+300 value SOLAR_TRIGGER
+
+\ define trigger state: 0=LOW, -1=HIGH
+0 value TRIGGER_STATE
+
+: action-ON ( -- )
+    solar-cell-read SOLAR_TRIGGER >=
+    TRIGGER_STATE invert  AND
+    if
+        TRIGGER_ON  trigger-action
+    then
+  ;
+
+: action-OFF ( -- )
+    solar-cell-read SOLAR_TRIGGER <
+    TRIGGER_STATE   and
+    if
+        TRIGGER_OFF trigger-action
+    then
+  ;
 
