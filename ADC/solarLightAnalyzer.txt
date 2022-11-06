@@ -2,7 +2,7 @@
 \ Solar light analyzer
 \    Filename:      solarLightAnalyzer.txt
 \    Date:          04 nov 2022
-\    Updated:       05 nov 2022
+\    Updated:       06 nov 2022
 \    File Version:  1.0
 \    MCU:           ESP32-WROOM-32
 \    Forth:         ESP32forth all versions 7.x++
@@ -46,21 +46,27 @@ create --SolarAnalyzer
 \ define trigger high state delay
 500 value DEVICE_DELAY
 
+\ delay with no pause
+: xDelay ( n -- )
+    0 do
+        500 0 do loop
+    loop
+  ;
+
 \ set HIGH level of device
 : device-activation { device -- }
     device HIGH digitalWrite
-    DEVICE_DELAY ?dup
+    DEVICE_DELAY
     if
-        ms
-        device LOW  digitalWrite
+        DEVICE_DELAY xDelay
+        device LOW digitalWrite
     then
   ;
 
-\ define device state: 0=LOW, -1=HIGH
+\ define device state: 0=disabled, -1=enabled
 0 value DEVICE_STATE
 
-\ enable device
-: device-ON ( -- )
+: enable-device ( -- )
     DEVICE_STATE invert
     if
         DEVICE_OFF LOW  digitalWrite
@@ -69,8 +75,7 @@ create --SolarAnalyzer
     then
   ;
 
-\ disable device
-: device-OFF ( -- )
+: disable-device ( -- )
     DEVICE_STATE
     if
         DEVICE_ON  LOW  digitalWrite
@@ -80,21 +85,54 @@ create --SolarAnalyzer
   ;
 
 \ define trigger value for sunny or cloudy sky
-300 value SOLAR_TRIGGER
+200 value SOLAR_TRIGGER
 
 \ if solar light > SOLAR_TRIGGER, activate action
 : action-light-level ( -- )
     solar-cell-read SOLAR_TRIGGER >=
     if
-        device-ON
+        enable-device
     else
-        device-OFF
+        disable-device
     then
   ;
 
+timers
+: action ( -- )
+    action-light-level
+    0 rerun
+  ;
 
-init-solar-cell
-init-device-state
+\ for test:
+\ 500 to DEVICE_DELAY
+\ 200 to SOLAR_TRIGGER
+\ init-solar-cell
+\ init-device-state
+\ disable-device
 
+\ timers
+\ ' action 1000000 0 interval
+
+\ *** --- scenario with constant command signal --- ***
+
+\ start with Constant Command Signal
+: start-CCS ( -- )
+      0 to DEVICE_DELAY
+    200 to SOLAR_TRIGGER
+    init-solar-cell
+    init-device-state
+    disable-device
+    [ timers ] ['] action 1000000 0 interval
+  ; 
+
+\ start with Temporized Command Signal
+: start-TCS ( -- )
+    300 to DEVICE_DELAY
+    200 to SOLAR_TRIGGER
+    init-solar-cell
+    init-device-state
+    disable-device
+    [ timers ] ['] action 1000000 0 interval
+  ; 
 
 
