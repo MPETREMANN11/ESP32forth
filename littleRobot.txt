@@ -1,0 +1,154 @@
+\ *********************************************************************
+\ programming a little robot
+\    Filename:      littleRobot.txt
+\    Date:          13 nov 2022
+\    Updated:       13 nov2022
+\    MCU:           ESP32-WROOM-32
+\    Forth:         ESP32forth all versions 7.x++
+\    Copyright:     Daniel GOURRIBON
+\    Author:        Daniel GOURRIBON / adaptation: Marc PETREMANN
+\    GNU General Public License
+\ *********************************************************************
+
+DEFINED? --littleRobot [if] forget --littleRobot  [then]
+create --littleRobot
+
+\ Block 1 - Mouvements Robot
+
+FORTH DEFINITIONS also 
+
+LEDC 
+DECIMAL 
+
+15 constant PWMR1 
+ 5 constant PWMR2 
+ 2 constant PWMR3 
+ 4 constant PWMR4 
+
+1 constant chRIGHT1 
+2 constant chRIGHT2 
+
+: init-pwm ( -- )
+    PWMR1 chRIGHT1 ledcAttachPin 
+    PWMR2 chRIGHT2 ledcAttachPin 
+    chRIGHT1 20000 10 ledcSetup 
+    chRIGHT2 20000 10 ledcSetup 
+  ; 
+
+: servo1 ( speed -- ) 
+    chRIGHT1 swap ledcWrite 
+  ; 
+
+: servo2 ( speed -- ) 
+    chRIGHT2 swap ledcWrite 
+  ; 
+
+init-pwm 
+
+100 value del 
+
+: delay 
+    del ms 
+  ; 
+
+: AV1 ( -- )
+    15 servo1 
+  ; 
+: AV2 ( -- )
+    50 servo2 
+  ; 
+: AV ( -- )
+    AV1 AV2 
+  ; 
+
+: AR1 
+    48 servo1 
+  ; 
+: AR2 
+    15 servo2 
+  ; 
+: AR 
+    AR1 AR2 
+  ; 
+
+: st1 
+    0 servo1 
+  ; 
+: st2 
+    0 servo2 
+  ; 
+: S 
+    st1 st2 
+  ; 
+
+: alrt 
+    av 1000 ms 
+    s ar 1000 ms S 
+  ; 
+
+\ chronometres avec 2 capteurs HALL 
+
+2 constant capt1 
+variable c 
+variable t1 
+variable t2 
+
+4 constant capt2 
+variable d 
+variable d1 
+variable d2 
+
+0 constant GPIO_PULLUP_ONLY 
+capt1 input pinMode 
+
+: ##: 
+    <# 49 HOLD 68 HOLD 46 HOLD 67 HOLD 
+    69 HOLD 83 HOLD 32 HOLD # # # 44 HOLD # #> 
+    type 
+  ; 
+
+0 constant GPIO_PULLUP_ONLY
+capt2 input pinMode 
+
+: ###: 
+    <# 50 HOLD 71 HOLD 46 HOLD 67 HOLD 
+    69 HOLD 83 HOLD 32 HOLD # # # 44 HOLD # #> 
+    type 
+  ; 
+
+: tempo 
+    capt1 digitalRead 
+    if 
+        1 = ms-ticks dup t1 ! 
+        c @ - ##: cr 
+    else 
+        t1 @ c ! 
+    then 
+  ; 
+: tempi 
+    capt2 digitalRead 
+    if 
+        1 = ms-ticks dup d1 ! d @   
+        - ###: cr 
+    else 
+        d1 @ d ! 
+    then 
+  ; 
+
+\ Block 5 - suite chronometres hall
+
+interrupts 
+
+capt1 gpio_pulldown_en drop 
+
+capt2 gpio_pulldown_en drop 
+
+capt1 #GPIO_INTR_POSEDGE gpio_set_intr_type drop 
+
+capt2 #GPIO_INTR_POSEDGE gpio_set_intr_type drop 
+
+' tempo capt1 pinchange 
+
+' tempi capt2 pinchange 
+
+forth
