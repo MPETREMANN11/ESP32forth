@@ -1,0 +1,31 @@
+\ *********************************************************************
+\ Many Xtensa assembler tests
+\    Filename:      myXtensaTests.txt
+\    Date:          16 nov 2022
+\    Updated:       16 nov 2022
+\    File Version:  1.0
+\    MCU:           ESP32-WROOM-32
+\    Forth:         ESP32forth versions 7.0.7++
+\    Copyright:     Marc PETREMANN
+\    Author:        Marc PETREMANN
+\    GNU General Public License
+\ *********************************************************************
+
+
+forth
+DEFINED? code invert [IF] xtensa-assembler [THEN]
+
+DEFINED? --test [IF] forget --test [THEN]
+create --test
+
+
+\ drop content on top of data stack
+code myDROP ( n -- )
+    a1 32       ENTRY, 
+    a2 a2 -4    ADDI,
+                RETW.N, 
+end-code
+
+2 3 myDROP .   
+\ display 2
+
