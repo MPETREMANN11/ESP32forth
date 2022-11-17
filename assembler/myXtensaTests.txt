@@ -2,7 +2,7 @@
 \ Many Xtensa assembler tests
 \    Filename:      myXtensaTests.txt
 \    Date:          16 nov 2022
-\    Updated:       16 nov 2022
+\    Updated:       17 nov 2022
 \    File Version:  1.0
 \    MCU:           ESP32-WROOM-32
 \    Forth:         ESP32forth versions 7.0.7++
@@ -18,6 +18,33 @@ DEFINED? code invert [IF] xtensa-assembler [THEN]
 DEFINED? --test [IF] forget --test [THEN]
 create --test
 
+\ get Stap Pointer SP - equivalent for SP@
+code mySP@
+    a1 32       ENTRY, 
+    a8 a2 0     L32I.N, 
+    a8 a8       MOV.N,
+    a2 a2 4     ADDI,
+    a8 a2 0     S32I.N, 
+                RETW.N, 
+end-code
+
+
+
+\ calculate n squared
+code myEXP2 ( n -- nEXP2 )
+    a1 32       ENTRY, 
+    a8 a2 0     L32I.N, 
+    a8 a8 a8    MULL,
+    a8 a2 0     S32I.N, 
+                RETW.N, 
+end-code
+
+3 myEXP2 .
+\ display 9
+101 myEXP2 .
+\ display 10201
+
+
 
 \ drop content on top of data stack
 code myDROP ( n -- )
@@ -28,4 +55,3 @@ end-code
 
 2 3 myDROP .   
 \ display 2
-
