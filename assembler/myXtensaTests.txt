@@ -21,12 +21,16 @@ create --test
 \ get Stap Pointer SP - equivalent for SP@
 code mySP@
     a1 32       ENTRY, 
-    a8 a2 0     L32I.N, 
     a8 a2       MOV.N,
     a2 a2 4     ADDI,
     a8 a2 0     S32I.N, 
                 RETW.N, 
 end-code
+
+mySP@ .
+\ display 1073632240
+SP@ .
+\ display 1073632240
 
 
 
