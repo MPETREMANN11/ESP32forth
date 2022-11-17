@@ -22,7 +22,7 @@ create --test
 code mySP@
     a1 32       ENTRY, 
     a8 a2 0     L32I.N, 
-    a8 a8       MOV.N,
+    a8 a2       MOV.N,
     a2 a2 4     ADDI,
     a8 a2 0     S32I.N, 
                 RETW.N, 
