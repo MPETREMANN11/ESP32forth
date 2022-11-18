@@ -1,0 +1,52 @@
+\ *********************************************************************
+\ list of useful macros for xtensa assembler
+\    Filename:      xtensaMacros.txt
+\    Date:          18 nov 2022
+\    Updated:       18 nov 2022
+\    File Version:  1.0
+\    MCU:           ESP32-WROOM-32
+\    Forth:         ESP32forth versions 7.0.7.4++
+\    Copyright:     Marc PETREMANN
+\    Author:        Marc PETREMANN
+\    GNU General Public License
+\ *********************************************************************
+
+
+forth
+DEFINED? code invert [IF] xtensa-assembler [THEN]
+
+\ DEFINED? --macros [IF] forget --macros [THEN]
+\ create --macros
+
+
+\ macro definitions
+asm definitions
+: macro:
+    :
+  ;
+
+xtensa definitions
+
+\ increment Stack Pointer
+macro: sp++,    ( -- )
+    a2 a2 4     ADDI,
+  ;
+
+\ increment Stack Pointer and store content of ar in addr pointed by Stack Pointer
+macro: arPUSH,  { ar -- }
+    sp++,
+    ar a2 0     S32I.N,
+  ;
+
+\ decrement Stack Pointer
+macro: sp--,    ( -- )
+    a2 a2 -4    ADDI,
+  ;
+
+\ Store content of addr pointed by Stack Pointer in ar and decrement Stack Pointer
+macro: arPOP,   { ar -- }
+    ar a2 0     L32I.N,
+    sp--,
+  ;
+
+
