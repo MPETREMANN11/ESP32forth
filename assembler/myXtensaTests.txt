@@ -28,20 +28,60 @@ asm definitions
 xtensa definitions
 
 \ increment Stack Pointer
-macro: sp++,
-    a2 a2 4    ADDI,
-  ;
-
-\ decrement Stack Pointer
-macro: sp--,
-    a2 a2 -4   ADDI,
+macro: sp++,    ( -- )
+    a2 a2 4     ADDI,
   ;
 
 \ increment Stack Pointer and store content of ar in addr pointed by Stack Pointer
-macro: arPUSH, { ar -- }
+macro: arPUSH,  { ar -- }
     sp++,
-    ar a2 0 S32I.N,
+    ar a2 0     S32I.N,
   ;
+
+\ decrement Stack Pointer
+macro: sp--,    ( -- )
+    a2 a2 -4    ADDI,
+  ;
+
+\ Store content of addr pointed by Stack Pointer in ar and decrement Stack Pointer
+macro: arPOP,   { ar -- }
+    ar a2 0     L32I.N,
+    sp--,
+  ;
+
+
+forth definitions
+asm xtensa
+
+
+\ ***** swap alias  ***************************************************************
+
+\ swap 2 top stack values, use macros
+code mySWAP     ( n1 n2 -- n2 n1 )
+    a1 32       ENTRY, 
+    a9  arPOP,
+    a8  arPOP,
+    a9  arPUSH,
+    a8  arPUSH,
+                RETW.N, 
+end-code
+
+17 24 mySWAP
+
+
+\ ***** + alias  ***************************************************************
+
+code my+ ( n1 n2 -- )
+    a1 32       ENTRY, 
+    a9  arPOP,
+    a10 arPOP,
+    a8 a9 a10   ADD.N,
+    a8  arPUSH,
+                RETW.N, 
+end-code
+
+2 3 my+ .
+
 
 \ ***** SP@ alias  *************************************************************
 
