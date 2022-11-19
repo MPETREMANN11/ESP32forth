@@ -2,7 +2,7 @@
 \ Many Xtensa assembler tests
 \    Filename:      myXtensaTests.txt
 \    Date:          16 nov 2022
-\    Updated:       18 nov 2022
+\    Updated:       19 nov 2022
 \    File Version:  1.0
 \    MCU:           ESP32-WROOM-32
 \    Forth:         ESP32forth versions 7.0.7++
@@ -71,16 +71,17 @@ end-code
 
 \ ***** + alias  ***************************************************************
 
-code my+ ( n1 n2 -- )
+code my+
     a1 32       ENTRY, 
-    a9  arPOP,
-    a10 arPOP,
-    a8 a9 a10   ADD.N,
-    a8  arPUSH,
+    a7  arPOP,
+    a8  arPOP,
+    a7 a8 a9 ADD,       \ a9 = a8 + a7
+    a9  arPUSH, 
                 RETW.N, 
 end-code
 
-2 3 my+ .
+5 2 my+
+
 
 
 \ ***** SP@ alias  *************************************************************
