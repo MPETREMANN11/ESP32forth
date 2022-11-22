@@ -15,43 +15,18 @@
 forth
 DEFINED? code invert [IF] xtensa-assembler [THEN]
 
-DEFINED? --test [IF] forget --test [THEN]
-create --test
-
-
-\ macro definitions
-asm definitions
-: macro:
-    :
-  ;
-
-xtensa definitions
-
-\ increment Stack Pointer
-macro: sp++,    ( -- )
-    a2 a2 4     ADDI,
-  ;
-
-\ increment Stack Pointer and store content of ar in addr pointed by Stack Pointer
-macro: arPUSH,  { ar -- }
-    sp++,
-    ar a2 0     S32I.N,
-  ;
-
-\ decrement Stack Pointer
-macro: sp--,    ( -- )
-    a2 a2 -4    ADDI,
-  ;
-
-\ Store content of addr pointed by Stack Pointer in ar and decrement Stack Pointer
-macro: arPOP,   { ar -- }
-    ar a2 0     L32I.N,
-    sp--,
-  ;
+asm
+DEFINED? macro: invert [IF] include /spiffs/xtensaMacros.txt [THEN]
+\ you can edit and load code of xtensaMacros.txt in ESP32 chip. See:
+\ https://esp32.arduino-forth.com/article/files_visualEditor
 
 
 forth definitions
 asm xtensa
+
+
+DEFINED? --test [IF] forget --test [THEN]
+create --test
 
 
 \ ***** /MOD alias  ************************************************************
