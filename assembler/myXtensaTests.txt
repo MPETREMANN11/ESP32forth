@@ -2,7 +2,7 @@
 \ Many Xtensa assembler tests
 \    Filename:      myXtensaTests.txt
 \    Date:          16 nov 2022
-\    Updated:       19 nov 2022
+\    Updated:       22 nov 2022
 \    File Version:  1.0
 \    MCU:           ESP32-WROOM-32
 \    Forth:         ESP32forth versions 7.0.7++
@@ -54,7 +54,24 @@ forth definitions
 asm xtensa
 
 
-\ ***** swap alias  ***************************************************************
+\ ***** /MOD alias  ************************************************************
+
+code my/MOD ( n1 n2 -- rem quot )
+    a1 32       ENTRY, 
+    a7  arPOP,          \ divider in a7
+    a8  arPOP,          \ value to divide in a8
+    a7 a8 a9    REMS,   \ a9 = a8 MOD a7
+    a9  arPUSH,
+    a7 a8 a9    QUOS,   \ a9 = a8 / a7
+    a9  arPUSH,
+            RETW.N, 
+end-code
+
+5 2   my/MOD . .    \ display:  2 1
+-5 -2 my/MOD . .    \ display:  2 -1
+
+
+\ ***** swap alias  ************************************************************
 
 \ swap 2 top stack values, use macros
 code mySWAP     ( n1 n2 -- n2 n1 )
@@ -75,12 +92,28 @@ code my+
     a1 32       ENTRY, 
     a7  arPOP,
     a8  arPOP,
-    a7 a8 a9 ADD,       \ a9 = a8 + a7
+    a7 a8 a9    ADD,        \ a9 = a8 + a7
     a9  arPUSH, 
                 RETW.N, 
 end-code
 
 5 2 my+
+
+
+
+code my_+
+    a1 32 ENTRY, 
+        sp--,
+    a7 a2 0     L32I.N, 
+    a8 a2 1     L32I.N, 
+    a7 a8 a9    ADD,
+    a9 a2 0 S32I.N, 
+    RETW.N, 
+end-code
+
+4 9 my_+ .  \ display 13
+
+
 
 
 
