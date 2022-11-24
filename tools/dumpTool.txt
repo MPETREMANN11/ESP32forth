@@ -2,10 +2,10 @@
 \ DUMP tool for ESP32Forth
 \    Filename:      dumpTool.txt
 \    Date:          12 jan 2022
-\    Updated:       09 july 2022
-\    File Version:  1.0
+\    Updated:       24 nov 2022
+\    File Version:  1.1
 \    MCU:           ESP32-WROOM-32
-\    Forth:         ESP32forth all versions 7.x++
+\    Forth:         ESP32forth all versions 7.0.7.4++
 \    Copyright:     Marc PETREMANN
 \    Author:        Marc PETREMANN
 \    GNU General Public License
@@ -18,15 +18,15 @@
 \ LINES           \ number of lines for dump loop
 \ myBASE          \ current numeric base
           
+internals
 : dump ( start len -- )
-    0 0 0 0 0 { START_ADDR  END_ADDR  0START_ADDR  LINES  myBASE }
     cr cr ." --addr---  "
     ." 00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F  ------chars-----"
-    2dup + to END_ADDR              \ store latest address to dump
-    swap to START_ADDR              \ store START address to dump
-    START_ADDR 16 / 16 * to 0START_ADDR  \ calc. addr for loop start
-    16 / 1+ to LINES
-    base @ to myBASE                \ save current base
+    2dup + { END_ADDR }             \ store latest address to dump
+    swap { START_ADDR }             \ store START address to dump
+    START_ADDR 16 / 16 * { 0START_ADDR } \ calc. addr for loop start
+    16 / 1+ { LINES }
+    base @ { myBASE }               \ save current base
     hex
     \ outer loop
     LINES 0 do
@@ -37,7 +37,7 @@
         16 0 do
             \ calculate real address
             0START_ADDR j 16 * i + +
-            c@ <# # # #> type space \ display byte in format: NN
+            ca@ <# # # #> type space \ display byte in format: NN
         loop 
         space
         \ second inner loop, display chars
@@ -45,7 +45,7 @@
             \ calculate real address
             0START_ADDR j 16 * i + +
             \ display char if code in interval 32-127
-            c@     dup 32 < over 127 > or
+            ca@     dup 32 < over 127 > or
             if      drop [char] . emit
             else    emit
             then
@@ -54,3 +54,4 @@
     myBASE base !               \ restore current base
     cr cr
   ;
+forth
