@@ -2,7 +2,7 @@
 \ list of useful macros for xtensa assembler
 \    Filename:      xtensaMacros.txt
 \    Date:          18 nov 2022
-\    Updated:       18 nov 2022
+\    Updated:       26 nov 2022
 \    File Version:  1.0
 \    MCU:           ESP32-WROOM-32
 \    Forth:         ESP32forth versions 7.0.7.4++
@@ -48,5 +48,26 @@ macro: arPOP,   { ar -- }
     ar a2 0     L32I.N,
     sp--,
   ;
+
+\ Store 32 bits literal value in at register
+: 32movi, { atReg 32imm -- }    
+    32imm 
+    $100 /mod     \ split 32 byte value in 4 bytes
+    $100 /mod 
+    $100 /mod { b0 b1 b2 b3 }
+    atReg atReg 32    SLLI,
+    atReg atReg b3    ADDI,
+    atReg atReg 8     SLLI,
+    atReg atReg b2    ADDI,
+    atReg atReg 8     SLLI,
+    atReg atReg b1    ADDI,
+    atReg atReg 8     SLLI,
+    atReg atReg b0    ADDI,
+  ;
+\ Example:
+\   variable SCORE
+\   a7 SCORE  32movi,
+\ now a7 can used for memory pointer
+
 
 
