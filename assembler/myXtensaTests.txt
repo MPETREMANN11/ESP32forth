@@ -2,7 +2,7 @@
 \ Many Xtensa assembler tests
 \    Filename:      myXtensaTests.txt
 \    Date:          16 nov 2022
-\    Updated:       22 nov 2022
+\    Updated:       04 dec 2022
 \    File Version:  1.0
 \    MCU:           ESP32-WROOM-32
 \    Forth:         ESP32forth versions 7.0.7++
@@ -75,7 +75,6 @@ end-code
 5 2 my+
 
 
-
 code my_+
     a1 32 ENTRY, 
         sp--,
@@ -87,9 +86,6 @@ code my_+
 end-code
 
 4 9 my_+ .  \ display 13
-
-
-
 
 
 \ ***** SP@ alias  *************************************************************
@@ -146,8 +142,6 @@ end-code
 \ display 10201
 
 
-
-
 \ ***** DROP alias  ************************************************************
 
 \ drop content on top of data stack without macro
@@ -170,6 +164,29 @@ end-code
 
 2 3 myDROP2 .   
 \ display 2
+
+\ ***** Accessing Special Register - example with SAR **************************
+
+3 constant SAR      \ SAR = Shift-amount register - Special Register Number 3
+
+code writeSAR ( n[0..31] -- )
+    a1 32       ENTRY, 
+    a8      arPOP,
+    a8 SAR      WSR,
+                RETW.N, 
+end-code
+
+code readSAR ( -- n )
+    a1 32       ENTRY, 
+    a8 SAR      RSR,
+    a8      arPUSH,
+                RETW.N, 
+end-code
+
+2 writeSAR readSAR .   \ display: 2
+3 writeSAR readSAR .   \ display: 3
+
+
 
 
 
