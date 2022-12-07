@@ -2,7 +2,7 @@
 \ Many Xtensa assembler tests
 \    Filename:      myXtensaTests.txt
 \    Date:          16 nov 2022
-\    Updated:       04 dec 2022
+\    Updated:       07 dec 2022
 \    File Version:  1.0
 \    MCU:           ESP32-WROOM-32
 \    Forth:         ESP32forth versions 7.0.7++
@@ -188,5 +188,25 @@ end-code
 
 
 
+\ ***** Subroutine call with CALL0, ********************************************
+
+variable myVarTest
+10 myVarTest !
+
+code __my@ ( -- SUBRaddr )   \ EXEC: leave subroutine address on stack
+    a1 32       ENTRY,
+    a8      arPOP,
+    a9 a8 0     L32I.N,
+    a9      arPUSH,
+                RETW.N, 
+end-code
+
+code my@  ( addr -- n )
+    ' __my@ cell+ @ 4 +
+                CALL0,
+                RETW.N, 
+end-code
+
+myVarTest my@ .     \ display: 10
 
 
