@@ -39,10 +39,9 @@ asm definitions
 \ example of use, load content of val01 in a8:
 \ code myL32R
 \     a1 32           ENTRY, 
-\     \ write to LITBASE
 \     val01 addr2offset 
 \     a8 swap         L32R,
-\     \ reset LITBASE
 \     a8          arPUSH,
 \                     RETW.N, 
 \ end-code
+
