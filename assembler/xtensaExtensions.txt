@@ -1,0 +1,48 @@
+\ *********************************************************************
+\ list of useful extensions for xtensa assembler
+\    Filename:      xtensaExtensions.txt
+\    Date:          07 dec 2022
+\    Updated:       10 dec 2022
+\    File Version:  1.0
+\    MCU:           ESP32-WROOM-32
+\    Forth:         ESP32forth versions 7.0.7.4++
+\    Copyright:     Marc PETREMANN
+\    Author:        Marc PETREMANN
+\    GNU General Public License
+\ *********************************************************************
+
+
+forth
+DEFINED? code invert [IF] xtensa-assembler [THEN]
+
+\ DEFINED? --extensions [IF] forget --extensions [THEN]
+\ create --extensions
+
+asm definitions
+
+\ *** definition for assembler constants with define: **************************
+\  - ordinary assembler:    %define val01 0x87654321
+\  - ESP32forth xtensa :    $87654321 define val01
+
+: define:  ( comp: n -- <name> | exec: -- addr )
+    chere value
+    code4,
+  ;
+
+\ example:
+\ $87654321 define: val01
+
+: addr2offset ( addr -- offset )
+    chere - 4 /
+  ;
+
+\ example of use, load content of val01 in a8:
+\ code myL32R
+\     a1 32           ENTRY, 
+\     \ write to LITBASE
+\     val01 addr2offset 
+\     a8 swap         L32R,
+\     \ reset LITBASE
+\     a8          arPUSH,
+\                     RETW.N, 
+\ end-code
