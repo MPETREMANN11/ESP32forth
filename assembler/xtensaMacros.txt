@@ -74,6 +74,8 @@ macro: arPOP,   { ar -- }
 
 \ ***** manage LOOP, in For, ... Next, structure *******************************
 
+0 value LOOP_OFFSET
+
 : For, { as n -- }
     as n MOVI,
     as 0 LOOP,
