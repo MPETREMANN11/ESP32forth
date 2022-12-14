@@ -2,7 +2,7 @@
 \ list of useful macros for xtensa assembler
 \    Filename:      xtensaMacros.txt
 \    Date:          18 nov 2022
-\    Updated:       26 nov 2022
+\    Updated:       14 dec 2022
 \    File Version:  1.0
 \    MCU:           ESP32-WROOM-32
 \    Forth:         ESP32forth versions 7.0.7.4++
@@ -66,8 +66,36 @@ macro: arPOP,   { ar -- }
   ;
 \ Example:
 \   variable SCORE
+\
+\ and in code definition:
 \   a7 SCORE  32movi,
 \ now a7 can used for memory pointer
 
+
+\ ***** manage LOOP, in For, ... Next, structure *******************************
+
+: For, { as n -- }
+    as n MOVI,
+    as 0 LOOP,
+    chere 1- to LOOP_OFFSET
+  ;
+
+: Next, ( -- )
+    chere LOOP_OFFSET - 2 -
+    LOOP_OFFSET [ internals ] ca! [ asm xtensa ]
+  ;
+    
+\ example:
+\ code myLOOP ( n -- n' )
+\     a1 32           ENTRY, 
+\     a8 1            MOVI,
+\     a9 4        For,            \ LOOP start here
+\         a8 a8 1     ADDI,
+\         a8      arPUSH,         \ push result on stack
+\     Next,
+\                     RETW.N, 
+\ end-code
+\ 
+\ myLoop    \ push 2 3 4 5 on stack
 
 
