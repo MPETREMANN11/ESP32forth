@@ -74,15 +74,13 @@ macro: 32movi, { atReg 32imm -- }
 
 \ ***** manage LOOP, in For, ... Next, structure *******************************
 
-0 value LOOP_OFFSET
-
 macro: For, { as n -- }
     as n MOVI,
     as 0 LOOP,
-    chere 1- to LOOP_OFFSET
+    chere 1-
   ;
 
-macro: Next, ( -- )
+macro: Next, { LOOP_OFFSET -- }
     chere LOOP_OFFSET - 2 -
     LOOP_OFFSET [ internals ] ca! [ asm xtensa ]
   ;
