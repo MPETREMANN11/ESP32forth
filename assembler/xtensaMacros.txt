@@ -50,7 +50,7 @@ macro: arPOP,   { ar -- }
   ;
 
 \ Store 32 bits literal value in at register
-: 32movi, { atReg 32imm -- }    
+macro: 32movi, { atReg 32imm -- }    
     32imm 
     $100 /mod     \ split 32 byte value in 4 bytes
     $100 /mod 
@@ -76,13 +76,13 @@ macro: arPOP,   { ar -- }
 
 0 value LOOP_OFFSET
 
-: For, { as n -- }
+macro: For, { as n -- }
     as n MOVI,
     as 0 LOOP,
     chere 1- to LOOP_OFFSET
   ;
 
-: Next, ( -- )
+macro: Next, ( -- )
     chere LOOP_OFFSET - 2 -
     LOOP_OFFSET [ internals ] ca! [ asm xtensa ]
   ;
