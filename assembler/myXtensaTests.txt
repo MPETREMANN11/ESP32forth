@@ -2,7 +2,7 @@
 \ Many Xtensa assembler tests
 \    Filename:      myXtensaTests.txt
 \    Date:          16 nov 2022
-\    Updated:       12 dec 2022
+\    Updated:       14 dec 2022
 \    File Version:  1.0
 \    MCU:           ESP32-WROOM-32
 \    Forth:         ESP32forth versions 7.0.7++
@@ -247,5 +247,22 @@ hex
 myL32R .    \ display 87654321
 
 
+\ ***** Use For, Next, macros to replace LOOP, *********************************
+\ complete article here: https://esp32.arduino-forth.com/article/XTENSA_xtensaLOOP
 
+forth definitions
+
+asm xtensa
+
+code myLOOP ( n -- n' )
+    a1 32           ENTRY, 
+    a8 1            MOVI,       \ a8 = 1
+    a9 4        For,            \ LOOP start here
+        a8 a8 1     ADDI,       \ a8 = a8 + 1
+        a8      arPUSH,         \ push result on stack
+   Next,
+                    RETW.N,
+end-code
+
+myLOOP . . . .  \ display 5 4 3 2
 
