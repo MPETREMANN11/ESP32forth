@@ -2,7 +2,7 @@
 \ Many Xtensa assembler tests
 \    Filename:      myXtensaTests.txt
 \    Date:          16 nov 2022
-\    Updated:       14 dec 2022
+\    Updated:       15 dec 2022
 \    File Version:  1.0
 \    MCU:           ESP32-WROOM-32
 \    Forth:         ESP32forth versions 7.0.7++
@@ -265,4 +265,22 @@ code myLOOP ( n -- n' )
 end-code
 
 myLOOP . . . .  \ display 5 4 3 2
+
+
+\ ***** Access to RNG_DATA_REG and fetch 32 bits random  number ****************
+forth definitions
+asm xtensa
+
+$3FF75144 defForL32R: RNG_DATA_REG
+
+code myRND ( -- [addr] )
+    a1 32           ENTRY, 
+    a8 RNG_DATA_REG L32R,       \ a8 = RNG_DATA_REG
+    a9 a8 0     L32I.N,         \ a9 = [a8]
+    a9          arPUSH,         \ push a9 on stack
+                    RETW.N, 
+end-code
+
+myRND .    \ display random number
+
 
