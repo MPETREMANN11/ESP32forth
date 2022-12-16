@@ -110,6 +110,35 @@ macro: Then, { BRANCH_OFFSET -- }
     BRANCH_OFFSET [ internals ] ca! [ asm xtensa ]
   ;
 
+macro: <,  ( as at -- )
+    0 BGE,
+  ;
+
+macro: >=,  ( as at -- )
+    0 BLT,
+  ;
+
+macro: <>,  ( as at -- )
+    0 BEQ,
+  ;
+
+macro: =,  ( as at -- )
+    0 BNE,
+  ;
+
+
+\ Example:
+\ code my< ( n1 n2 -- fl )    \ fl=1 if n1 < n2
+\     a1 32           ENTRY, 
+\     a8          arPOP,              \ a8 = n2
+\     a9          arPOP,              \ a9 = n1
+\     a7 0            MOVI,           \ a7 = 1
+\     a8 a9 <, If,
+\         a7 1        MOVI,           \ a7 = 0
+\     Then,
+\     a7          arPUSH,
+\                     RETW.N,
+\ end-code
 
 
 
