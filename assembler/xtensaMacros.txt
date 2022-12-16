@@ -2,7 +2,7 @@
 \ list of useful macros for xtensa assembler
 \    Filename:      xtensaMacros.txt
 \    Date:          18 nov 2022
-\    Updated:       14 dec 2022
+\    Updated:       16 dec 2022
 \    File Version:  1.0
 \    MCU:           ESP32-WROOM-32
 \    Forth:         ESP32forth versions 7.0.7.4++
@@ -97,5 +97,19 @@ macro: Next, { LOOP_OFFSET -- }
 \ end-code
 \ 
 \ myLoop    \ push 2 3 4 5 on stack
+
+
+\ ***** manage BRANCH, in if, ... Then, structure ******************************
+
+macro: If, ( -- )
+    chere 1-
+  ;
+
+macro: Then, { BRANCH_OFFSET -- }
+    chere BRANCH_OFFSET - 2 -
+    BRANCH_OFFSET [ internals ] ca! [ asm xtensa ]
+  ;
+
+
 
 
