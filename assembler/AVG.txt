@@ -1,0 +1,50 @@
+\ *********************************************************************
+\ AVeraGe word in xtensa assembler
+\    Filename:      AVG.txt
+\    Date:          17 dec 2022
+\    Updated:       17 dec 2022
+\    File Version:  1.0
+\    MCU:           ESP32-WROOM-32
+\    Forth:         ESP32forth versions 7.0.7.4++
+\    Copyright:     Marc PETREMANN
+\    Author:        Marc PETREMANN
+\    GNU General Public License
+\ *********************************************************************
+
+
+include /spiffs/dump.txt
+ 
+forth
+DEFINED? code invert [IF] xtensa-assembler [THEN]
+
+asm
+DEFINED? macro: 
+    invert [IF] include /spiffs/xtensaMacros.txt [THEN]
+
+DEFINED? defForL32R: 
+    invert [IF] include /spiffs/xtensaExtensions.txt [THEN]
+
+\ you can edit and load code of xtensaMacros.txt and xtensaExtensions.txt in ESP32 chip. 
+\ See:
+\ https://esp32.arduino-forth.com/article/files_visualEditor
+
+
+forth definitions
+asm xtensa
+
+\ calculate the average of two values
+code AVG ( n1 n2 -- n3 )    \ n3 = ( n1 + n2 ) / 2
+    a1 32           ENTRY, 
+    a8          arPOP,              \ a8 = n2
+    a9          arPOP,              \ a9 = n1
+    a8 a9 a8        ADD,
+    a8 a8 1         SRAI,
+    a8          arPUSH,
+                    RETW.N,
+end-code
+
+\ for tests
+10 20 AVG .     \ display 15
+-10 20 AVG .    \ display 5
+-10 -20 AVG .   \ display -15
+
