@@ -2,7 +2,7 @@
 \ Missing words for ESP32Forth
 \    Filename:      wordsList.txt
 \    Date:          16 feb 2022
-\    Updated:       18 nov 2022
+\    Updated:       17 dec 2022
 \    File Version:  1.0
 \    MCU:           ESP32-WROOM-32
 \    Forth:         ESP32forth all versions 7.x++
@@ -33,12 +33,6 @@ create --missing
     postpone r> postpone r> 
     postpone swap
   ; immediate
-
-
-\ duplicate double precision value
-: 2dup ( d1 -- d1 d1 )
-    over over
-  ;
 
 
 \ swap double precision
