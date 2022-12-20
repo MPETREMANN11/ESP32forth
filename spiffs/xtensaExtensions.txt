@@ -1,0 +1,30 @@
+\ list of useful extensions for xtensa assembler
+
+forth
+DEFINED? code invert [IF] xtensa-assembler [THEN]
+
+asm definitions
+
+\ *** definition for assembler constants for L32R: *****************************
+\  - ESP32forth xtensa :    $87654321 defForL32R: val01
+
+: defForL32R:  ( comp: n -- <name> | exec: -- addr )
+    create
+        chere ,
+        code4,
+    does>
+        @   chere - 4 /
+  ;
+
+\ example:
+\ $87654321 defForL32R: val01
+
+\ example of use, load content of val01 in a8:
+\ code myL32R
+\     a1 32           ENTRY, 
+\     a8 val01        L32R,
+\     a8          arPUSH,
+\                     RETW.N, 
+\ end-code
+
+\ hex myL32R .      \ display: 87654321
