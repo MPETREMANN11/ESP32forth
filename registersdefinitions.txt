@@ -2,7 +2,7 @@
 \ tools for REGISTERS definitions and manipulations
 \    Filename:      registersDefinitions.txt
 \    Date:          02 apr 2022
-\    Updated:       19 july 2022
+\    Updated:       20 dec 2022
 \    MCU:           ESP32-WROOM-32
 \    Forth:         ESP32forth all versions 7.x++
 \    Copyright:     Marc PETREMANN
@@ -50,6 +50,15 @@ create --defREG
     r> base !
   ;
 
+\ set mask in addr
+: regSet ( val shift mask addr -- )
+    [ registers ] m! [ forth ]
+  ;
+
+\ test mask in addr
+: regTst ( mask register -- x )
+    [ registers ] m@ [ forth ]
+  ;
 
 \ == EXAMPLES: ======
 
@@ -59,5 +68,14 @@ $3FF48898 defREG: SENS_SAR_DAC_CTRL1_REG   \ DAC control
 $3FF4889c defREG: SENS_SAR_DAC_CTRL2_REG   \ DAC output control
 
 
-   1 25 defMASK: mSENS_DAC_CLK_INV
-$ffff 0 defMASK: mSENS_SW_FSTEP
+1 25 defMASK: mSENS_DAC_CLK_INV
+
+\ enable SW
+1 mSENS_SW_TONE_EN SENS_SAR_DAC_CTRL1_REG regSet
+SENS_SAR_DAC_CTRL1_REG .reg
+
+\ disable SW
+0 mSENS_SW_TONE_EN SENS_SAR_DAC_CTRL1_REG regSet
+SENS_SAR_DAC_CTRL1_REG .reg
+
+
