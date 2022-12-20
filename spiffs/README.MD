@@ -22,6 +22,18 @@ ESP32 and ESP32forth.</p>
 <p>This code will compile the contents of the <b>registersDefinition.txt</b> file that you have edited and saved in the directory
 <b>/spiffs/</b> on the ESP32 board with the VISUAL editor.</p>
 
+<h3>Deutsch</h3>
+<p>Hallo,</p>
+<p>Dieses Verzeichnis enthält Tools, die mithilfe des VISUAL-Editors im ESP32-Board installiert werden können:</p>
+<a href="https://esp32.arduino-forth.com/article/files_visualEditor">Visueller Editor: Quelldateien in ESP32forth bearbeiten</a>
+<p>Nach der Installation sind diese Dateien dauerhaft zugänglich, auch nach dem Ausschalten und Neustarten der Karte
+ESP32 und ESP32forth.</p>
+<p>In Ihren Entwicklungen können Sie den Inhalt dieser Dateien wie folgt aufrufen und kompilieren:</p>
+<pre>DEFINIERT? Makro:
+     invertieren [IF] include /spiffs/registersDefinition.txt [THEN]</pre>
+<p>Dieser Code kompiliert den Inhalt der Datei <b>registersDefinition.txt</b>, die Sie bearbeitet und im Verzeichnis gespeichert haben
+<b>/spiffs/</b> auf dem ESP32-Board mit dem VISUAL-Editor.</p>
+
 <h3>Español</h3>
 <p>Hola,</p>
 <p>Este directorio contiene herramientas para instalar en la placa ESP32 usando el editor VISUAL:</p>
