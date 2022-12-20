@@ -37,13 +37,13 @@
     r> base !
   ;
 
+\ set mask in addr
+: regSet ( val shift mask addr -- )
+    [ registers ] m! [ forth ]
+  ;
 
-\ == EXAMPLES: ======
+\ test mask in addr
+: regTst ( mask register -- x )
+    [ registers ] m@ [ forth ]
+  ;
 
-\ $3FF48484 defREG: RTCIO_PAD_DAC1_REG       \ DAC1 configuration register
-\ $3FF48488 defREG: RTCIO_PAD_DAC2_REG       \ DAC2 configuration register
-\ $3FF48898 defREG: SENS_SAR_DAC_CTRL1_REG   \ DAC control
-\ $3FF4889c defREG: SENS_SAR_DAC_CTRL2_REG   \ DAC output control
-
-\ 1 25 defMASK: mSENS_DAC_CLK_INV
- 
