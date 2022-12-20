@@ -1,0 +1,124 @@
+\ list of useful macros for xtensa assembler
+
+forth
+DEFINED? code invert [IF] xtensa-assembler [THEN]
+
+\ macro definitions
+asm definitions
+: macro:
+    :
+  ;
+
+xtensa definitions
+
+\ increment Stack Pointer
+macro: sp++,    ( -- )
+    a2 a2 4     ADDI,
+  ;
+
+\ increment Stack Pointer and store content of ar in addr pointed by Stack Pointer
+macro: arPUSH,  { ar -- }
+    sp++,
+    ar a2 0     S32I.N,
+  ;
+
+\ decrement Stack Pointer
+macro: sp--,    ( -- )
+    a2 a2 -4    ADDI,
+  ;
+
+\ Store content of addr pointed by Stack Pointer in ar and decrement Stack Pointer
+macro: arPOP,   { ar -- }
+    ar a2 0     L32I.N,
+    sp--,
+  ;
+
+\ Store 32 bits literal value in at register
+macro: 32movi, { atReg 32imm -- }    
+    32imm 
+    $100 /mod     \ split 32 byte value in 4 bytes
+    $100 /mod 
+    $100 /mod { b0 b1 b2 b3 }
+    atReg atReg 32    SLLI,
+    atReg atReg b3    ADDI,
+    atReg atReg 8     SLLI,
+    atReg atReg b2    ADDI,
+    atReg atReg 8     SLLI,
+    atReg atReg b1    ADDI,
+    atReg atReg 8     SLLI,
+    atReg atReg b0    ADDI,
+  ;
+\ Example:
+\   variable SCORE
+\
+\ and in code definition:
+\   a7 SCORE  32movi,
+\ now a7 can used for memory pointer
+
+
+\ ***** manage LOOP, in For, ... Next, structure *******************************
+
+macro: For, { as n -- }
+    as n MOVI,
+    as 0 LOOP,
+    chere 1-
+  ;
+
+macro: Next, { LOOP_OFFSET -- }
+    chere LOOP_OFFSET - 2 -
+    LOOP_OFFSET [ internals ] ca! [ asm xtensa ]
+  ;
+    
+\ example:
+\ code myLOOP ( n -- n' )
+\     a1 32           ENTRY, 
+\     a8 1            MOVI,
+\     a9 4        For,            \ LOOP start here
+\         a8 a8 1     ADDI,
+\         a8      arPUSH,         \ push result on stack
+\     Next,
+\                     RETW.N, 
+\ end-code
+\ 
+\ myLoop    \ push 2 3 4 5 on stack
+
+
+\ ***** manage BRANCH, in if, ... Then, structure ******************************
+
+macro: If, ( -- )
+    chere 1-
+  ;
+
+macro: Then, { BRANCH_OFFSET -- }
+    chere BRANCH_OFFSET - 2 -
+    BRANCH_OFFSET [ internals ] ca! [ asm xtensa ]
+  ;
+
+macro: <,  ( as at -- )
+    0 BGE,
+  ;
+
+macro: >=,  ( as at -- )
+    0 BLT,
+  ;
+
+macro: <>,  ( as at -- )
+    0 BEQ,
+  ;
+
+macro: =,  ( as at -- )
+    0 BNE,
+  ;
+
+\ Example:
+\ code my< ( n1 n2 -- fl )    \ fl=1 if n1 < n2
+\     a1 32           ENTRY, 
+\     a8          arPOP,              \ a8 = n2
+\     a9          arPOP,              \ a9 = n1
+\     a7 0            MOVI,           \ a7 = 1
+\     a8 a9 <, If,
+\         a7 1        MOVI,           \ a7 = 0
+\     Then,
+\     a7          arPUSH,
+\                     RETW.N,
+\ end-code
