@@ -1,0 +1,27 @@
+\ *********************************************************************
+\ DAC generate Sin Wave Signal
+\    Filename:      DACcosinewave.txt
+\    Date:          18 dec 2021
+\    Updated:       20 dec 2022
+\    MCU:           ESP32-WROOM-32
+\    Forth:         ESP32forth all versions 7.x++
+\    Copyright:     Marc PETREMANN
+\    Author:        Marc PETREMANN
+\    GNU General Public License
+\ *********************************************************************
+
+DEFINED? --DAcw [if] forget --DAcw  [then]
+create --DAcw
+
+DEFINED? macro: 
+    invert [IF] include /spiffs/registersDefinition.txt [THEN]
+
+\ Define CWG DAC control registers
+$3ff48898 defREG: SENS_SAR_DAC_CTRL1_REG    \ DAC control
+$3FF4889C defREG: SENS_SAR_DAC_CTRL2_REG    \ DAC output control
+$3FF48070 defREG: RTC_CNTL_CLK_CONF_REG
+$3FF48484 defREG: RTCIO_PAD_DAC1_REG        \ DAC1 configuration register
+$3FF48488 defREG: RTCIO_PAD_DAC2_REG        \ DAC2 configuration register
+
+1 24 defMASK: mSENS_DAC_CW_EN1   \ selects CW generator as source for PDAC1 
+1 25 defMASK: mSENS_DAC_CW_EN2   \ selects CW generator as source for PDAC2 
