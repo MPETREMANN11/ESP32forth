@@ -1,0 +1,49 @@
+\ tools for REGISTERS definitions and manipulations
+
+\ define a register, similar as constant
+: defREG:
+    create ( addr1 -- <name> )
+        ,
+    does>  ( -- regAddr )
+        @
+  ;
+
+: defMASK:
+    create ( mask0 position -- )
+        dup ,
+        lshift ,
+    does> ( -- position mask1 )
+        dup @
+        swap cell + @
+  ;
+
+\ display reg content
+: .reg ( reg -- )
+    base @ >r
+    binary
+    @ <# 
+    4 for
+        aft
+            8 for
+                aft  #  then
+            next
+            bl hold
+        then
+    next
+    #> 
+    cr space ." 33222222 22221111 11111100 00000000"
+    cr space ." 10987654 32109876 54321098 76543210"
+    cr type
+    r> base !
+  ;
+
+
+\ == EXAMPLES: ======
+
+\ $3FF48484 defREG: RTCIO_PAD_DAC1_REG       \ DAC1 configuration register
+\ $3FF48488 defREG: RTCIO_PAD_DAC2_REG       \ DAC2 configuration register
+\ $3FF48898 defREG: SENS_SAR_DAC_CTRL1_REG   \ DAC control
+\ $3FF4889c defREG: SENS_SAR_DAC_CTRL2_REG   \ DAC output control
+
+\ 1 25 defMASK: mSENS_DAC_CLK_INV
+ 
