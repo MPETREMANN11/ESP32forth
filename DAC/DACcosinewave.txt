@@ -1,8 +1,8 @@
 \ *********************************************************************
 \ DAC generate Sin Wave Signal
 \    Filename:      DACcosinewave.txt
-\    Date:          18 dec 2021
-\    Updated:       20 dec 2022
+\    Date:          18 dec 2022
+\    Updated:       23 dec 2022
 \    MCU:           ESP32-WROOM-32
 \    Forth:         ESP32forth all versions 7.x++
 \    Copyright:     Marc PETREMANN
@@ -12,6 +12,12 @@
 
 DEFINED? --DAcw [if] forget --DAcw  [then]
 create --DAcw
+
+\ define DAC channels pins
+25 constant DAC1 
+26 constant DAC2 
+
+
 
 DEFINED? macro:
     invert [IF] include /spiffs/registersDefinitions.txt [THEN]
@@ -56,27 +62,42 @@ $01 25 defMASK: SENS_DAC_CW_EN2             \ selects CW generator as source for
 \ 0 SENS_SW_TONE_EN SENS_SAR_DAC_CTRL1_REG regSet
 \ SENS_SAR_DAC_CTRL1_REG .reg
 
-
-: dac1_cosine_enable ( -- )
-    1 SENS_DAC_CW_EN1 SENS_SAR_DAC_CTRL2_REG regSet
+: dac_cosine_enable ( DAC1|DAC2 -- )
+    \ Enable tone generator common to both channels
+    1 SENS_SW_TONE_EN SENS_SAR_DAC_CTRL1_REG regSet
+    case
+        DAC1 of
+            \ Enable / connect tone tone generator on / to this channel
+            1 SENS_DAC_CW_EN1 SENS_SAR_DAC_CTRL2_REG regSet
+            \ Invert MSB, otherwise part of waveform will have inverted
+            1 SENS_DAC_INV1 SENS_SAR_DAC_CTRL2_REG regSet
+        endof
+        DAC2 of
+            1 SENS_DAC_CW_EN2 SENS_SAR_DAC_CTRL2_REG regSet
+            1 SENS_DAC_INV2 SENS_SAR_DAC_CTRL2_REG regSet
+        endof
+    endcase
   ;
 
-: dac2_cosine_enable ( -- )
-    1 SENS_DAC_CW_EN2 SENS_SAR_DAC_CTRL2_REG regSet
-  ;
-
-: dac1_cosine_disable ( -- )
-    0 SENS_DAC_CW_EN1 SENS_SAR_DAC_CTRL2_REG regSet
-  ;
-
-: dac2_cosine_disable ( -- )
-    0 SENS_DAC_CW_EN2 SENS_SAR_DAC_CTRL2_REG regSet
-  ;
-
-
-dac1_cosine_disable
+\ for temporary tests
+DAC1 dac_cosine_disable
+SENS_SAR_DAC_CTRL1_REG .reg
 SENS_SAR_DAC_CTRL2_REG .reg
 
-dac2_cosine_disable
-SENS_SAR_DAC_CTRL2_REG .reg
+
+\ Scale output of a DAC channel using two bit pattern:
+\  0 - 00: no scale
+\  1 - 01: scale to 1/2
+\  2 - 10: scale to 1/4
+\  3 - 11: scale to 1/8
+: dac_scale_set ( scale[0..3] DAC1|DAC2 -- )
+    case
+        DAC1 of
+            SENS_DAC_SCALE1 SENS_SAR_DAC_CTRL2_REG regSet
+        endof
+        DAC2 of
+            SENS_DAC_SCALE2 SENS_SAR_DAC_CTRL2_REG regSet
+        endof
+    endcase
+  ;
 
