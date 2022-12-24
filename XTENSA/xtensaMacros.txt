@@ -1,0 +1,152 @@
+\ *********************************************************************
+\ list of useful macros for xtensa assembler
+\    Filename:      xtensaMacros.txt
+\    Date:          18 nov 2022
+\    Updated:       23 dec 2022
+\    File Version:  1.0
+\    MCU:           ESP32-WROOM-32
+\    Forth:         ESP32forth versions 7.0.7.4++
+\    Copyright:     Marc PETREMANN
+\    Author:        Marc PETREMANN
+\    GNU General Public License
+\ *********************************************************************
+
+
+forth
+DEFINED? code invert [IF] xtensa-assembler [THEN]
+
+\ macro definitions
+asm definitions
+: macro:
+    :
+  ;
+
+xtensa definitions
+
+\ increment Stack Pointer
+macro: sp++,    ( -- )
+    a2 a2 4     ADDI,
+  ;
+
+\ increment Stack Pointer and store content of ar in addr pointed by Stack Pointer
+macro: arPUSH,  { ar -- }
+    sp++,
+    ar a2 0     S32I.N,
+  ;
+
+\ decrement Stack Pointer
+macro: sp--,    ( -- )
+    a2 a2 -4    ADDI,
+  ;
+
+\ Store content of addr pointed by Stack Pointer in ar and decrement Stack Pointer
+macro: arPOP,   { ar -- }
+    ar a2 0     L32I.N,
+    sp--,
+  ;
+
+\ Store 32 bits literal value in at register
+macro: 32movi, { atReg 32imm -- }    
+    32imm 
+    $100 /mod     \ split 32 byte value in 4 bytes
+    $100 /mod 
+    $100 /mod { b0 b1 b2 b3 }
+    atReg atReg 32    SLLI,
+    atReg atReg b3    ADDI,
+    atReg atReg 8     SLLI,
+    atReg atReg b2    ADDI,
+    atReg atReg 8     SLLI,
+    atReg atReg b1    ADDI,
+    atReg atReg 8     SLLI,
+    atReg atReg b0    ADDI,
+  ;
+\ Example:
+\   variable SCORE
+\
+\ and in code definition:
+\   a7 SCORE  32movi,
+\ now a7 can used for memory pointer
+
+
+\ ***** manage LOOP, in For, ... Next, structure *******************************
+
+\ mark address for branch offset
+: branch-mark,  ( -- addr )
+    chere 1-
+;
+
+\ resolve branch
+: branch-resolve, ( BRANCH_ADDR -- )
+    >r          \ duplicate BRANCH_ADDR to return stack
+    chere r@ - 2 -
+    r> [ internals ] ca! [ asm xtensa ]
+  ;
+
+
+\ ***** manage BRANCH, in For, ... Next, structure *****************************
+
+macro: For, ( as n -- branch-addr )
+    over >r     \ duplicate ar to return stack
+    MOVI,
+    r> 0 LOOP,
+    branch-mark,
+  ;
+
+macro: Next, ( branch-addr -- )
+    branch-resolve,
+  ;
+    
+\ example:
+\ code myLOOP ( n -- n' )
+\     a1 32           ENTRY, 
+\     a8 1            MOVI,
+\     a9 4        For,            \ LOOP start here
+\         a8 a8 1     ADDI,
+\         a8      arPUSH,         \ push result on stack
+\     Next,
+\                     RETW.N, 
+\ end-code
+\ 
+\ myLoop    \ push 2 3 4 5 on stack
+
+
+\ ***** manage BRANCH, in If, ... Then, structure ******************************
+
+macro: If, ( -- branch-addr )
+    branch-mark,
+  ;
+
+macro: Then, ( branch-addr -- )
+    branch-resolve,
+  ;
+
+macro: <,  ( as at -- )
+    0 BGE,
+  ;
+
+macro: >=,  ( as at -- )
+    0 BLT,
+  ;
+
+macro: <>,  ( as at -- )
+    0 BEQ,
+  ;
+
+macro: =,  ( as at -- )
+    0 BNE,
+  ;
+
+\ Example:
+\ code my< ( n1 n2 -- fl )    \ fl=1 if n1 < n2
+\     a1 32           ENTRY, 
+\     a8          arPOP,              \ a8 = n2
+\     a9          arPOP,              \ a9 = n1
+\     a7 0            MOVI,           \ a7 = 1
+\     a8 a9 <, If,
+\         a7 1        MOVI,           \ a7 = 0
+\     Then,
+\     a7          arPUSH,
+\                     RETW.N,
+\ end-code
+
+
