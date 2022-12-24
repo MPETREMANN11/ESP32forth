@@ -1,5 +1,4 @@
 \ list of useful macros for xtensa assembler
-
 forth
 DEFINED? code invert [IF] xtensa-assembler [THEN]
 
@@ -58,15 +57,30 @@ macro: 32movi, { atReg 32imm -- }
 
 \ ***** manage LOOP, in For, ... Next, structure *******************************
 
-macro: For, { as n -- }
-    as n MOVI,
-    as 0 LOOP,
+\ mark address for branch offset
+: branch-mark,  ( -- addr )
     chere 1-
+;
+
+\ resolve branch
+: branch-resolve, ( BRANCH_ADDR -- )
+    >r          \ duplicate BRANCH_ADDR to return stack
+    chere r@ - 2 -
+    r> [ internals ] ca! [ asm xtensa ]
   ;
 
-macro: Next, { LOOP_OFFSET -- }
-    chere LOOP_OFFSET - 2 -
-    LOOP_OFFSET [ internals ] ca! [ asm xtensa ]
+
+\ ***** manage BRANCH, in For, ... Next, structure *****************************
+
+macro: For, ( as n -- branch-addr )
+    over >r     \ duplicate ar to return stack
+    MOVI,
+    r> 0 LOOP,
+    branch-mark,
+  ;
+
+macro: Next, ( branch-addr -- )
+    branch-resolve,
   ;
     
 \ example:
@@ -83,15 +97,14 @@ macro: Next, { LOOP_OFFSET -- }
 \ myLoop    \ push 2 3 4 5 on stack
 
 
-\ ***** manage BRANCH, in if, ... Then, structure ******************************
+\ ***** manage BRANCH, in If, ... Then, structure ******************************
 
-macro: If, ( -- )
-    chere 1-
+macro: If, ( -- branch-addr )
+    branch-mark,
   ;
 
-macro: Then, { BRANCH_OFFSET -- }
-    chere BRANCH_OFFSET - 2 -
-    BRANCH_OFFSET [ internals ] ca! [ asm xtensa ]
+macro: Then, ( branch-addr -- )
+    branch-resolve,
   ;
 
 macro: <,  ( as at -- )
@@ -109,16 +122,3 @@ macro: <>,  ( as at -- )
 macro: =,  ( as at -- )
     0 BNE,
   ;
-
-\ Example:
-\ code my< ( n1 n2 -- fl )    \ fl=1 if n1 < n2
-\     a1 32           ENTRY, 
-\     a8          arPOP,              \ a8 = n2
-\     a9          arPOP,              \ a9 = n1
-\     a7 0            MOVI,           \ a7 = 1
-\     a8 a9 <, If,
-\         a7 1        MOVI,           \ a7 = 0
-\     Then,
-\     a7          arPUSH,
-\                     RETW.N,
-\ end-code
