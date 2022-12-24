@@ -1,0 +1,286 @@
+\ *********************************************************************
+\ Many Xtensa assembler tests
+\    Filename:      myXtensaTests.txt
+\    Date:          16 nov 2022
+\    Updated:       15 dec 2022
+\    File Version:  1.0
+\    MCU:           ESP32-WROOM-32
+\    Forth:         ESP32forth versions 7.0.7++
+\    Copyright:     Marc PETREMANN
+\    Author:        Marc PETREMANN
+\    GNU General Public License
+\ *********************************************************************
+
+
+forth
+DEFINED? code invert [IF] xtensa-assembler [THEN]
+
+asm
+DEFINED? macro: 
+    invert [IF] include /spiffs/xtensaMacros.txt [THEN]
+
+DEFINED? defForL32R: 
+    invert [IF] include /spiffs/xtensaExtensions.txt [THEN]
+
+\ you can edit and load code of xtensaMacros.txt and xtensaExtensions.txt in ESP32 chip. 
+\ See:
+\ https://esp32.arduino-forth.com/article/files_visualEditor
+
+
+
+forth definitions
+asm xtensa
+
+
+DEFINED? --test [IF] forget --test [THEN]
+create --test
+
+
+\ ***** /MOD alias  ************************************************************
+
+code my/MOD ( n1 n2 -- rem quot )
+    a1 32       ENTRY, 
+    a7  arPOP,          \ divider in a7
+    a8  arPOP,          \ value to divide in a8
+    a7 a8 a9    REMS,   \ a9 = a8 MOD a7
+    a9  arPUSH,
+    a7 a8 a9    QUOS,   \ a9 = a8 / a7
+    a9  arPUSH,
+            RETW.N, 
+end-code
+
+5 2   my/MOD . .    \ display:  2 1
+-5 -2 my/MOD . .    \ display:  2 -1
+
+
+\ ***** swap alias  ************************************************************
+
+\ swap 2 top stack values, use macros
+code mySWAP     ( n1 n2 -- n2 n1 )
+    a1 32       ENTRY, 
+    a9  arPOP,
+    a8  arPOP,
+    a9  arPUSH,
+    a8  arPUSH,
+                RETW.N, 
+end-code
+
+17 24 mySWAP
+
+
+\ ***** + alias  ***************************************************************
+
+code my+
+    a1 32       ENTRY, 
+    a7  arPOP,
+    a8  arPOP,
+    a7 a8 a9    ADD,        \ a9 = a8 + a7
+    a9  arPUSH, 
+                RETW.N, 
+end-code
+
+5 2 my+
+
+
+code my_+
+    a1 32 ENTRY, 
+        sp--,
+    a7 a2 0     L32I.N, 
+    a8 a2 1     L32I.N, 
+    a7 a8 a9    ADD,
+    a9 a2 0 S32I.N, 
+    RETW.N, 
+end-code
+
+4 9 my_+ .  \ display 13
+
+
+\ ***** SP@ alias  *************************************************************
+
+\ First example without macro
+\ get Stack Pointer SP - equivalent to SP@
+code mySP@1
+    a1 32       ENTRY, 
+    a8 a2       MOV.N,
+    a2 a2 4     ADDI,
+    a8 a2 0     S32I.N, 
+                RETW.N, 
+end-code
+
+\ Second example with macro sp++,
+\ get Stack Pointer SP - equivalent to SP@
+code mySP@2
+    a1 32       ENTRY, 
+    a8 a2       MOV.N,
+        sp++,           \ replace: a2 a2 4     ADDI,
+    a8 a2 0     S32I.N, 
+                RETW.N, 
+end-code
+
+\ Third example with macro arPUSH,
+\ get Stack Pointer SP - equivalent to SP@
+code mySP@3
+    a1 32       ENTRY, 
+    a8 a2       MOV.N,
+    a8  arPUSH,
+                RETW.N, 
+end-code
+
+mySP@3 .
+\ display 1073632240
+SP@3 .
+\ display 1073632240
+
+
+\ ***** n exp2 *****************************************************************
+
+\ calculate n squared
+code myEXP2 ( n -- nEXP2 )
+    a1 32       ENTRY, 
+    a8 a2 0     L32I.N, 
+    a8 a8 a8    MULL,
+    a8 a2 0     S32I.N, 
+                RETW.N, 
+end-code
+
+3 myEXP2 .
+\ display 9
+101 myEXP2 .
+\ display 10201
+
+
+\ ***** DROP alias  ************************************************************
+
+\ drop content on top of data stack without macro
+code myDROP1 ( n -- )
+    a1 32       ENTRY, 
+    a2 a2 -4    ADDI,
+                RETW.N, 
+end-code
+
+2 3 myDROP1 .   
+\ display 2
+
+
+\ drop content on top of data stack with macro sp--,
+code myDROP2 ( n -- )
+    a1 32       ENTRY, 
+        sp--,
+                RETW.N, 
+end-code
+
+2 3 myDROP2 .   
+\ display 2
+
+\ ***** Accessing Special Register - example with SAR **************************
+
+3 constant SAR      \ SAR = Shift-amount register - Special Register Number 3
+
+code writeSAR ( n[0..31] -- )
+    a1 32       ENTRY, 
+    a8      arPOP,
+    a8 SAR      WSR,
+                RETW.N, 
+end-code
+
+code readSAR ( -- n )
+    a1 32       ENTRY, 
+    a8 SAR      RSR,
+    a8      arPUSH,
+                RETW.N, 
+end-code
+
+2 writeSAR readSAR .   \ display: 2
+3 writeSAR readSAR .   \ display: 3
+
+\ exammple with LITBASE
+$05 constant LITBASE
+
+code readLitbase ( -- n )
+    a1 32       ENTRY, 
+    a8 LITBASE  RSR, 
+    a8      arPUSH, 
+                RETW.N, 
+end-code 
+
+readLitbase .   \ display: 0
+
+
+\ ***** Subroutine call with CALL0, ********************************************
+
+variable myVarTest
+10 myVarTest !
+
+code __my@ ( -- SUBRaddr )   \ EXEC: leave subroutine address on stack
+    a1 32       ENTRY,
+    a8      arPOP,
+    a9 a8 0     L32I.N,
+    a9      arPUSH,
+                RETW.N, 
+end-code
+
+code my@  ( addr -- n )
+    ' __my@ cell+ @ 4 +
+                CALL0,
+                RETW.N, 
+end-code
+
+myVarTest my@ .     \ display: 10
+
+
+\ ***** Store 32 bit value in register *****************************************
+
+forth definitions
+
+asm xtensa
+
+$87654321 defForL32R: val01
+
+code myL32R ( -- [addr] )
+    a1 32           ENTRY, 
+    a8 val01        L32R,       \ get value pointed by val01 address
+    a8          arPUSH,         \ push the value on stack
+                    RETW.N, 
+end-code
+
+hex
+myL32R .    \ display 87654321
+
+
+\ ***** Use For, Next, macros to replace LOOP, *********************************
+\ complete article here: https://esp32.arduino-forth.com/article/XTENSA_xtensaLOOP
+
+forth definitions
+
+asm xtensa
+
+code myLOOP ( n -- n' )
+    a1 32           ENTRY, 
+    a8 1            MOVI,       \ a8 = 1
+    a9 4        For,            \ LOOP start here
+        a8 a8 1     ADDI,       \ a8 = a8 + 1
+        a8      arPUSH,         \ push result on stack
+   Next,
+                    RETW.N,
+end-code
+
+myLOOP . . . .  \ display 5 4 3 2
+
+
+\ ***** Access to RNG_DATA_REG and fetch 32 bits random  number ****************
+forth definitions
+asm xtensa
+
+$3FF75144 defForL32R: RNG_DATA_REG
+
+code myRND ( -- [addr] )
+    a1 32           ENTRY, 
+    a8 RNG_DATA_REG L32R,       \ a8 = RNG_DATA_REG
+    a9 a8 0     L32I.N,         \ a9 = [a8]
+    a9          arPUSH,         \ push a9 on stack
+                    RETW.N, 
+end-code
+
+myRND .    \ display random number
+
+
