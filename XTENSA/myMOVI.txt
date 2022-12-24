@@ -1,0 +1,16 @@
+xtensa definitions
+: MOVI, ( at imm -- )
+    $A002 \ empty value for MOVI operator
+    swap
+    \ split imm value
+    $100 /mod        \ rest quot --
+    8 LSHIFT 
+    swap 
+    16 LSHIFT   
+    or or
+    swap
+    \ at in code
+    4 LSHIFT or
+    code3,
+  ;
+forth definitions
