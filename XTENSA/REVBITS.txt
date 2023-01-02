@@ -48,10 +48,10 @@ code REVBITS ( n -- n' )
     a10 0           MOVI,           \ a10 = 0
     a11 1           MOVI,
     a9 32       For,                \ LOOP start here
-        a10 a10 1   SLLI,           \ shl a10, a10, 1
-        a11 a6 a7   AND,            \ and a7, a6, 1
-        a7 a10 a10  OR,             \ or a10, a10, a7
-        a6 a6 1     SRLI,           \ shr a6, a6, 1
+        a10 a10 1   SLLI,
+        a11 a6 a7   AND,
+        a7 a10 a10  OR,
+        a6 a6 1     SRLI,
     Next, 
     a10         arPUSH,
                     RETW.N,
