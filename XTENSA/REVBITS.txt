@@ -1,0 +1,80 @@
+\ *********************************************************************
+\ reverse bits order in 32 bits integer
+\    Filename:      AVG.txt
+\    Date:          02 jan 2023
+\    Updated:       02 jan 2023
+\    File Version:  1.0
+\    MCU:           ESP32-WROOM-32
+\    Forth:         ESP32forth versions 7.0.7.4++
+\    Copyright:     Marc PETREMANN
+\    Author:        Marc PETREMANN
+\    GNU General Public License
+\ *********************************************************************
+
+
+\ Same function in C language
+\ unsigned int reverse_bits(unsigned int n) {
+\   unsigned int result = 0;
+\   for (int i = 0; i < 32; i++) {
+\     result <<= 1;
+\     result |= n & 1;
+\     n >>= 1;
+\   }
+\   return result;
+\ }
+
+include /spiffs/dump.txt
+ 
+forth
+DEFINED? code invert [IF] xtensa-assembler [THEN]
+
+include /spiffs/myMOVI.txt
+
+asm
+DEFINED? macro: 
+    invert [IF] include /spiffs/xtensaMacros.txt [THEN]
+
+\ you can edit and load code of xtensaMacros.txt and xtensaExtensions.txt in ESP32 chip. 
+\ See:
+\ https://esp32.arduino-forth.com/article/files_visualEditor
+
+forth definitions
+asm xtensa
+
+\ reverse bits of 32 bits value
+code REVBITS ( n -- n' )
+    a1 32           ENTRY, 
+    a6          arPOP,              \ a6 = n
+    a10 0           MOVI,           \ a10 = 0
+    a11 1           MOVI,
+    a9 32       For,                \ LOOP start here
+        a10 a10 1   SLLI,           \ shl a10, a10, 1
+        a11 a6 a7   AND,            \ and a7, a6, 1
+        a7 a10 a10  OR,             \ or a10, a10, a7
+        a6 a6 1     SRLI,           \ shr a6, a6, 1
+    Next, 
+    a10         arPUSH,
+                    RETW.N,
+end-code
+
+hex
+' REVBITS cell+ @ 10 disasm
+' REVBITS cell+ @ 20 dump
+
+\ for tests
+
+: ####
+    # # # # bl hold ;
+
+: b.
+    base @ >r
+    2 base !  <#
+    #### #### #### #### #### #### #### #### 
+    #> type cr
+    r> base !
+  ;
+  
+hex
+F1000000 dup REVBITS
+b.  \ display: 0000 0000 0000 0000 0000 0000 1000 1111
+b.  \ display: 1111 0001 0000 0000 0000 0000 0000 0000
