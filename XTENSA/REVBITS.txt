@@ -23,7 +23,7 @@
 \   return result;
 \ }
 
-include /spiffs/dump.txt
+include /spiffs/dumpTool.txt
  
 forth
 DEFINED? code invert [IF] xtensa-assembler [THEN]
