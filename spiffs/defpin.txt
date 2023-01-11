@@ -1,0 +1,13 @@
+\ Define a pin name 
+\ visual edit /spiffs/defpin.txt
+
+: defPIN: ( GPIOx ---  |  --- GPIOx ) 
+    value 
+  ; 
+
+\ example:
+\ 4 defPIN: capt2
+\ 
+\ capt2 input pinMode 
+\
+\ capt2 digitalRead
