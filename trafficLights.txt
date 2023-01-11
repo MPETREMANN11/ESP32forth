@@ -2,7 +2,7 @@
 \ manage traffic lights
 \    Filename:      trafficLights.txt
 \    Date:          30/05/2021
-\    Updated:       30/05/2021
+\    Updated:       11/01/2023
 \    File Version:  1.0
 \    MCU:           ESP32-WROOM-32
 \    Forth:         ESP32forth v 7.05
@@ -12,61 +12,26 @@
 \ *********************************************************************
 
 
-\ alternative solution for "marker", (marker not defined in ESP32forth)
-DEFINED? --defPin [if] forget --defPin  [then]
-create --defPin
-
-
-vocabulary defPins
-defPins definitions
-transfer pin
-transfer pinmode
-transfer HIGH
-transfer LOW
-transfer output
-forth definitions
-
-defPins also
-
+DEFINED? defPIN: invert
+    [if] include /spiffs/defpin.txt [then]
 \ Use:
 \ numGPIO defPIN: PD7  ( define portD pin #7)
-: defPIN: ( GPIOx --- <word> | <word> --- GPIOx )
-    value
-  ;
 
-\ Turn a pin on, dont change others
-: high ( GPIOx -- )
-    HIGH swap pin
-  ;
-
-\ Set GPIOx as output
-: output ( GPIOx -- )
-    output pinMode
-  ;
-
-\ Turn a pin off, dont change others
-: low ( GPIOx -- )
-    LOW swap pin
-  ;
-
-only forth also
-
- 2 defPIN: ledGREEN         \ green  LED on GPIO2
-21 defPIN: ledYELLOW        \ yellow LED on GPIO21
-17 defPIN: ledRED           \ red    LED on GPIO17
+ 2 defPIN: ledGREEN
+21 defPIN: ledYELLOW
+17 defPIN: ledRED
 
 : LEDinit
-    ledGREEN    output
-    ledYELLOW   output
-    ledRED      output
+    ledGREEN    output pinMode
+    ledYELLOW   output pinMode
+    ledRED      output pinMode
     ;
-
 
 \ traficLights execute one light cycle
 : trafficLights ( ---)
-    ledGREEN   high   3000 ms    ledGREEN   low
-    ledYELLOW  high    800 ms    ledYELLOW  low
-    ledRED     high   3000 ms    ledRED     low
+    high ledGREEN   pin     3000 ms    low ledGREEN   pin
+    high ledYELLOW  pin      800 ms    low ledYELLOW  pin
+    high ledRED     pin     3000 ms    low ledRED     pin
     ;
 
 \ classic traffic lights loop
@@ -79,13 +44,13 @@ only forth also
 
 \ german trafic light style
 : Dtraffic ( ---)
-    ledGREEN   high   3000 ms    ledGREEN   low
-    ledYELLOW  high    800 ms    ledYELLOW  low
-    ledRED     high   3000 ms
+    high ledGREEN   pin    3000 ms    low ledGREEN   pin
+    high ledYELLOW  pin     800 ms    low ledYELLOW  pin
+    high ledRED     pin    3000 ms
     ledYELLOW  high    800 ms
     \ simultaneous red and yellow ON
-    ledRED     low  \ simultaneous red and yellow OFF
-    ledYELLOW  low
+    high ledRED     pin  \ simultaneous red and yellow OFF
+    high ledYELLOW  pin
     ;
 
 \ german traffic lights loop
@@ -95,7 +60,3 @@ only forth also
         Dtraffic
     key? until
     ;
-
-
-   
-
