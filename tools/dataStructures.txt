@@ -1,0 +1,113 @@
+\ *********************************************************************
+\ Examples of datas structures
+\    Filename:      dataStructures.txt
+\    Date:          13 jan 2023
+\    Updated:       13 jan 2023
+\    File Version:  1.1
+\    MCU:           ESP32-WROOM-32
+\    Forth:         ESP32forth all versions 7...++
+\    Copyright:     Marc PETREMANN
+\    Author:        Marc PETREMANN
+\    Article:       https://esp32.arduino-forth.com/article/tools_dataStructures
+\    GNU General Public License
+\ *********************************************************************
+
+
+\ simple array with 6 items
+create temperatures
+    34 ,    37 ,    42 ,    36 ,    25 ,    12 ,
+
+temperatures        \ push addr on stack
+    0 cell *        \ calculate offset 0
+    +               \ add offset to addr
+    @ .             \ display 34
+
+temperatures        \ push addr on stack
+    1 cell *        \ calculate offset 0
+    +               \ add offset to addr
+    @ .             \ display 37        
+
+\ fetch value from array temperatures
+: temp@ ( index --  value ) 
+    cell * temperatures + @
+  ;
+0 temp@ .   \ display 34
+2 temp@ .   \ display 42
+
+\ definition word for one dimension arrays
+: array ( comp: -- <name> | exec: index <name> -- addr ) 
+    create
+    does>
+        swap cell * +
+  ;
+array myTemps
+    21 ,    32 ,    45 ,    44 ,    28 ,    12 ,
+0 myTemps @ .   \ display 21
+5 myTemps @ .   \ display 12
+
+\ definition word for one dimension bytes array
+: arrayC ( comp: -- <name> | exec: index <name> -- addr ) 
+    create
+    does>
+        +
+  ;
+
+\ 1st example:
+arrayC myCTemps
+    21 c,   32 c,   45 c,   44 c,   28 c,   12 c,
+0 myCTemps c@ .     \ display 21
+5 myCTemps c@ .     \ display 12
+
+\ 2nd example:
+arrayC myCTemps
+    6 allot             \ allocate 6 bytes
+    0 myCTemps 6 0 fill \ fill this 6 bytes with value 0
+32 0 myCTemps c!        \ store 32 in myCTemps[0]
+25 5 myCTemps c!        \ store 25 in myCTemps[5]
+0 myCTemps c@ .         \ display 32
+
+\ definition of 2 dimensions array
+80 constant SCR_WIDTH
+24 constant SCR_HEIGHT
+create mySCREEN
+    SCR_WIDTH SCR_HEIGHT * allot            \ allocate 80 * 24 bytes
+    mySCREEN SCR_WIDTH SCR_HEIGHT * bl fill \ fill this memory with 'space'
+
+\ transform x y position in real address
+: xySCRaddr { x y -- addr }
+    SCR_WIDTH y *
+    x + mySCREEN +
+  ;
+: SCR@ ( x y -- c )
+    xySCRaddr c@
+  ;
+: SCR! ( c x y -- )
+    xySCRaddr c!
+  ;
+char X 15 5 SCR!    \ store char X at col 15 line 5
+15 5 SCR@ emit      \ display X
+
+\ toll for displaying characters
+: tableChars ( -- )
+    base @ >r  hex
+    128 32 do
+       16 0 do
+            j i + dup . space emit space space
+       loop
+       cr
+    16 +loop
+    256 160 do
+       16 0 do
+            j i + dup . space emit space space
+       loop
+       cr
+    16 +loop
+    cr
+    r> base !
+  ;
+tableChars    \ display characters table
+
+\ insert special characters in virtual screen
+$db dup 5 2 SCR!     6 2 SCR!
+$b2 dup 7 3 SCR!     8 3 SCR!
+$b1 dup 9 4 SCR!    10 4 SCR!
