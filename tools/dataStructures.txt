@@ -2,7 +2,7 @@
 \ Examples of datas structures
 \    Filename:      dataStructures.txt
 \    Date:          13 jan 2023
-\    Updated:       13 jan 2023
+\    Updated:       15 jan 2023
 \    File Version:  1.1
 \    MCU:           ESP32-WROOM-32
 \    Forth:         ESP32forth all versions 7...++
@@ -66,9 +66,12 @@ arrayC myCTemps
 25 5 myCTemps c!        \ store 25 in myCTemps[5]
 0 myCTemps c@ .         \ display 32
 
+
+\ *** Manage Virtual Screen ****************************************************
+
 \ definition of 2 dimensions array
-80 constant SCR_WIDTH
-24 constant SCR_HEIGHT
+63 constant SCR_WIDTH
+16 constant SCR_HEIGHT
 create mySCREEN
     SCR_WIDTH SCR_HEIGHT * allot            \ allocate 80 * 24 bytes
     mySCREEN SCR_WIDTH SCR_HEIGHT * bl fill \ fill this memory with 'space'
@@ -87,7 +90,7 @@ create mySCREEN
 char X 15 5 SCR!    \ store char X at col 15 line 5
 15 5 SCR@ emit      \ display X
 
-\ toll for displaying characters
+\ tool for displaying characters
 : tableChars ( -- )
     base @ >r  hex
     128 32 do
@@ -111,3 +114,142 @@ tableChars    \ display characters table
 $db dup 5 2 SCR!     6 2 SCR!
 $b2 dup 7 3 SCR!     8 3 SCR!
 $b1 dup 9 4 SCR!    10 4 SCR!
+
+\ display n times char c
+: nEmit ( c n -- )
+    for
+        aft dup emit then
+    next
+    drop
+  ;
+
+: dispLine { numLine -- }
+    SCR_WIDTH numLine *
+    mySCREEN + SCR_WIDTH type
+  ;
+
+: dispScreen
+    0 0 at-xy
+    \ display upper border
+    $da emit    $c4 SCR_WIDTH nEmit    $bf emit    cr
+    \ display content virtual screen
+    SCR_HEIGHT 0 do
+        $b3 emit    i dispLine         $b3 emit    cr
+    loop
+    \ display bottom border
+    $c0 emit    $c4 SCR_WIDTH nEmit    $d9 emit    cr
+  ;
+\ for test:
+dispScreen
+
+\ *** Structures usage *********************************************************
+
+\ simple date time structure
+structures 
+struct YMDHMS 
+    ptr field >year 
+    ptr field >month 
+    ptr field >day 
+    ptr field >hour 
+    ptr field >min 
+    ptr field >sec 
+
+create DateTime 
+    YMDHMS allot 
+ 
+2022 DateTime >year  ! 
+  03 DateTime >month ! 
+  21 DateTime >day   ! 
+  22 DateTime >hour  ! 
+  36 DateTime >min   ! 
+  15 DateTime >sec   ! 
+ 
+: .date ( date -- ) 
+    >r 
+    ."  YEAR: " r@ >year    @ . cr 
+    ." MONTH: " r@ >month   @ . cr 
+    ."   DAY: " r@ >day     @ . cr 
+    ."    HH: " r@ >hour    @ . cr 
+    ."    MM: " r@ >min     @ . cr 
+    ."    SS: " r@ >sec     @ . cr 
+    r> drop 
+  ; 
+ 
+DateTime .date 
+
+
+\ compacted date time structure
+structures 
+struct cYMDHMS 
+    ptr field >year 
+    i8  field >month 
+    i8  field >day 
+    i8  field >hour 
+    i8  field >min 
+    i8  field >sec 
+             
+create cDateTime 
+    cYMDHMS allot 
+ 
+2022 cDateTime >year   ! 
+  03 cDateTime >month c! 
+  21 cDateTime >day   c! 
+  22 cDateTime >hour  c! 
+  36 cDateTime >min   c! 
+  15 cDateTime >sec   c! 
+ 
+: .cDate ( date -- ) 
+    >r 
+    ."  YEAR: " r@ >year     @ . cr 
+    ." MONTH: " r@ >month   c@ . cr 
+    ."   DAY: " r@ >day     c@ . cr 
+    ."    HH: " r@ >hour    c@ . cr 
+    ."    MM: " r@ >min     c@ . cr 
+    ."    SS: " r@ >sec     c@ . cr 
+    r> drop 
+  ; 
+cDateTime .cDate    \ display: 
+\  YEAR: 2022 
+\ MONTH: 3 
+\   DAY: 21 
+\    HH: 22 
+\    MM: 36 
+\    SS: 15 
+
+\ *** Sprites definitions with structures **************************************
+
+\ redefine virtual screen example with structures
+structures 
+struct cARRAY 
+    i8  field >width 
+    i8  field >height 
+    i8  field >content 
+         
+create myVscreen    \ define a screen 8x32 bytes 
+    32 c,           \ compile width 
+    08 c,           \ compile height 
+    myVscreen >width  c@ 
+    myVscreen >height c@ * allot 
+
+\ SPRITES definition word
+: sprite: ( width height -- ) 
+    create 
+        swap c, c,  \ compile width and height 
+    does> 
+  ; 
+2 1 sprite: blackChars 
+    $db c, $db c,  
+2 1 sprite: greyChars 
+    $b2 c, $b2 c,  
+blackChars >content 2 type   \ display content of sprite blackChars 
+
+\ define 5 x 7 sprite:
+5 7 sprite: char3
+    $20 c,  $db c,  $db c,  $db c,  $20 c, 
+    $db c,  $20 c,  $20 c,  $20 c,  $db c,
+    $20 c,  $20 c,  $20 c,  $20 c,  $db c,
+    $20 c,  $db c,  $db c,  $db c,  $20 c, 
+    $20 c,  $20 c,  $20 c,  $20 c,  $db c,
+    $db c,  $20 c,  $20 c,  $20 c,  $db c,
+    $20 c,  $db c,  $db c,  $db c,  $20 c,
+
