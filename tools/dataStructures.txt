@@ -253,3 +253,25 @@ blackChars >content 2 type   \ display content of sprite blackChars
     $db c,  $20 c,  $20 c,  $20 c,  $db c,
     $20 c,  $db c,  $db c,  $db c,  $20 c,
 
+: .sprite { xpos ypos sprAddr -- }
+    sprAddr >height c@ 0 do
+        xpos ypos at-xy
+        sprAddr >width c@ i *   \ calculate offset in sprite datas
+        sprAddr >content +      \ calculate real address for line n in sprite datas
+        sprAddr >width c@ type  \ display line
+        1 +to ypos              \ increment y position
+    loop
+  ;
+
+0 constant blackColor
+1 constant redColor
+4 constant blueColor
+10 02 char3 .sprite
+redColor fg        
+16 02 char3 .sprite
+blueColor fg
+22 02 char3 .sprite 
+blackColor fg    
+cr cr
+
+
