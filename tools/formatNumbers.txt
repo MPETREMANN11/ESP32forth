@@ -1,0 +1,67 @@
+\ *********************************************************************
+\ Numbers formatting examples
+\    Filename:      formatNumbers.txt
+\    Date:          18 jan 2023
+\    Updated:       18 jan 2023
+\    File Version:  1.0
+\    MCU:           ESP32-WROOM-32
+\    Forth:         ESP32forth all versions 7.x++
+\    Copyright:     Marc PETREMANN
+\    Author:        Marc PETREMANN
+\    GNU General Public License
+\ *********************************************************************
+
+\ display n in fields of width size
+: .r ( n width -- )
+    >r str
+    r> over - 0 max spaces
+    type
+  ;
+
+\ Use:
+cr  12 5 .r
+cr  -4 5 .r 
+cr
+
+\ one byte in binary format
+: cBin# ( c[0..255] -- )
+    base @ >r
+    binary
+    <# # # # # # # # # #>
+    r> base !
+  ;
+
+\ Use:
+36  cBin# type cr
+$ff cBin# type cr
+
+\ display 32 bit value in binary format
+: .Bin ( n -- )
+    $100 /mod  swap >r
+    $100 /mod  swap >r
+    $100 /mod  swap >r
+    cBin# type space
+    r> cBin# type space
+    r> cBin# type space
+    r> cBin# type
+  ;
+    
+$ff .Bin cr
+\ display: 00000000 00000000 00000000 11111111
+$12345678 .Bin cr
+\ display: 00010010 00110100 01010110 01111000
+
+\ display n seconds in HH:MM:SS format
+: :## 
+    base @ >r
+    decimal #  6 base !  #
+    [char] : hold
+    r> base !
+  ;
+: HMS ( n -- )
+    <# :## :## 
+    24 mod # # #>
+  ;
+
+ 120 HMS type   \ display: 00:02:00
+4500 HMS type   \ display: 01:15:00
