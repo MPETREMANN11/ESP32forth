@@ -2,7 +2,7 @@
 \ Numbers formatting examples
 \    Filename:      formatNumbers.txt
 \    Date:          18 jan 2023
-\    Updated:       18 jan 2023
+\    Updated:       23 jan 2023
 \    File Version:  1.0
 \    MCU:           ESP32-WROOM-32
 \    Forth:         ESP32forth all versions 7.x++
@@ -65,3 +65,31 @@ $12345678 .Bin cr
 
  120 HMS type   \ display: 00:02:00
 4500 HMS type   \ display: 01:15:00
+
+
+
+\ Display currencies
+char . value centsSeparator
+char $ value currencySign
+
+: currSignHold ( -- )
+    currencySign [char] $ =
+    if
+        currencySign hold
+    else
+        currencySign hold  bl hold
+    then
+  ;
+
+: toCurr ( n -- adr len )
+    base @ >r   decimal     \ save base and force to decimal base
+    dup >r abs              \ duplicate to ret stack and set abs value
+    <# currSignHold  # #    \ concat decimals values 
+    centsSeparator hold     \ concat cents separator
+    #s r> sign #>
+    r> base !               \ restore base
+  ;
+
+-1002 toCurr type cr    \ display: -10.02 $
+-25   toCurr type cr    \ display: -0.25 $
+ 254 toCurr type cr     \ display: 2.54 $
