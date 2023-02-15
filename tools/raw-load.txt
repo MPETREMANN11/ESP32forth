@@ -1,0 +1,47 @@
+\ *********************************************************************
+\ Raw Load for code in /spiffs/ files
+\    Filename:      raw-load.txt
+\    Date:          15 fev 2023
+\    Updated:       15 fev 2023
+\    File Version:  1.1
+\    MCU:           ESP32-WROOM-32
+\    Forth:         ESP32forth all versions 7.0.7++
+\    Copyright:     Marc PETREMANN
+\    Author:        Marc PETREMANN
+\    GNU General Public License
+\ *********************************************************************
+
+\ This very short Forth code allows to transfer a very long FORTH program from the 
+\ editor on PC to a file in the ESP32 card:
+\   - compile with ESP32forth, the FORTH code, here the words noType and xEdit
+\   - open on your PC the program to be transferred in a file on the ESP32 board
+\   - add at the top of the program the line allowing this fast transfer:
+\      xEdit /spiffs/myFile
+\   - replace "myFile" with the name of the file to be created on the ESP32 board, 
+\     example infix.txt if you load the code from infix.txt
+\   - copy all the code of your program,
+\   - pass in the terminal connected to ESP32forth
+\   - copy your code
+\ If all goes well, nothing should appear on the terminal screen. Wait a few seconds. 
+\ Then type:
+\   - CTRL-X and followed by pressing "Y"
+\ You should have control again.
+\ Check for the presence of your new file:
+\     ls /spiffs/
+\ You can now compile the contents of your new file with include
+
+
+: noType 
+    2drop ;
+
+visual
+: xEdit
+    ['] noType is type
+    edit
+    ['] default-type is type
+  ;
+
+\ usage:
+\ xEdit /spiffs/myFile      \ uncomment this line
+
+\ put here the complete code you will load in '/spiffs/myFile'
