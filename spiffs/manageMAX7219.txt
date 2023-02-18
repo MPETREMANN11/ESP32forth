@@ -1,0 +1,72 @@
+\ tools for MAX7219 managing
+\  visual edit /spiffs/manageMAX7219.txt
+
+
+\ define VSPI pins
+\             ESP32             MAX7219
+19 constant VSPI_MISO   <-->    unused
+23 constant VSPI_MOSI   <-->    DIN
+18 constant VSPI_SCLK   <-->    CLK
+05 constant VSPI_CS     <-->    CS
+
+\ define SPI port frequency
+4000000 constant SPI_FREQ
+
+\ select SPI vocabulary
+only FORTH  SPI also
+
+\ initialize SPI port
+: init.VSPI ( -- )
+    VSPI_CS OUTPUT pinMode
+    VSPI_SCLK VSPI_MISO VSPI_MOSI VSPI_CS SPI.begin
+    SPI_FREQ SPI.setFrequency
+  ;
+
+\ CS select for MAX7219
+: MAX7219.select ( -- )
+    VSPI_CS LOW digitalWrite
+  ;
+
+\ CS deselect for MAX7219
+: MAX7219.deselect ( -- )
+    VSPI_CS HIGH digitalWrite
+  ;
+
+\ send two bytes to MAX7219 thru SPI port
+: MAX7219.csend ( c1 c2 -- )
+    MAX7219.select
+    swap SPI.write SPI.write
+    MAX7219.deselect
+  ;
+
+: MAX7219.normal   ( -- ) 
+    $0c $01 MAX7219.send 
+  ;
+
+: MAX7219.shutdown ( -- ) 
+    $0c $00 MAX7219.send
+  ;
+
+: MAX7219.intensity  ( c -- )  
+    $0a swap MAX7219.send 
+  ;
+
+: MAX7219.decode     ( c -- )  
+    $09 swap MAX7219.send 
+  ;
+
+: MAX7219.scan.limit ( c -- )  
+    $0b swap MAX7219.send 
+  ;
+
+: MAX7219.set.digit  ( cbits cdigit -- ) 
+    swap MAX7219.send 
+  ;
+
+: MAX7219.test.on  ( -- ) 
+    $0f $01 MAX7219.send 
+  ;
+
+: MAX7219.test.off ( -- ) 
+    $0f $00 MAX7219.send 
+  ;
