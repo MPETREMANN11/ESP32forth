@@ -1,0 +1,136 @@
+\ *********************************************************************
+\ Manage MAX7219 led display
+\    Filename:      manageMAX7219.txt
+\    Date:          17 jun 2022
+\    Updated:       18 feb 2022
+\    File Version:  0.0
+\    MCU:           ESP32-WROOM-32
+\    Forth:         ESP32forth all versions 7.x++
+\    Copyright:     Marc PETREMANN
+\    Author:        Marc PETREMANN
+\    GNU General Public License
+\ *********************************************************************
+
+\ require SPI vocabulary:
+\ link: https://esp32.arduino-forth.com/article/SPI_implementation
+\ link: https://esp32.arduino-forth.com/article/SPI_words
+
+DEFINED? --MAX7219 [if] forget --MAX7219  [then]
+create --MAX7219
+
+\ define VSPI pins
+\             ESP32             MAX7219
+19 constant VSPI_MISO   <-->    unused
+23 constant VSPI_MOSI   <-->    DIN
+18 constant VSPI_SCLK   <-->    CLK
+05 constant VSPI_CS     <-->    CS
+
+\ define SPI port frequency
+4000000 constant SPI_FREQ
+
+\ select SPI vocabulary
+only FORTH  SPI also
+
+\ initialize SPI port
+: init.VSPI ( -- )
+    VSPI_CS OUTPUT pinMode
+    VSPI_SCLK VSPI_MISO VSPI_MOSI VSPI_CS SPI.begin
+    SPI_FREQ SPI.setFrequency
+  ;
+
+\ CS select for MAX7219
+: MAX7219.select ( -- )
+    VSPI_CS LOW digitalWrite
+  ;
+
+\ CS deselect for MAX7219
+: MAX7219.deselect ( -- )
+    VSPI_CS HIGH digitalWrite
+  ;
+
+\ send two bytes to MAX7219 thru SPI port
+: MAX7219.csend ( c1 c2 -- )
+    MAX7219.select
+    swap SPI.write SPI.write
+    MAX7219.deselect
+  ;
+
+: MAX7219.normal   ( -- ) 
+    $0c $01 MAX7219.send 
+  ;
+
+: MAX7219.shutdown ( -- ) 
+    $0c $00 MAX7219.send
+  ;
+
+: MAX7219.intensity  ( c -- )  
+    $0a swap MAX7219.send 
+  ;
+
+: MAX7219.decode     ( c -- )  
+    $09 swap MAX7219.send 
+  ;
+
+: MAX7219.scan.limit ( c -- )  
+    $0b swap MAX7219.send 
+  ;
+
+: MAX7219.set.digit  ( cbits cdigit -- ) 
+    swap MAX7219.send 
+  ;
+
+: MAX7219.test.on  ( -- ) 
+    $0f $01 MAX7219.send 
+  ;
+
+: MAX7219.test.off ( -- ) 
+    $0f $00 MAX7219.send 
+  ;
+
+
+\ next words only used for tests
+
+\ all LEDs on full, 232mA needed
+: disp-test-1 ( -- ) 
+    init.VSPI
+    MAX7219.test.on
+    begin key? until
+    MAX7219.test.off
+    SPI.end
+  ;
+
+\ left 4 LEDs on first row, 42mA needed
+: disp-test-2 ( -- ) 
+    init.VSPI
+    MAX7219.normal
+    $03 MAX7219.intensity
+    $00 MAX7219.scan.limit
+    $f0 $01 MAX7219.set.digit
+    begin key? until
+    MAX7219.shutdown
+    SPI.end
+  ;
+
+
+\ draw smiley face, 18mA needed
+: disp-test-3 ( -- ) 
+    init.VSPI
+    MAX7219.normal
+    $01 MAX7219.intensity
+    $07 MAX7219.scan.limit
+    $00 MAX7219.decode
+    [ 2 base ! ]
+    00100000 $01 MAX7219.set.digit
+    01000010 $02 MAX7219.set.digit
+    10000010 $03 MAX7219.set.digit
+    10011000 $04 MAX7219.set.digit
+    10011000 $05 MAX7219.set.digit
+    10000010 $06 MAX7219.set.digit
+    01000010 $07 MAX7219.set.digit
+    00100000 $08 MAX7219.set.digit
+    [ decimal ]
+    begin key? until
+    MAX7219.shutdown
+    SPI.end
+  ;
+
