@@ -1,0 +1,76 @@
+\ *********************************************************************
+\ Test MAX7219 led display
+\    Filename:      testMAX7219.txt
+\    Date:          21 feb 2023
+\    Updated:       21 feb 2023
+\    File Version:  0.0
+\    MCU:           ESP32-WROOM-32
+\    Forth:         ESP32forth all versions 7.x++
+\    Copyright:     Marc PETREMANN
+\    Author:        Marc PETREMANN
+\    GNU General Public License
+\ *********************************************************************
+
+
+s" /spiffs/manageMAX7219.txt" required       \ load tools for MAX7219 managing
+
+\ initialize MAX7219
+1 value intensity
+7 value scanLimit
+0 value decode
+
+: MAX7219.init ( -- )
+    init.VSPI
+    MAX7219.normal
+    intensity MAX7219.intensity
+    scanLimit MAX7219.scan.limit
+    decode    MAX7219.decode
+  ;
+
+
+\ all LEDs on full, 232mA needed
+: test1 ( -- ) 
+    init.VSPI
+    MAX7219.test.on
+    begin key? until
+    MAX7219.test.off
+    SPI.end
+  ;
+
+\ left 4 LEDs on first row, 42mA needed
+: test2 ( -- ) 
+    init.VSPI
+    MAX7219.normal
+    $03 MAX7219.intensity
+    $00 MAX7219.scan.limit
+    $f0 $01 MAX7219.set.digit
+    $f0 $01 MAX7219.set.digit
+    $f0 $01 MAX7219.set.digit
+    $f0 $01 MAX7219.set.digit
+    begin key? until
+    MAX7219.shutdown
+    SPI.end
+  ;
+
+\ draw smiley face, 18mA needed
+: test3 ( -- ) 
+    init.VSPI
+    MAX7219.normal
+    $01 MAX7219.intensity
+    $07 MAX7219.scan.limit
+    $00 MAX7219.decode
+    [ 2 base ! ]
+    01100110 _DIGIT7 MAX7219.set.digit
+    01100110 _DIGIT7 MAX7219.set.digit
+    01100110 _DIGIT7 MAX7219.set.digit
+    01100110 _DIGIT7 MAX7219.set.digit
+    01100110 _DIGIT6 MAX7219.set.digit
+    01100110 _DIGIT6 MAX7219.set.digit
+    01100110 _DIGIT6 MAX7219.set.digit
+    01100110 _DIGIT6 MAX7219.set.digit
+    [ decimal ]
+    begin key? until
+    MAX7219.shutdown
+    SPI.end
+  ;
+
