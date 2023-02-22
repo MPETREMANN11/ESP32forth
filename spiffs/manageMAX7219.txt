@@ -1,13 +1,14 @@
 \ tools for MAX7219 managing
 \  visual edit /spiffs/manageMAX7219.txt
 
+\ doc: https://www.idreammicro.com/post/Controleurs-d-affichage-Maxim-MAX7219-MAX7221
 
 \ define VSPI pins
 \             ESP32             MAX7219
-19 constant VSPI_MISO   <-->    unused
-23 constant VSPI_MOSI   <-->    DIN
-18 constant VSPI_SCLK   <-->    CLK
-05 constant VSPI_CS     <-->    CS
+19 constant VSPI_MISO  \ <-->    unused
+23 constant VSPI_MOSI  \ <-->    DIN
+18 constant VSPI_SCLK  \ <-->    CLK
+05 constant VSPI_CS    \ <-->    CS
 
 \ define SPI port frequency
 4000000 constant SPI_FREQ
@@ -33,40 +34,77 @@ only FORTH  SPI also
   ;
 
 \ send two bytes to MAX7219 thru SPI port
-: MAX7219.csend ( c1 c2 -- )
+: MAX7219.send ( c1 c2 -- )
     MAX7219.select
-    swap SPI.write SPI.write
+    SPI.write SPI.write
     MAX7219.deselect
   ;
 
+\ definition of MAX7219 parameters
+4 value #NB_MAX7219     \ for 32 x 8 display size
+
+\ send a command an data to MAX7219
+: MAX7219.send.command  { data command -- }  
+    #NB_MAX7219 for
+        aft  data command MAX7219.send  then
+    next
+  ;
+
+\ definition of MAX7219 commands
+$00 constant _NO-OP         \ $00
+$09 constant _DECODE-MODE   \ val: $00 for led matrix 
+$0a constant _INTENSITY     \ range $00..$0f
+$0b constant _SCAN-LIMIT    \ range 0..7
+$0c constant _SHUTDOWN      \ range 0|1
+$0f constant _DISPLAY-TEST  \ range 0|1
+
+\ definition of MAX7219 digits 
+$01 constant _DIGIT0        \ range $00..$ff
+$02 constant _DIGIT1        \ range $00..$ff
+$03 constant _DIGIT2        \ range $00..$ff
+$04 constant _DIGIT3        \ range $00..$ff
+$05 constant _DIGIT4        \ range $00..$ff
+$06 constant _DIGIT5        \ range $00..$ff
+$07 constant _DIGIT6        \ range $00..$ff
+$08 constant _DIGIT7        \ range $00..$ff
+
+\ set display on
 : MAX7219.normal   ( -- ) 
-    $0c $01 MAX7219.send 
+    $01 _SHUTDOWN MAX7219.send.command
   ;
 
+\ set display off
 : MAX7219.shutdown ( -- ) 
-    $0c $00 MAX7219.send
+    $00 _SHUTDOWN MAX7219.send.command
   ;
 
-: MAX7219.intensity  ( c -- )  
-    $0a swap MAX7219.send 
+\ set intensity
+: MAX7219.intensity  { intens -- }  ( 00..15 -- )
+    intens _INTENSITY MAX7219.send.command
   ;
 
-: MAX7219.decode     ( c -- )  
-    $09 swap MAX7219.send 
+\ decode mode, always 0 for Xx8 LED matrix
+: MAX7219.decode { decod -- }    ( 0 -- )  
+    decod _DECODE-MODE MAX7219.send.command
   ;
 
-: MAX7219.scan.limit ( c -- )  
-    $0b swap MAX7219.send 
+: MAX7219.scan.limit { scan -- }  ( 0..7 -- )  
+    scan _SCAN-LIMIT MAX7219.send.command
   ;
 
 : MAX7219.set.digit  ( cbits cdigit -- ) 
-    swap MAX7219.send 
+    MAX7219.send 
   ;
 
 : MAX7219.test.on  ( -- ) 
-    $0f $01 MAX7219.send 
+    #NB_MAX7219 for
+        aft  $01 _DISPLAY-TEST MAX7219.send  then
+    next
   ;
 
 : MAX7219.test.off ( -- ) 
-    $0f $00 MAX7219.send 
+    #NB_MAX7219 for
+        aft  $00 _DISPLAY-TEST MAX7219.send  then
+    next
   ;
+
