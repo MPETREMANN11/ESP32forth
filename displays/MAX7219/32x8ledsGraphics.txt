@@ -1,0 +1,80 @@
+\ *********************************************************************
+\ Display graphics on 32x8 LED matrix
+\    Filename:      32x8ledsGraphics.txt
+\    Date:          22 feb 2023
+\    Updated:       22 feb 2023
+\    File Version:  1.0
+\    MCU:           ESP32-WROOM-32
+\    Forth:         ESP32forth all versions 7.0.7++
+\    Copyright:     Marc PETREMANN
+\    Author:        Marc PETREMANN
+\    GNU General Public License
+\ *********************************************************************
+
+
+\ require SPI vocabulary:
+\ link: https://esp32.arduino-forth.com/article/SPI_implementation
+\ link: https://esp32.arduino-forth.com/article/SPI_words
+
+\ doc temporaire: https://how2electronics.com/8x32-max7219-dot-matrix-led-display-with-arduino/
+
+s" /spiffs/manageMAX7219.txt" required       \ load tools for MAX7219 managing
+
+DEFINED? --8x32GRAPH [if] forget --8x32GRAPH  [then]
+create --8x32GRAPH
+
+\ Reverse bits of byte
+1 value MSBFIRST
+: cRevBits ( c -- c' )
+    MSBFIRST 0= if exit then
+    0 { result } 
+    7 for
+        result 1 lshift to result
+        2 /mod swap
+        if     1 +to result
+        then  
+    next
+    drop  result
+  ;
+
+\ send digit and 32 bits value to MAX7219 thru SPI port; 
+\ c1 = address, d2 = LEDs to turn on
+: MAX7219.dsend { digit dvalue -- }
+    MAX7219.select
+    dvalue
+    #NB_MAX7219 for
+        aft  
+            digit SPI.write 
+            $100 /mod swap 
+            cRevBits SPI.write
+        then
+    next
+    drop
+    MAX7219.deselect
+  ;
+
+
+\ define a 32x8 sprite
+create batSprite
+binary
+00000001110000000000001110000000 ,
+00000010001100111100110001000000 ,
+00000100000011000011000000100000 ,
+00001001110010100101001110010000 ,
+00001110001110000001110001110000 ,
+00000000000001000010000000000000 ,
+00000000000000111100000000000000 ,
+00000000000000000000000000000000 ,
+decimal
+
+: .bat ( -- )
+    MAX7219.init
+    8 0 do
+        8 i - 
+        i cell * batSprite + @ MAX7219.dsend
+    loop
+    SPI.end
+  ;
+
+
+
