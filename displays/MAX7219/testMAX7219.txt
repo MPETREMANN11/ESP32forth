@@ -52,25 +52,3 @@ s" /spiffs/manageMAX7219.txt" required       \ load tools for MAX7219 managing
     SPI.end
   ;
 
-\ draw smiley face, 18mA needed
-: test3 ( -- ) 
-    init.VSPI
-    MAX7219.normal
-    $01 MAX7219.intensity
-    $07 MAX7219.scan.limit
-    $00 MAX7219.decode
-    [ 2 base ! ]
-    01100110 _DIGIT7 MAX7219.set.digit
-    01100110 _DIGIT7 MAX7219.set.digit
-    01100110 _DIGIT7 MAX7219.set.digit
-    01100110 _DIGIT7 MAX7219.set.digit
-    01100110 _DIGIT6 MAX7219.set.digit
-    01100110 _DIGIT6 MAX7219.set.digit
-    01100110 _DIGIT6 MAX7219.set.digit
-    01100110 _DIGIT6 MAX7219.set.digit
-    [ decimal ]
-    begin key? until
-    MAX7219.shutdown
-    SPI.end
-  ;
-
