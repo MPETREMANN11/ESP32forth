@@ -1,0 +1,23 @@
+\ define VSPI port
+\    Copyright:     Marc PETREMANN 07 mar 2023
+
+\ define VSPI pins
+\             ESP32            peripherial
+19 constant VSPI_MISO  \ <-->    DOUT
+23 constant VSPI_MOSI  \ <-->    DIN
+18 constant VSPI_SCLK  \ <-->    CLK
+05 constant VSPI_CS    \ <-->    CS
+
+\ define SPI port frequency
+4000000 constant SPI_FREQ
+
+\ select SPI vocabulary
+only FORTH  SPI also
+
+\ initialize SPI port
+: init.VSPI ( -- )
+    VSPI_CS OUTPUT pinMode
+    VSPI_SCLK VSPI_MISO VSPI_MOSI VSPI_CS SPI.begin
+    SPI_FREQ SPI.setFrequency
+  ;
+
