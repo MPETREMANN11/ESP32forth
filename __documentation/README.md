@@ -1,6 +1,7 @@
 Vous trouverez dans ce dossier deux livres aau format PDF:
-- GreatBookESP32forth_EN_v1_1.pdf
-- GrandLivreESP32forth_FR_V1_2.pdf
+- GreatBookESP32forth_EN_vx_x.pdf
+- GrandLivreESP32forth_FR_Vx_x.pdf
+- ESP32forthGrosseBuch_DE_Vx_x.pdf
 
 Le but de ces deux livres est de regrouper l'ensemble des informations permettant de compiler, transférer et exploiter ESP32forth sur les cartes ESP32.
 
@@ -15,8 +16,9 @@ Vous êtes cordialement invité à:
 _______________________________________________________________________
 
 You will find in this folder two books in PDF format:
-- GreatBookESP32forth_EN_v1_1.pdf
-- GrandLivreESP32forth_FR_V1_2.pdf
+- GreatBookESP32forth_EN_vx_x.pdf
+- GrandLivreESP32forth_FR_Vx_x.pdf
+- ESP32forthGrosseBuch_DE_Vx_x.pdf
 
 The aim of these two books is to bring together all the information allowing you to compile, transfer and operate ESP32forth on ESP32 cards.
 
