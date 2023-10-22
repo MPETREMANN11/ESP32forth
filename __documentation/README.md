@@ -35,3 +35,21 @@ You are cordially invited to:
 - request additional information
 - make your contribution
 - help with translation into other languages
+
+_________________________________________________________________________
+
+W niniejszym folderze znajdziesz dwie książki w formacie PDF:
+
+- Wielka_księga_ESP32forth-a_PL_Vx_x.pdf
+
+Książki te napisane zostały w celu zgromadzenia wszystkich niezbędnych
+informacji umożliwiających kompilację, przesyłanie i wykorzystanie
+ESP32forth-a na urządzeniach wykorzystujących ESP32.
+
+Zasadnicze prace dostępne są w języku francuskim.
+
+Serdecznie zapraszamy do:
+* zgłaszania błędów
+* zapytania o dodatkowe informacje
+* wniesienia własnego wkładu
+* pomocy w tłumaczeniu na inne języki
