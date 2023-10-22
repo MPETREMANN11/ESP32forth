@@ -1,4 +1,4 @@
-Vous trouverez dans ce dossier deux livres aau format PDF:
+Vous trouverez dans ce dossier un livre en plusieurs langues au format PDF:
 - GreatBookESP32forth_EN_vx_x.pdf
 - GrandLivreESP32forth_FR_Vx_x.pdf
 - ESP32forthGrosseBuch_DE_Vx_x.pdf
@@ -6,7 +6,7 @@ Vous trouverez dans ce dossier deux livres aau format PDF:
 - BolshayaKnigaESP32forth_RU_Vx_x.pdf
 - GranLibroESP32forth_ES_V1_1.pdf
 
-Le but de ces deux livres est de regrouper l'ensemble des informations permettant de compiler, transférer et exploiter ESP32forth sur les cartes ESP32.
+Le but de ces livres est de regrouper l'ensemble des informations permettant de compiler, transférer et exploiter ESP32forth sur les cartes ESP32.
 
 L'ouvrage de base est en français. 
 
