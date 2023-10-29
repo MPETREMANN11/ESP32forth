@@ -10,7 +10,7 @@ Vous trouverez dans ce dossier un livre en plusieurs langues au format PDF:
 Le but de ce livre est de regrouper l'ensemble des informations permettant de compiler, transférer et exploiter ESP32forth sur les cartes ESP32.
 
 <img src="/__documentation/couvertureLivreEsp32.png"
-  style="float:right;width:30%"/>
+  style="float:right;"/>
 
 L'ouvrage de base est en français. 
 
