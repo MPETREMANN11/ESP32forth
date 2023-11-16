@@ -68,7 +68,7 @@ forth definitions
 0 value NODEBUG
 
 : .esp_error ( error -- )
-    NODEBUG if
+    NODEBUG 0= if
         space
         [ esp_errors ] decode_esp_err [ forth ] type cr
     else
