@@ -15,11 +15,6 @@
 
 RECORDFILE /spiffs/config.fs
 
-\ LCD dimensions (un rotated)
-240 constant LCD_WIDTH
-320 constant LCD_HEIGHT
-
-
 
 
 <EOF>

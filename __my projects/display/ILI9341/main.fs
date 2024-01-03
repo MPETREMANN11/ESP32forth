@@ -19,9 +19,9 @@ DEFINED? --ILI9341 [if] forget --ILI9341  [then]
 create --ILI9341
 
 
-s" /spiffs/config.fs"        included
-
-s" /spiffs/tests.fs"         included
+s" /spiffs/config.fs"           included
+s" /spiffs/ILI9341waveshare.fs" included
+s" /spiffs/tests.fs"            included
 
 
 
