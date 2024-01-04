@@ -24,7 +24,7 @@ $03EF constant ILI9341_DARKCYAN     \   0, 128, 128
 $7800 constant ILI9341_MAROON       \ 128,   0,   0
 $780F constant ILI9341_PURPLE       \ 128,   0, 128
 $7BE0 constant ILI9341_OLIVE        \ 128, 128,   0
-$C618  constant ILI9341_LIGHTGREY   \ 192, 192, 192
+$C618 constant ILI9341_LIGHTGREY    \ 192, 192, 192
 $7BEF constant ILI9341_DARKGREY     \ 128, 128, 128
 $001F constant ILI9341_BLUE         \ 0,   0, 255
 $07E0 constant ILI9341_GREEN        \   0, 255,   0
@@ -36,6 +36,9 @@ $FFFF constant ILI9341_WHITE        \ 255, 255, 255
 $FD20 constant ILI9341_ORANGE       \ 255, 165,   0
 $AFE5 constant ILI9341_GREENYELLOW  \ 173, 255,  47
 $F81F constant ILI9341_PINK
+
+
+
 
 <EOF>
 

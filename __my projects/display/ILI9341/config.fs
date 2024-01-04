@@ -15,7 +15,9 @@
 
 RECORDFILE /spiffs/config.fs
 
-
+internals
+120 to line-width
+FORTH
 
 <EOF>
 

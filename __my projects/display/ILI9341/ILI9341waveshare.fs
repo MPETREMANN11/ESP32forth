@@ -44,11 +44,13 @@ also SPI \ select SPI vocabulary
 
 \ ILI9341 display controller hard reset
 : LCD.reset
-    50 ms
     LCD_RESET LOW   digitalWrite
     50 MS
     LCD_RESET HIGH  digitalWrite
     50 ms
+    LCD_DC    HIGH digitalWrite
+    LCD_CS    HIGH digitalWrite
+    LCD_BL    HIGH digitalWrite
   ;
 
 \ Backlight control function
@@ -72,7 +74,7 @@ also SPI \ select SPI vocabulary
     SPI.write
     LCD_CS HIGH digitalWrite
   ;
- 
+
 \ Write 16 bit data to LCD controller
 : LCD.16dataWrite ( data -- )
     LCD_CS LOW digitalWrite
@@ -131,19 +133,19 @@ $80 constant MADCTL_MY      \ Bottom to top
     MADCTL LCD.cmdWrite
     4 mod
     case
-        0 of 
+        0 of
             MADCTL_MX MADCTL_BGR or LCD.8dataWrite
             orientation.portrait
         endof
-        1 of 
+        1 of
             MADCTL_MV MADCTL_BGR or LCD.8dataWrite
             orientation.landscape
         endof
-        2 of 
+        2 of
             MADCTL_MY MADCTL_BGR or LCD.8dataWrite
             orientation.portrait
           endof
-        3 of 
+        3 of
             MADCTL_MX MADCTL_MY MADCTL_MV MADCTL_BGR or or or LCD.8dataWrite
             orientation.landscape
           endof
@@ -151,9 +153,49 @@ $80 constant MADCTL_MY      \ Bottom to top
   ;
 
 
+\ ILI9341 initialization data
+create INIT_DATA
+  $EF c, 3 c, $03 c, $80 c, $02 c,
+  $CF c, 3 c, $00 c, $C1 c, $30 c,
+  $ED c, 4 c, $64 c, $03 c, $12 c, $81 c,
+  $E8 c, 3 c, $85 c, $00 c, $78 c,
+  $CB c, 5 c, $39 c, $2C c, $00 c, $34 c, $02 c,
+  $F7 c, 1 c, $20 c,
+  $EA c, 2 c, $00 c, $00 c,
+  $C0 c, 1 c, $23 c,
+  $C1 c, 1 c, $10 c,
+  $C5 c, 2 c, $3e c, $28 c,
+  $C7 c, 1 c, $86 c,
+  $36 c, 1 c, $48 c,
+  $3A c, 1 c, $55 c,
+  $B1 c, 2 c, $00 c, $18 c,
+  $B6 c, 3 c, $08 c, $82 c, $27 c,
+  $F2 c, 1 c, $00 c,
+  $26 c, 1 c, $01 c,
+  $E0 c, 15 c, $0F c, $31 c, $2B c, $0C c, $0E c, $08 c, $4E c, $F1 c, $37 c, $07 c, $10 c, $03 c, $0E c, $09 c, $00 c,
+  $E1 c, 15 c, $00 c, $0E c, $14 c, $03 c, $11 c, $07 c, $31 c, $C1 c, $48 c, $08 c, $0F c, $0C c, $31 c, $36 c, $0F c,
+  $00 c,
 
+\ Retrieve byte data at index
+: DATA_C@ ( index -- data )
+  INIT_DATA + c@
+;
 
-
+: LCD.loadDatas ( -- )
+    0 { _indx }
+    0 { _b    }
+    begin
+        _indx DATA_C@ dup 0=
+        if      drop exit
+        else    LCD.cmdWrite    then
+        1 +to _indx
+        _indx DATA_C@ 0 do
+            1 +to _indx
+            _indx DATA_C@ LCD.8dataWrite
+        loop
+        1 +to _indx
+    again
+  ;
 
 : SPI.init ( -- )
     \ set pins mode
@@ -171,6 +213,7 @@ $80 constant MADCTL_MY      \ Bottom to top
     orientation.landscape
     \ Reset display
     LCD.reset
+    LCD.loadDatas
   ;
 
 

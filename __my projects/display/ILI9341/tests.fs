@@ -20,6 +20,8 @@ s" /spiffs/assert.fs"     included
 SPI.init
 LCD.init
 
+HIGH LCD.backlight
+
 <EOF>
 
 
