@@ -89,6 +89,7 @@ also SPI \ select SPI vocabulary
   LCD_CS HIGH digitalWrite
 ;
 
+
 \ Get width of LCD screen in currect rotation
 : LCD.getWidth
   lcdWidth
@@ -129,27 +130,29 @@ $80 constant MADCTL_MY      \ Bottom to top
 \   1 top right of connector
 \   2 top at connector
 \   3 top left of connector
+
 : LCD.rotation ( rotation -- )
-    MADCTL LCD.cmdWrite
+    0 { _cmd }
     4 mod
     case
         0 of
-            MADCTL_MX MADCTL_BGR or LCD.8dataWrite
+            MADCTL_MX MADCTL_BGR or to _cmd
             orientation.portrait
         endof
         1 of
-            MADCTL_MV MADCTL_BGR or LCD.8dataWrite
+            MADCTL_MV MADCTL_BGR or to _cmd
             orientation.landscape
         endof
         2 of
-            MADCTL_MY MADCTL_BGR or LCD.8dataWrite
+            MADCTL_MY MADCTL_BGR or to _cmd
             orientation.portrait
           endof
         3 of
-            MADCTL_MX MADCTL_MY MADCTL_MV MADCTL_BGR or or or LCD.8dataWrite
+            MADCTL_MX MADCTL_MY MADCTL_MV MADCTL_BGR or or or to _cmd
             orientation.landscape
           endof
     endcase
+    MADCTL LCD.cmdWrite  _cmd LCD.8dataWrite
   ;
 
 
@@ -208,17 +211,19 @@ create INIT_DATA
   ;
 
 \ initialize SPI pins and DC RST BL pins
-: LCD.init ( -- )
+: LCD.init ( rotation -- )
+    SPI.init
     \ init screen Width and Height
     orientation.landscape
     \ Reset display
     LCD.reset
     LCD.loadDatas
+    HIGH LCD.backlight
+    \ Exit sleep
+    $11 LCD.cmdWrite    120 ms
+    \ Display on
+    $29 LCD.cmdWrite    120 ms
   ;
-
-
-
-
 
 
 
