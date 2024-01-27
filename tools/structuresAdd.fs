@@ -28,7 +28,7 @@
 
 structures also definitions
 
-: struct@ ( -- )
+: field@ ( -- )
     ' dup ,
     >body @ >r
     r@ 1 = if ['] c@   ,   then
@@ -38,7 +38,7 @@ structures also definitions
     rdrop
   ; immediate
 
-: struct! ( -- )
+: field! ( -- )
     ' dup ,
     >body @ >r
     r@ 1 = if ['] c!   ,   then
