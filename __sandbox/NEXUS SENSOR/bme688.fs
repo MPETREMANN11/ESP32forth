@@ -11,20 +11,6 @@
 \ *********************************************************************
 
 
-\ set SDA and SCL pins
-0 value BME688_SDA
-0 value BME688_SCL
-
-\ ser I2S address for BME688
-0 value BME_I2S_ADDRESS
-
-: bme688.init ( -- )
-    [ wire ]
-    BME688_SDA BME688_SCL wire.begin
-    [ forth ]
-    0 > if
-        abort" BME688 wire initialisation error"
-    then
-  ;
-
+\ set I2S address for BME688
+0 value BME688_I2S_ADDRESS
 

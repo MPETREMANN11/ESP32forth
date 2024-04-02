@@ -12,7 +12,18 @@
 
 RECORDFILE /spiffs/tests.fs
 
-bme688.init     \ initialize BME688
+\ *** UNIT TESTS *********************
+s" /spiffs/assert.fs"         included
+
+\ test NEXUS I2S pins correctly initialized
+assert( NEXUS_SDA 21 = )
+assert( NEXUS_SCL 22 = )
+
+\ *** EDN OF UNIT TESTS **************
+
+
+
+wire.init     \ initialize BME688
 
 wire
 
@@ -33,8 +44,8 @@ forth
 
 
 s" /spiffs/I2Cscan.fs"   included
-bme688.init
-
+wire.init
+Wire.detect 
 
 
 
