@@ -1,15 +1,14 @@
 <img src="voltageSensor.jpg"/>
 
-&#xa;    <h1 style="text-align: center">&#xa;      voltage<br>sensor&#xa;    </h1>&#xa;  
-<ul><li>&#xa;    <h2>&#xa;      langage C&#xa;    </h2>&#xa;  
-<ul><li><a href="https://forum.arduino.cc/t/voltage-sensor-analog-with-esp32/953852" target="_blank"><span class=l>~</span>&nbsp;Voltage sensor (analog) with ESP32
-</a>
-
-</li>
-
-</ul>&#xa;    <h2>&#xa;      general documentation&#xa;    </h2>&#xa;  
-<ul><li><p><a href="https://www.ezlopi.com/tutorials-and-kits/b179-voltage-sensor/" target="_blank"><span class=l>~</span>&nbsp;B179 Voltage Sensor
-</a>
+<h1 style="text-align: center">voltage<br>sensor</h1>
+<ul>
+  <li><h2>langage C</h2>
+  <ul>
+    <li><a href="https://forum.arduino.cc/t/voltage-sensor-analog-with-esp32/953852" target="_blank">Voltage sensor (analog) with ESP32</a></li>
+  </ul>
+  <li><h2>general documentation</h2></li>
+  <ul>
+    <li><a href="https://www.ezlopi.com/tutorials-and-kits/b179-voltage-sensor/" target="_blank">B179 Voltage Sensor</a></li>
 <a href="https://www.youtube.com/watch?v=OXieoH5IsAI" target="_blank"><span class=l>~</span>&nbsp;&#xa;    <p>&#xa;      VOLTAGE SENSOR (0-25V) Arduino tutorial&#160;&#160;(youtube)&#xa;    </p>&#xa;  
 </a>
 <p><a href="https://www.youtube.com/watch?v=rfInUuU7T8A" target="_blank"><span class=l>~</span>&nbsp;Voltage Measurement using Arduino
