@@ -21,9 +21,9 @@
 \ 
 \     2) define words to fettch or store:
 \     : >familiy@
-\         struct@ >family ;
+\         field@ >family ;
 \     : >family!
-\         struct! >family ;
+\         field! >family ;
 
 
 structures also definitions
