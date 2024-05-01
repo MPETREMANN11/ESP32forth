@@ -30,6 +30,17 @@ RECORDFILE /spiffs/oledSSD1306.fs
     then
   ;
 
+
+: .ready ( -- )
+    [ oled ]
+    OledCLS
+    4 OledTextsize      \ Draw 2x Scale Text
+    WHITE OledTextc     \ Draw white text
+    0 0 OledSetCursor   \ Start at top-left corner
+    z" ready" OledPrintln OledDisplay
+    [ forth ]
+  ;
+
 : Oled128x32Init
     [ oled ]
     OledAddr @ 0= 
@@ -37,12 +48,13 @@ RECORDFILE /spiffs/oledSSD1306.fs
         WIDTH HEIGHT OledReset OledNew
         SSD1306_SWITCHCAPVCC I2C_SSD1306_ADDRESS OledBegin drop
     then
-    OledCLS
-    1 OledTextsize      \ Draw 2x Scale Text
-    WHITE OledTextc     \ Draw white text
-    0 0 OledSetCursor   \ Start at top-left corner
-    z" 123456789" OledPrintln OledDisplay
+    .ready
     [ forth ]
+  ;
+
+\ display xxx digits in formatted string
+: .xxVolts ( n -- )
+    <# #  [char] . hold  # #  #> type
   ;
 
 <EOF>

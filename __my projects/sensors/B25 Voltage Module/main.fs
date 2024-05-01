@@ -20,7 +20,7 @@ s" /spiffs/buzzer.fs"           included
 
 s" /spiffs/config.fs"           included
 
-s" /spiffs/I2Cscan.fs"          included
+\ s" /spiffs/I2Cscan.fs"          included
 s" /spiffs/tests.fs"            included
 
 <EOF>

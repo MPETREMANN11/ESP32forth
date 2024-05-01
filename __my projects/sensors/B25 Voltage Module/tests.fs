@@ -73,3 +73,14 @@ fvariable RES
     FDUP F.
     Vout SF!
   ;
+
+
+
+\ get voltage from GPIO, must be B25_NUM_1 or B25_NUM_2
+: getVoltage ( #gpio -- )
+  ;
+
+
+
+
+
