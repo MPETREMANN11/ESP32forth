@@ -2,7 +2,7 @@
 \ B25 Voltage Sensor
 \    Filename:      b25.fs
 \    Date:          05 apr. 2024
-\    Updated:       09 apr. 2024
+\    Updated:       03 may  2024
 \    File Version:  0.0
 \    MCU:           ESP32 all models
 \    Forth:         ESP32forth all versions 7.x++
@@ -12,6 +12,15 @@
 
 RECORDFILE /spiffs/b25.fs
 
+fvariable Vout_1            \ final Voltage after calculation for B25_NUM_1
+fvariable Vout_2            \ final Voltage after calculation for B25_NUM_2
+
+\ Initialize Output Voltage
+: Vout.init ( -- )
+    0e Vout_1 SF!
+    0e Vout_2 SF!
+  ;
+
 \ set GPIOs used by B25 modules, values set in config.fs
 0 value B25_NUM_1
 0 value B25_NUM_2
@@ -20,6 +29,7 @@ RECORDFILE /spiffs/b25.fs
 : B25.init ( -- )
     B25_NUM_1 INPUT pinmode
     B25_NUM_2 INPUT pinmode
+    Vout.init
   ;
 
 \ set divisor ratio of resistors R1 and R2
@@ -31,9 +41,6 @@ fvariable Vref              \ Référence de tension pour ADC
     3.3e Vref SF!
 fvariable RES               \ RESolution pour la conversion ADC
     4095e RES SF!
-
-fvariable Vout_1            \ final Voltage after calculation for B25_NUM_1
-fvariable Vout_2            \ final Voltage after calculation for B25_NUM_2
 
 \ Calculate Vout from ADC value
 : Vout.calc ( ADCval -- R:Vout )
@@ -51,6 +58,23 @@ fvariable Vout_2            \ final Voltage after calculation for B25_NUM_2
         B25_NUM_2 of  Vout_2 SF!   endof
     endcase
   ;
+
+
+\ *** Batteries characteristics: LOW_LIMIT... **********************************
+
+\ determines alarm trigger limit threshold
+fvariable LOW_LIMIT_ALARM
+
+: BATTERY: ( comp: r:VeLim -- <name> | exec: -- )
+    create
+        sf,
+    does>
+        SF@ LOW_LIMIT_ALARM SF!
+  ;
+
+12.4e BATTERY: SOLAR-BATTERY
+12.4e BATTERY: MOTOR-BATTERY
+
 
 
 <EOF>

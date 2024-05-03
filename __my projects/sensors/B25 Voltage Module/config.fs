@@ -2,7 +2,7 @@
 \ B25 VCC Sensor configuration file
 \    Filename:      config.fs
 \    Date:          31 mars 2024
-\    Updated:       09 apr. 2024
+\    Updated:       03 may  2024
 \    File Version:  0.0
 \    MCU:           ESP32 all models
 \    Forth:         ESP32forth all versions 7.x++
