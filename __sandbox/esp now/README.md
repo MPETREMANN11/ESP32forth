@@ -8,5 +8,5 @@
 <li>rename <b>espnow.userwords.h</b> to <b>userwords.h</b></li>
 <li>recompile and upload <b>ESP32forth.ino</b></li>
 </ol>
-<p>erify espnow vocabulary:</p>
+<p>Verify espnow vocabulary:</p>
 <code>espnow vlist</code>
