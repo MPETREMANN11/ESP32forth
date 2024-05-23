@@ -2,7 +2,7 @@
 \ ESP NOW tests
 \    Filename:      esp-now-test.fs
 \    Date:          21 may 2024
-\    Updated:       21 may 2024
+\    Updated:       23 may 2024
 \    File Version:  1.0
 \    MCU:           ESP32 all models
 \    Forth:         ESP32forth all versions 7.x++
@@ -18,18 +18,7 @@
 \ verify espnow vocabulary:
 \  espnow vlist
 
-\ change this parameters with your own wifi params
-z" Mariloo"                     constant mySSID
-z" 1925144D91DE5373C3C2D7959F"  constant myPASSWORD
-
-wifi
-
-\ Initialize WiFi
-WIFI_MODE_STA Wifi.mode
-mySSID myPASSWORD WiFi.begin 
-
 create mac 6 allot          \ store local MAC address
-mac WiFi WiFi.macAddress
 
 \ display MAC address in hex format
 : .mac ( -- addr len )
@@ -43,10 +32,42 @@ mac WiFi WiFi.macAddress
     base !
   ;
 
+\ change this parameters with your own wifi params
+\ z" Mariloo"                     constant mySSID
+\ z" 1925144D91DE5373C3C2D7959F"  constant myPASSWORD
+
+z" ESP-MASTER-AP"           constant mySSID
+z" "                        constant myPASSWORD
+
+\ Initialize WiFi
+wifi
+
+\ Configure WiFi in station mode
+: wifi-init ( -- ) 
+    WIFI_MODE_STA Wifi.mode 
+    mySSID myPASSWORD WiFi.softAP 
+  ;
+
+wifi-init
+
+mac WiFi WiFi.macAddress
+.mac
+
+
 
 espnow
 
-esp_now_init        \ 0 for success
+\ Initit ESP-NOW
+: esp-now-init ( -- )
+    esp_now_init    \ 0 for success
+    if 
+        ." ESP-NOW init failed" cr 
+        exit
+    then
+    ." ESP-NOW init success" cr
+  ;
+
+esp-now-init
 
 \ esp_now_deinit
 
