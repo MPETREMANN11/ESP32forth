@@ -20,7 +20,8 @@
       PUSH user_source; PUSH sizeof(user_source) - 1) \
   XV(espnow, "esp_now_init", ESP_NOW_INIT, PUSH esp_now_init();) \
   XV(espnow, "esp_now_deinit", ESP_NOW_DEINIT, PUSH esp_now_deinit();) \
-  XV(espnow, "esp_now_get_version", ESP_NOW_GET_VERSION, n0 = esp_now_get_version((uint32_t *) a0);)
+  XV(espnow, "esp_now_get_version", ESP_NOW_GET_VERSION, n0 = esp_now_get_version((uint32_t *) a0);) \
+  XV(espnow, "esp_now_send", ESP_NOW_SEND, n0 = esp_now_send((uint8_t *) a2, (uint8_t *) a1, (size_t) n0);)
 
 
 const char user_source[] = R"""(
