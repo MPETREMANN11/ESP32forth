@@ -2,7 +2,7 @@
 \ ESP NOW tests
 \    Filename:      esp-now-test.fs
 \    Date:          21 may 2024
-\    Updated:       23 may 2024
+\    Updated:       28 may 2024
 \    File Version:  1.0
 \    MCU:           ESP32 all models
 \    Forth:         ESP32forth all versions 7.x++
@@ -18,19 +18,39 @@
 \ verify espnow vocabulary:
 \  espnow vlist
 
-create mac 6 allot          \ store local MAC address
-
 \ display MAC address in hex format
-: .mac ( -- addr len )
+: .mac { mac-addr -- }
     base @ hex
     6 0 do
-        mac i + c@ <# # # #> type
+        mac-addr i + c@ <# # # #> type
         i 5 < if
             [char] : emit
         then
     loop
     base !
   ;
+
+internals also
+: define-mac-address: ( comp: <name> <mac-str> -- | exec: -- addr )
+    create
+        base @ >r  hex          \ save current base
+        5 for
+            [char] : parse      \ search : delimiter
+            S>NUMBER?           \ try convert in integer
+            if      c,          \ compile integer in mac-address
+            else    abort" MAC address scan error"
+            then
+        next
+        r> base !               \ restore current base
+    does>
+  ;
+only forth
+
+\ example of mac-address definition:
+\ define-mac-address: yyy-mac EC:62:60:9C:76:30
+\ yyy-mac .mac     \ display: EC:62:60:9C:76:30
+
+
 
 \ change this parameters with your own wifi params
 \ z" Mariloo"                     constant mySSID
@@ -46,6 +66,9 @@ wifi
 : wifi-init ( -- ) 
     WIFI_MODE_STA Wifi.mode 
     mySSID myPASSWORD WiFi.softAP 
+    0= if
+        ." Soft AP creation failed" cr
+    then
   ;
 
 wifi-init
