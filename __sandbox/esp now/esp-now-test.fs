@@ -2,7 +2,7 @@
 \ ESP NOW tests
 \    Filename:      esp-now-test.fs
 \    Date:          21 may 2024
-\    Updated:       28 may 2024
+\    Updated:       01 jun 2024
 \    File Version:  1.0
 \    MCU:           ESP32 all models
 \    Forth:         ESP32forth all versions 7.x++
@@ -56,8 +56,8 @@ only forth
 \ z" Mariloo"                     constant mySSID
 \ z" 1925144D91DE5373C3C2D7959F"  constant myPASSWORD
 
-z" ESP-MASTER-AP"           constant mySSID
-z" "                        constant myPASSWORD
+\ z" ESP-MASTER-AP"           constant mySSID
+\ z" "                        constant myPASSWORD
 
 \ Initialize WiFi
 wifi
@@ -65,24 +65,30 @@ wifi
 \ Configure WiFi in station mode
 : wifi-init ( -- ) 
     WIFI_MODE_STA Wifi.mode 
-    mySSID myPASSWORD WiFi.softAP 
-    0= if
-        ." Soft AP creation failed" cr
-    then
+\     mySSID myPASSWORD WiFi.softAP 
+\     0= if
+\         ." Soft AP creation failed" cr
+\     then
   ;
 
 wifi-init
 
-mac WiFi WiFi.macAddress
-.mac
+create myMAC 6 allot
+WiFi
+myMAC WiFi.macAddress
+hex
+myMAC 6 dump
+decimal
 
 
 
 espnow
 
+0 constant ESP_OK
+
 \ Initit ESP-NOW
 : esp-now-init ( -- )
-    esp_now_init    \ 0 for success
+    esp_now_init ESP_OK <>   \ 0 for success
     if 
         ." ESP-NOW init failed" cr 
         exit
