@@ -1,4 +1,5 @@
 // Copyright 2024 Marc PETREMANN
+// latest ver: 04 jun 2024
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,8 +17,8 @@
 
 #define USER_VOCABULARIES V(espnow)
 #define USER_WORDS  \
-  XV(internals, "user-source", USER_SOURCE, \
-      PUSH user_source; PUSH sizeof(user_source) - 1) \
+//  XV(internals, "user-source", USER_SOURCE,
+//      PUSH user_source; PUSH sizeof(user_source) - 1)
   XV(espnow, "esp_now_init", ESP_NOW_INIT, PUSH esp_now_init();) \
   XV(espnow, "esp_now_deinit", ESP_NOW_DEINIT, PUSH esp_now_deinit();) \
   XV(espnow, "esp_now_get_version", ESP_NOW_GET_VERSION, n0 = esp_now_get_version((uint32_t *) a0);) \
@@ -31,17 +32,23 @@
   XV(espnow, "esp_now_mod_peer", ESP_NOW_MOD_PEER, n0 = esp_now_mod_peer((const esp_now_peer_info_t *) a0);) \
   XV(espnow, "esp_now_is_peer_exist", ESP_NOW_IS_PEER_EXIST, n0 = esp_now_is_peer_exist((uint8_t *) a0);) \
   XV(espnow, "esp_now_get_peer_num", ESP_NOW_GET_PEER_NUM, n0 = esp_now_get_peer_num((esp_now_peer_num_t *) a0);) \
-  XV(espnow, "esp_now_set_pmk", ESP_NOW_SET_PMK, n0 = esp_now_set_pmk((uint8_t *) a0);)
+  XV(espnow, "esp_now_set_pmk", ESP_NOW_SET_PMK, n0 = esp_now_set_pmk((uint8_t *) a0);) \
+  YV(espnow, ESP_NOW_MAX_DATA_LEN, PUSH ESP_NOW_MAX_DATA_LEN ) \
+  YV(espnow, ESP_NOW_ETH_ALEN, ESP_NOW_ETH_ALEN ) \
+  YV(espnow, ESP_NOW_KEY_LEN, ESP_NOW_KEY_LEN ) \
+  YV(espnow, ESP_NOW_MAX_TOTAL_PEER_NUM, ESP_NOW_MAX_TOTAL_PEER_NUM ) \
+  YV(espnow, ESP_NOW_MAX_ENCRYPT_PEER_NUM, ESP_NOW_MAX_ENCRYPT_PEER_NUM )
 
-const char user_source[] = R"""(
-vocabulary espnow   espnow definitions
 
-  6 constant ESP_NOW_ETH_ALEN               \ Length of ESPNOW peer MAC address
- 16 constant ESP_NOW_KEY_LEN                \ Length of ESPNOW peer local master key
- 20 constant ESP_NOW_MAX_TOTAL_PEER_NUM     \ Maximum number of ESPNOW total peers
-  6 constant ESP_NOW_MAX_ENCRYPT_PEER_NUM   \ Maximum number of ESPNOW encrypted peers
-250 constant ESP_NOW_MAX_DATA_LEN           \ Maximum length of ESPNOW data which is sent very time
+// const char user_source[] = R"""(
+// \ vocabulary espnow   espnow definitions
 
-transfer espnow-builtins
-forth definitions
-)""";
+// \   6 constant ESP_NOW_ETH_ALEN               \ Length of ESPNOW peer MAC address
+// \  16 constant ESP_NOW_KEY_LEN                \ Length of ESPNOW peer local master key
+// \  20 constant ESP_NOW_MAX_TOTAL_PEER_NUM     \ Maximum number of ESPNOW total peers
+// \  6 constant ESP_NOW_MAX_ENCRYPT_PEER_NUM   \ Maximum number of ESPNOW encrypted peers
+// \ 250 constant ESP_NOW_MAX_DATA_LEN           \ Maximum length of ESPNOW data which is sent very time
+// 
+// \ transfer espnow-builtins
+// \ forth definitions
+// )""";
