@@ -17,7 +17,7 @@
 #define USER_VOCABULARIES V(spi)
 #define USER_WORDS  \
   XV(internals, "user-source", USER_SOURCE, \
-      PUSH user_source; PUSH sizeof(spi_source) - 1) \
+      PUSH user_source; PUSH sizeof(user_source) - 1) \
   XV(spi, "SPI.begin", SPI_BEGIN, SPI.begin((int8_t) n3, (int8_t) n2, (int8_t) n1, (int8_t) n0); DROPn(4)) \
   XV(spi, "SPI.end", SPI_END, SPI.end();) \
   XV(spi, "SPI.setHwCs", SPI_SETHWCS, SPI.setHwCs((boolean) n0); DROP) \
