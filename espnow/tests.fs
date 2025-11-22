@@ -15,6 +15,9 @@ RECORDFILE /spiffs/tests.fs
 
 espnowInit
 
+getMyMac
+hex myMac 6 dump
+
 
 <EOF>
 

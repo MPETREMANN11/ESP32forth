@@ -15,9 +15,13 @@ RECORDFILE /spiffs/main.fs
 DEFINED? --espnow [if] forget --espnow  [then]
 create --espnow
 
-s" /spiffs/espnow.fs"   included
+also internals
+also WiFi
+also espnow
 
-s" /spiffs/tests.fs"    included
+s" /spiffs/mac-address.fs"  included
+s" /spiffs/espnow.fs"       included
+s" /spiffs/tests.fs"        included
 
 <EOF>
 

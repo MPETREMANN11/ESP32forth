@@ -1,6 +1,6 @@
 \ *********************************************************************
-\ espnow development
-\    Filename:      espnow.fs
+\ mac addresses 
+\    Filename:      mac-address.fs
 \    Date:          22 nov. 2025
 \    Updated:       22 nov. 2025
 \    File Version:  0.0
@@ -11,31 +11,27 @@
 \    GNU General Public License
 \ *********************************************************************
 
+RECORDFILE /spiffs/mac-address.fs
 
-RECORDFILE /spiffs/espnow.fs
+\ store current mac Address
+create myMac 6 allot               
 
- 0 constant ESP_OK
--1 constant ESP_FAIL
-
-\ Configure WiFi in station mode
-: wifi-init ( -- ) 
-    \ start wifi in station mode
-    WIFI_MODE_STA Wifi.mode
+\ get  mac address for current ESP32 card
+: getMyMac ( -- )
+    myMac WiFi.macAddress
   ;
 
-\ Initialize ESPNOW
-: espnowInit ( -- )
-    wifi-init
-    esp_now_init ESP_OK <>   \ 0 for success
-    if 
-        ." ESP-NOW init failed" cr 
-        -1 throw
-    then
-    ." ESP-NOW init success" cr
+\ display MAC address in hex format
+: .mac { mac-addr -- }
+    base @ hex
+    6 0 do
+        mac-addr i + c@ <# # # #> type
+        i 5 < if
+            [char] : emit
+        then
+    loop
+    base !
   ;
-
-
-<EOF>
 
 \ define name for MAC address
 : define-mac-address: ( comp: <name> <mac-str> -- | exec: -- addr )
@@ -52,34 +48,10 @@ RECORDFILE /spiffs/espnow.fs
     does>
   ;
 
-\ example of mac-address definition:
-\ define-mac-address: MASTER_MAC EC:62:60:9C:76:30
-\ MASTER_MAC .mac     \ display: EC:62:60:9C:76:30
+
+<EOF>
 
 
 
 
 
-
-
-
-
-
-
-
-
-
-
-: espnow_register_example
-  \ register the mac 12:34:56:78:9a:bc as a peer
-  $12 c, $34 c, $56 c, $78 c, $9a c, $bc c,
-  here 6 -
-  ESPNOW_add_peer ESP_OK <> throw
-  -6 allot
-;
-: espnow_send_some
-  \ NULL a.k.a. send to peerlist
-  \ send 10 bytes of data space pointer
-  0 here 10 - 10
-  espnow_send ESP_OK <> throw
-;
