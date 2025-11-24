@@ -1,7 +1,7 @@
 \ *********************************************************************
-\ tests for espnow development
-\    Filename:      tests.fs
-\    Date:          22 nov. 2025
+\ peer list for tests
+\    Filename:      peer-list.fs
+\    Date:          23 nov. 2025
 \    Updated:       23 nov. 2025
 \    File Version:  0.0
 \    MCU:           ESP32-WROOM-32
@@ -11,18 +11,13 @@
 \    GNU General Public License
 \ *********************************************************************
 
-RECORDFILE /spiffs/tests.fs
+RECORDFILE /spiffs/peer-list.fs
 
-espnowInit
-\ getMyMac
-\ hex myMac 6 dump
-
-MASTER .mac cr
-SLAVE1 .mac
-
-SLAVE1 add_peer
+$08 $3A $F2 $AA $9B $B0 define-mac-address: MASTER
+$08 $3A $F2 $6E $1E $F8 define-mac-address: SLAVE1
 
 
 <EOF>
+
 
 

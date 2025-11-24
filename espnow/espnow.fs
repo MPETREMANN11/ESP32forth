@@ -34,27 +34,22 @@ RECORDFILE /spiffs/espnow.fs
     ." ESP-NOW init success" cr
   ;
 
+: add-peer ( peer-addr -- )
+    esp_now_add_peer ESP_OK <>   \ 0 for success
+    if
+        ." ESP-NOW add_peer failed" cr 
+        -1 throw
+    then
+  ;
+
+\ set channel for peer
+: set-channel ( chan addr -- )
+    !field ->channel 
+  ;
+
 
 <EOF>
 
-\ define name for MAC address
-: define-mac-address: ( comp: <name> <mac-str> -- | exec: -- addr )
-    create
-        base @ >r  hex          \ save current base
-        5 for
-            [char] : parse      \ search : delimiter
-            S>NUMBER?           \ try convert in integer
-            if      c,          \ compile integer in mac-address
-            else    abort" MAC address scan error"
-            then
-        next
-        r> base !               \ restore current base
-    does>
-  ;
-
-\ example of mac-address definition:
-\ define-mac-address: MASTER_MAC EC:62:60:9C:76:30
-\ MASTER_MAC .mac     \ display: EC:62:60:9C:76:30
 
 
 

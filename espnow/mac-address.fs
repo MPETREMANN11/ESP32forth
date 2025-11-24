@@ -2,7 +2,7 @@
 \ mac addresses 
 \    Filename:      mac-address.fs
 \    Date:          22 nov. 2025
-\    Updated:       22 nov. 2025
+\    Updated:       23 nov. 2025
 \    File Version:  0.0
 \    MCU:           ESP32-WROOM-32
 \    Forth:         ESP32forth all versions 7.x++
@@ -16,7 +16,7 @@ RECORDFILE /spiffs/mac-address.fs
 \ store current mac Address
 create myMac 6 allot               
 
-\ get  mac address for current ESP32 card
+\ get  mac address for current ESP32 card and store result in myMac
 : getMyMac ( -- )
     myMac WiFi.macAddress
   ;
@@ -33,25 +33,19 @@ create myMac 6 allot
     base !
   ;
 
-\ define name for MAC address
-: define-mac-address: ( comp: <name> <mac-str> -- | exec: -- addr )
+: define-mac-address: ( $n1..$n6 comp: <name> -- | exec: -- addr )
     create
-        base @ >r  hex          \ save current base
-        5 for
-            [char] : parse      \ search : delimiter
-            S>NUMBER?           \ try convert in integer
-            if      c,          \ compile integer in mac-address
-            else    abort" MAC address scan error"
-            then
+        \ store mac address in 6 first bytes
+        >r >r >r >r >r
+        c,  r> c,  r> c,  r> c,  r> c,  r> c,  r> c,  
+        \ store 0 in others bytes
+        esp_now_peer_info_t 6 - 1- for
+            0 c,
         next
-        r> base !               \ restore current base
     does>
   ;
 
-
 <EOF>
-
-
 
 
 
