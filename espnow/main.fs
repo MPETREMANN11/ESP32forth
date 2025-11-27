@@ -15,16 +15,12 @@ RECORDFILE /spiffs/main.fs
 DEFINED? --espnow [if] forget --espnow  [then]
 create --espnow
 
-also internals
-also WiFi
-also espnow
-also structures
-
-s" /spiffs/datas-structs.fs"  included
-s" /spiffs/mac-address.fs"    included
-s" /spiffs/espnow.fs"         included
-s" /spiffs/peer-list.fs"      included
-s" /spiffs/tests.fs"          included
+needs /spiffs/oled128x32-display.fs
+needs /spiffs/datas-structs.fs
+needs /spiffs/mac-address.fs
+needs /spiffs/espnow.fs
+needs /spiffs/peer-list.fs
+needs /spiffs/tests.fs
 
 <EOF>
 

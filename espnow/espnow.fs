@@ -2,7 +2,7 @@
 \ espnow development
 \    Filename:      espnow.fs
 \    Date:          22 nov. 2025
-\    Updated:       22 nov. 2025
+\    Updated:       24 nov. 2025
 \    File Version:  0.0
 \    MCU:           ESP32-WROOM-32
 \    Forth:         ESP32forth all versions 7.x++
@@ -14,14 +14,10 @@
 
 RECORDFILE /spiffs/espnow.fs
 
+also espnow
+
  0 constant ESP_OK
 -1 constant ESP_FAIL
-
-\ Configure WiFi in station mode
-: wifi-init ( -- ) 
-    \ start wifi in station mode
-    WIFI_MODE_STA Wifi.mode
-  ;
 
 \ Initialize ESPNOW
 : espnowInit ( -- )
@@ -42,28 +38,9 @@ RECORDFILE /spiffs/espnow.fs
     then
   ;
 
-\ set channel for peer
-: set-channel ( chan addr -- )
-    !field ->channel 
-  ;
-
+only FORTH
 
 <EOF>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 : espnow_register_example
   \ register the mac 12:34:56:78:9a:bc as a peer

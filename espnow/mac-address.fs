@@ -13,6 +13,15 @@
 
 RECORDFILE /spiffs/mac-address.fs
 
+also wifi
+also espnow
+
+\ Configure WiFi in station mode
+: wifi-init ( -- ) 
+    \ start wifi in station mode
+    WIFI_MODE_STA Wifi.mode
+  ;
+
 \ store current mac Address
 create myMac 6 allot               
 
@@ -44,6 +53,8 @@ create myMac 6 allot
         next
     does>
   ;
+
+only forth
 
 <EOF>
 
