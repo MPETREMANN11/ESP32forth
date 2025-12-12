@@ -22,7 +22,7 @@
   XV(espnow, "esp_now_init", ESP_NOW_INIT, PUSH esp_now_init();) \
   XV(espnow, "esp_now_deinit", ESP_NOW_DEINIT, PUSH esp_now_deinit();) \
   XV(espnow, "esp_now_get_version", ESP_NOW_GET_VERSION, n0 = esp_now_get_version((uint32_t *) a0);) \
-  XV(espnow, "esp_now_send", ESP_NOW_SEND, n0 = esp_now_send((uint8_t *) a2, (uint8_t *) a1, (size_t) n0);) \
+  XV(espnow, "esp_now_send", ESP_NOW_SEND, n0 = esp_now_send((uint8_t *) a2, (uint8_t *) a1, (size_t) n0);  NIPn(2)) \
   XV(espnow, "esp_now_register_recv_cb", ESP_NOW_REGISTER_RECV_CB, PUSH esp_now_register_recv_cb((esp_now_recv_cb_t) n0);) \
   XV(espnow, "esp_now_unregister_recv_cb", ESP_NOW_UNREGISTER_RECV_CB, PUSH esp_now_unregister_recv_cb();) \
   XV(espnow, "esp_now_register_send_cb", ESP_NOW_REGISTER_SEND_CB, PUSH esp_now_register_send_cb((esp_now_send_cb_t) n0);) \
