@@ -42,7 +42,7 @@ static Adafruit_SSD1306 *oled_display = 0;
   YV(oled, OledNew, oled_display = new Adafruit_SSD1306(n2, n1, &Wire, n0); DROPn(3)) \
   YV(oled, OledDelete, delete oled_display) \
   YV(oled, OledBegin, n0 = oled_display->begin(n1, n0); NIP) \
-  YV(oled, OledHOME, oled_display->setCursor(0,0); DROP) \
+  YV(oled, OledHOME, oled_display->setCursor(0,0)) \
   YV(oled, OledCLS, oled_display->clearDisplay()) \
   YV(oled, OledTextc, oled_display->setTextColor(n0); DROP) \
   YV(oled, OledPrintln, oled_display->println(c0); DROP) \
