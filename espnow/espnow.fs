@@ -2,7 +2,7 @@
 \ espnow development
 \    Filename:      espnow.fs
 \    Date:          22 nov. 2025
-\    Updated:       24 nov. 2025
+\    Updated:       12 dec. 2025
 \    File Version:  0.0
 \    MCU:           ESP32-WROOM-32
 \    Forth:         ESP32forth all versions 7.x++
@@ -30,28 +30,30 @@ also espnow
     ." ESP-NOW init success" cr
   ;
 
-: add-peer ( peer-addr -- )
-    esp_now_add_peer ESP_OK <>   \ 0 for success
-    if
-        ." ESP-NOW add_peer failed" cr 
+\ test if peer exist - stop execution if peer was previously added
+: peer-exist? ( peer-addr -- peer-addr )
+    dup esp_now_is_peer_exist  \ 0 = no peer added, 1 = peer added
+    if  ." peer " .mac space ." previously added" cr
         -1 throw
-    then
-  ;
+    then ;
+
+\ add peer to peer list
+\ ex: SLAVE1 add-peer
+: add-peer ( peer-addr -- )
+    peer-exist?
+    esp_now_add_peer ESP_OK <>   \ 0 for success
+    if  ." ESP-NOW add_peer failed" cr 
+        -1 throw
+    then ;
+
+\ send datas to peer
+\ ex: SLAV1 s" TEST TRANSMISSION" espnowSend
+: espnowSend ( peer-addr datas-addr len -- )
+    esp_now_send ESP_OK <>   \ 0 for success
+    if  ." ESP-NOW Send failed" cr 
+        -1 throw
+    then ;
 
 only FORTH
 
 <EOF>
-
-: espnow_register_example
-  \ register the mac 12:34:56:78:9a:bc as a peer
-  $12 c, $34 c, $56 c, $78 c, $9a c, $bc c,
-  here 6 -
-  ESPNOW_add_peer ESP_OK <> throw
-  -6 allot
-;
-: espnow_send_some
-  \ NULL a.k.a. send to peerlist
-  \ send 10 bytes of data space pointer
-  0 here 10 - 10
-  espnow_send ESP_OK <> throw
-;
