@@ -1,5 +1,5 @@
 // Copyright 2024 Marc PETREMANN
-// latest ver: 06 jun 2024
+// latest ver: 21 dec 2025
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,6 +15,33 @@
 
 # include <esp_now.h>
 
+typedef intptr_t cell_t;
+
+// Variable pour stocker le mot Forth (XT)
+static cell_t esp_now_recv_xt = 0;
+
+// Pointeur pour mémoriser l'adresse de la fonction forth_run
+typedef cell_t* (*forth_run_ptr)(cell_t*);
+static forth_run_ptr internal_forth_run = NULL;
+
+// On déclare push qui n'est pas static dans votre .ino
+extern "C" void push(cell_t v);
+
+void IRAM_ATTR esp_now_recv_cb_bridge(const esp_now_recv_info_t *info, const uint8_t *data, int len) {
+  if (esp_now_recv_xt != 0 && g_sys != NULL && internal_forth_run != NULL) {
+    // 1. On empile les arguments
+    push((cell_t)info->src_addr);
+    push((cell_t)data);
+    push((cell_t)len);
+
+    // 2. On empile l'XT pour que le moteur sache quoi exécuter
+    push(esp_now_recv_xt); 
+
+    // 3. On appelle via le pointeur mémorisé
+    internal_forth_run(g_sys->rp);
+  }
+}
+
 #define OPTIONAL_ESPNOW_VOCABULARY V(espnow)
 #define OPTIONAL_ESPNOW_SUPPORT \
   XV(internals, "espnow-source", ESPNOW_SOURCE, \
@@ -22,10 +49,12 @@
   XV(espnow, "esp_now_init", ESP_NOW_INIT, PUSH esp_now_init();) \
   XV(espnow, "esp_now_deinit", ESP_NOW_DEINIT, PUSH esp_now_deinit();) \
   XV(espnow, "esp_now_get_version", ESP_NOW_GET_VERSION, n0 = esp_now_get_version((uint32_t *) a0);) \
-  XV(espnow, "esp_now_send", ESP_NOW_SEND, n0 = esp_now_send((uint8_t *) a2, (uint8_t *) a1, (size_t) n0);  NIPn(2)) \
-  XV(espnow, "esp_now_register_recv_cb", ESP_NOW_REGISTER_RECV_CB, PUSH esp_now_register_recv_cb((esp_now_recv_cb_t) n0);) \
-  XV(espnow, "esp_now_unregister_recv_cb", ESP_NOW_UNREGISTER_RECV_CB, PUSH esp_now_unregister_recv_cb();) \
-  XV(espnow, "esp_now_register_send_cb", ESP_NOW_REGISTER_SEND_CB, PUSH esp_now_register_send_cb((esp_now_send_cb_t) n0);) \
+  XV(espnow, "esp_now_send", ESP_NOW_SEND, n0 = esp_now_send((uint8_t *) a2, (uint8_t *) a1, (size_t) n0); NIPn(2)) \
+  XV(espnow, "esp_now_register_recv_cb", ESP_NOW_REGISTER_RECV_CB, \
+      esp_now_recv_xt = n0; \
+      n0 = esp_now_register_recv_cb(esp_now_recv_cb_bridge);) \
+  XV(espnow, "esp_now_unregister_recv_cb", ESP_NOW_UNREGISTER_RECV_CB, esp_now_recv_xt = 0; PUSH esp_now_unregister_recv_cb();) \
+  XV(espnow, "esp_now_register_send_cb", ESP_NOW_REGISTER_SEND_CB, n0 = esp_now_register_send_cb((esp_now_send_cb_t) n0);) \
   XV(espnow, "esp_now_unregister_send_cb", ESP_NOW_UNREGISTER_SEND_CB, PUSH esp_now_unregister_send_cb();) \
   XV(espnow, "esp_now_add_peer", ESP_NOW_ADD_PEER, n0 = esp_now_add_peer((const esp_now_peer_info_t *) a0);) \
   XV(espnow, "esp_now_del_peer", ESP_NOW_DEL_PEER, n0 = esp_now_del_peer((uint8_t *) a0);) \
