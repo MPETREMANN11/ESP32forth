@@ -13,52 +13,31 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#ifndef _ESPNOW_VOC_H_
+#define _ESPNOW_VOC_H_
+
 # include <esp_now.h>
 
-typedef intptr_t cell_t;
-
-// Variable pour stocker le mot Forth
+// Variable pour stocker l'adresse du mot Forth (XT)
 static cell_t esp_now_recv_xt = 0;
 
-typedef void (*push_ptr)(cell_t);
-typedef cell_t* (*forth_run_ptr)(cell_t*);
+// Déclaration de la fonction (elle sera définie dans le .ino)
+void IRAM_ATTR esp_now_recv_cb_bridge(const esp_now_recv_info_t *info, const uint8_t *data, int len);
 
-// On retire 'static' pour être certain de la visibilité
-extern push_ptr internal_push;
-extern forth_run_ptr internal_forth_run;
-
-void IRAM_ATTR esp_now_recv_cb_bridge(const esp_now_recv_info_t *info, const uint8_t *data, int len) {
-  if (esp_now_recv_xt == 0)           Serial.println("ERREUR: XT est NULL");
-  if (g_sys == NULL)                  Serial.println("ERREUR: g_sys est NULL");
-  if (internal_forth_run == NULL)     Serial.println("ERREUR: forth_run non capture");
-  if (internal_push == NULL)          Serial.println("ERREUR: push non capture");
-
-  if (esp_now_recv_xt != 0 && g_sys != NULL && internal_forth_run != NULL && internal_push != NULL) {
-    // On utilise les pointeurs mémorisés pour agir
-    internal_push((cell_t)info->src_addr);
-    internal_push((cell_t)data);
-    internal_push((cell_t)len);
-    internal_push(esp_now_recv_xt); 
-
-    internal_forth_run(g_sys->rp);
-  }
-}
+#endif
 
 
 #define OPTIONAL_ESPNOW_VOCABULARY V(espnow)
 #define OPTIONAL_ESPNOW_SUPPORT \
   XV(internals, "espnow-source", ESPNOW_SOURCE, \
-    internal_push = (push_ptr)push; \
-    internal_forth_run = (forth_run_ptr)forth_run; \
-    PUSH espnow_source; PUSH sizeof(espnow_source) - 1) \
+      PUSH espnow_source; PUSH sizeof(espnow_source) - 1) \
   XV(espnow, "esp_now_init", ESP_NOW_INIT, PUSH esp_now_init();) \
   XV(espnow, "esp_now_deinit", ESP_NOW_DEINIT, PUSH esp_now_deinit();) \
   XV(espnow, "esp_now_get_version", ESP_NOW_GET_VERSION, n0 = esp_now_get_version((uint32_t *) a0);) \
   XV(espnow, "esp_now_send", ESP_NOW_SEND, n0 = esp_now_send((uint8_t *) a2, (uint8_t *) a1, (size_t) n0); NIPn(2)) \
   XV(espnow, "esp_now_register_recv_cb", ESP_NOW_REGISTER_RECV_CB, \
-    internal_forth_run = (forth_run_ptr)forth_run; /* CRUCIAL : on mémorise l'adresse */ \
-    esp_now_recv_xt = n0; \
-    n0 = esp_now_register_recv_cb(esp_now_recv_cb_bridge);) \
+      esp_now_recv_xt = n0; \
+      n0 = esp_now_register_recv_cb(esp_now_recv_cb_bridge);) \
   XV(espnow, "esp_now_unregister_recv_cb", ESP_NOW_UNREGISTER_RECV_CB, esp_now_recv_xt = 0; PUSH esp_now_unregister_recv_cb();) \
   XV(espnow, "esp_now_register_send_cb", ESP_NOW_REGISTER_SEND_CB, n0 = esp_now_register_send_cb((esp_now_send_cb_t) n0);) \
   XV(espnow, "esp_now_unregister_send_cb", ESP_NOW_UNREGISTER_SEND_CB, PUSH esp_now_unregister_send_cb();) \
