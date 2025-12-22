@@ -15,8 +15,7 @@
 
 /*
  * ESP32forth v7.0.7.21a
- * Revision: 9ae74fa18335b0378a98bd8c693b468cc1265ee5
- * Updated: Marc PETREMANN - 22 nov 2025
+ * Updated: Marc PETREMANN - 22 dec. 2025
  */
 
 #if defined(CONFIG_IDF_TARGET_ESP32)
@@ -160,6 +159,8 @@
 
 typedef intptr_t cell_t;
 typedef uintptr_t ucell_t;
+
+extern "C" void push(cell_t v);
 
 #define XV(flags, name, op, code) Z(flags, name, op, code)
 #define YV(flags, op, code) Z(flags, #op, op, code)
@@ -602,12 +603,16 @@ static cell_t *forth_run(cell_t *init_rp);
 # endif
 
 // Hook to pull in optional espnow
-# if __has_include("espnow-voc.h")
-#  include "espnow-voc.h"
-# else
-#  define OPTIONAL_ESPNOW_VOCABULARY
-#  define OPTIONAL_ESPNOW_SUPPORT
-# endif
+#if __has_include("espnow-voc.h")
+    // Près de l'inclusion de espnow-voc.h
+    typedef cell_t* (*forth_run_ptr)(cell_t*);
+    forth_run_ptr internal_forth_run = (forth_run_ptr)forth_run;
+
+    #include "espnow-voc.h"
+#else
+    #define OPTIONAL_ESPNOW_VOCABULARY
+    #define OPTIONAL_ESPNOW_SUPPORT
+#endif
 
 // Hook to pull in optional SPI support.
 # if __has_include("spi-voc.h")
@@ -3304,6 +3309,28 @@ static cell_t ResizeFile(cell_t fd, cell_t size) {
   if (t < 0) { return errno; }
   return 0;
 }
+
+
+// À mettre tout à la fin de votre fichier .ino
+#if __has_include("espnow-voc.h")
+void IRAM_ATTR esp_now_recv_cb_bridge(const esp_now_recv_info_t *info, const uint8_t *data, int len) {
+  if (esp_now_recv_xt != 0 && g_sys != NULL) {
+    
+    // On empile manuellement sur la pile Forth (dsp est dans g_sys)
+    // On simule exactement ce que fait le moteur Forth
+    *++(g_sys->dsp) = (cell_t)info->src_addr;
+    *++(g_sys->dsp) = (cell_t)data;
+    *++(g_sys->dsp) = (cell_t)len;
+    *++(g_sys->dsp) = (cell_t)esp_now_recv_xt; 
+
+    // On appelle la fonction de run interne
+    // Comme on est dans le .ino, forth_run est visible !
+    forth_run(g_sys->rp);
+  }
+}
+#endif
+
+
 void setup() {
   cell_t fh = heap_caps_get_free_size(MALLOC_CAP_INTERNAL);
   cell_t hc = heap_caps_get_largest_free_block(MALLOC_CAP_INTERNAL);
