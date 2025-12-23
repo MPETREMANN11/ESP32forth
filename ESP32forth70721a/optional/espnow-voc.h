@@ -1,5 +1,5 @@
 // Copyright 2024 Marc PETREMANN
-// latest ver: 21 dec 2025
+// latest ver: 23 dec 2025
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,19 +13,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef _ESPNOW_VOC_H_
-#define _ESPNOW_VOC_H_
-
 # include <esp_now.h>
 
-// Variable pour stocker l'adresse du mot Forth (XT)
-static cell_t esp_now_recv_xt = 0;
+typedef int cell_t;   // ou ton vrai type
 
-// Déclaration de la fonction (elle sera définie dans le .ino)
-void IRAM_ATTR esp_now_recv_cb_bridge(const esp_now_recv_info_t *info, const uint8_t *data, int len);
+esp_err_t setEspNowRecvXt(cell_t v);
 
-#endif
-
+void esp_now_recv_cb_bridge(const esp_now_recv_info_t *info,
+                            const uint8_t *data,
+                            int data_len);
 
 #define OPTIONAL_ESPNOW_VOCABULARY V(espnow)
 #define OPTIONAL_ESPNOW_SUPPORT \
@@ -35,10 +31,10 @@ void IRAM_ATTR esp_now_recv_cb_bridge(const esp_now_recv_info_t *info, const uin
   XV(espnow, "esp_now_deinit", ESP_NOW_DEINIT, PUSH esp_now_deinit();) \
   XV(espnow, "esp_now_get_version", ESP_NOW_GET_VERSION, n0 = esp_now_get_version((uint32_t *) a0);) \
   XV(espnow, "esp_now_send", ESP_NOW_SEND, n0 = esp_now_send((uint8_t *) a2, (uint8_t *) a1, (size_t) n0); NIPn(2)) \
-  XV(espnow, "esp_now_register_recv_cb", ESP_NOW_REGISTER_RECV_CB, \
-      esp_now_recv_xt = n0; \
-      n0 = esp_now_register_recv_cb(esp_now_recv_cb_bridge);) \
-  XV(espnow, "esp_now_unregister_recv_cb", ESP_NOW_UNREGISTER_RECV_CB, esp_now_recv_xt = 0; PUSH esp_now_unregister_recv_cb();) \
+  XV(espnow, "esp_now_register_recv_cb", \
+    ESP_NOW_REGISTER_RECV_CB, \
+    n0 = setEspNowRecvXt(n0)) \
+  XV(espnow, "esp_now_unregister_recv_cb", ESP_NOW_UNREGISTER_RECV_CB, PUSH esp_now_unregister_recv_cb();) \
   XV(espnow, "esp_now_register_send_cb", ESP_NOW_REGISTER_SEND_CB, n0 = esp_now_register_send_cb((esp_now_send_cb_t) n0);) \
   XV(espnow, "esp_now_unregister_send_cb", ESP_NOW_UNREGISTER_SEND_CB, PUSH esp_now_unregister_send_cb();) \
   XV(espnow, "esp_now_add_peer", ESP_NOW_ADD_PEER, n0 = esp_now_add_peer((const esp_now_peer_info_t *) a0);) \
