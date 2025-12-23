@@ -15,7 +15,7 @@
 
 /*
  * ESP32forth v7.0.7.21a
- * Updated: Marc PETREMANN - 22 dec. 2025
+ * Updated: Marc PETREMANN - 23 dec. 2025
  */
 
 #if defined(CONFIG_IDF_TARGET_ESP32)
@@ -604,14 +604,10 @@ static cell_t *forth_run(cell_t *init_rp);
 
 // Hook to pull in optional espnow
 #if __has_include("espnow-voc.h")
-    // Près de l'inclusion de espnow-voc.h
-    typedef cell_t* (*forth_run_ptr)(cell_t*);
-    forth_run_ptr internal_forth_run = (forth_run_ptr)forth_run;
-
-    #include "espnow-voc.h"
+# include "espnow-voc.h"
 #else
-    #define OPTIONAL_ESPNOW_VOCABULARY
-    #define OPTIONAL_ESPNOW_SUPPORT
+# define OPTIONAL_ESPNOW_VOCABULARY
+# define OPTIONAL_ESPNOW_SUPPORT
 #endif
 
 // Hook to pull in optional SPI support.
@@ -3310,25 +3306,38 @@ static cell_t ResizeFile(cell_t fd, cell_t size) {
   return 0;
 }
 
+// Pont entre C et mot FORTH à exécuter
 
-// À mettre tout à la fin de votre fichier .ino
-#if __has_include("espnow-voc.h")
-void IRAM_ATTR esp_now_recv_cb_bridge(const esp_now_recv_info_t *info, const uint8_t *data, int len) {
-  if (esp_now_recv_xt != 0 && g_sys != NULL) {
-    
-    // On empile manuellement sur la pile Forth (dsp est dans g_sys)
-    // On simule exactement ce que fait le moteur Forth
-    *++(g_sys->dsp) = (cell_t)info->src_addr;
-    *++(g_sys->dsp) = (cell_t)data;
-    *++(g_sys->dsp) = (cell_t)len;
-    *++(g_sys->dsp) = (cell_t)esp_now_recv_xt; 
-
-    // On appelle la fonction de run interne
-    // Comme on est dans le .ino, forth_run est visible !
-    forth_run(g_sys->rp);
+void esp_now_recv_cb_bridge(const esp_now_recv_info_t *info, const uint8_t *data, int data_len) {
+    Serial.println("--- Bridge ESP-NOW ---");
+  // Exemple : afficher l’adresse MAC du peer
+  const uint8_t *mac = info->src_addr;  // structure de réception
+  Serial.print("Donnée reçue depuis MAC ");
+  for (int i = 0; i < 6; i++) {
+    Serial.print(mac[i], HEX);
+    if (i < 5) Serial.print(":");
   }
+  Serial.println();
+  // Traitement des données ici...
 }
-#endif
+
+static cell_t esp_now_recv_xt = 0;
+static bool espnow_cb_registered = false;
+
+esp_err_t setEspNowRecvXt(cell_t v) {
+  esp_now_recv_xt = v;
+  static bool registered = false;
+  if (registered) return ESP_OK;
+  esp_err_t err = esp_now_register_recv_cb(esp_now_recv_cb_bridge);
+  if (err == ESP_OK) registered = true;
+  Serial.print("ESP-NOW error = ");
+  Serial.println(err);
+  return err;
+}
+
+
+
+
 
 
 void setup() {
