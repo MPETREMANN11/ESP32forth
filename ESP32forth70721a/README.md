@@ -30,10 +30,19 @@
 
 <h3>Added the word RECORDFILE</h3>
 <p>The word <code>RECORDFILE</code> makes it easy to save new files to the <code>/spiffs/</code> storage space:</p>
+
 <code>RECORDFILE /spiffs/peer-list.fs
 $08 $3A $F2 $AA $9B $B0 define-mac-address: MASTER
 $08 $3A $F2 $6E $1E $F8 define-mac-address: SLAVE1
-<EOF>
+&lt;EOF>
 </code>
 <p>Saves the <b>peer-list.fs</b> file to the <code>/spiffs/</code> registry location. To load and interpret/compile the contents of this file:</p>
 <code>include /spiffs/peer-list.fs</code>
+
+<h3>Adding ESPNOW support</h3>
+<p>...work in progress....</p>
+
+
+
+
+
