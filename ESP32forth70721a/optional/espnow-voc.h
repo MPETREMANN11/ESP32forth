@@ -19,18 +19,20 @@
 
 static cell_t espnow_recv_cb_xt;
 
-static void IRAM_ATTR HandleRecv(const uint8_t * mac, const uint8_t *incomingData, int len) {
+static void IRAM_ATTR HandleRecv(const esp_now_recv_info *peer, const uint8_t *data, int len) {
   cell_t code[2];
   code[0] = espnow_recv_cb_xt;
   code[1] = g_sys->YIELD_XT;
   cell_t fstack[INTERRUPT_STACK_CELLS];
   cell_t rstack[INTERRUPT_STACK_CELLS];
   cell_t stack[INTERRUPT_STACK_CELLS];
-  stack[0] = 123;
+  stack[0] = len;
+  stack[1] = (cell_t)data;
+  stack[2] = (cell_t)peer->src_addr;
   cell_t *rp = rstack;
   *++rp = (cell_t) code;
   *++rp = (cell_t) (fstack + 1);
-  *++rp = (cell_t) (stack + 1);
+  *++rp = (cell_t) (stack + 2);
   forth_run(rp);
 }
 
@@ -38,8 +40,6 @@ static esp_err_t EspnowRegisterRecvCb(cell_t xt) {
   espnow_recv_cb_xt = xt;
   return esp_now_register_recv_cb(HandleRecv);
 }
-
-
 
 #define OPTIONAL_ESPNOW_VOCABULARY V(espnow)
 #define OPTIONAL_ESPNOW_SUPPORT \
