@@ -38,6 +38,14 @@ struct esp_now_peer_info_t
 struct struct_message
    240 field ->msg_payload
 
+
+struct event_recv_cb
+    ESP_NOW_ETH_ALEN field ->event_peer_addr
+                 u32 field ->event_data
+                 u32 field ->event_data_len
+
+
+
 only forth
 
 <EOF>

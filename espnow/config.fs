@@ -1,7 +1,7 @@
 \ *********************************************************************
-\ main for espnow development
-\    Filename:      main.fs
-\    Date:          22 nov. 2025
+\ configuration for espnow development
+\    Filename:      config.fs
+\    Date:          17 dec. 2025
 \    Updated:       21 dec. 2025
 \    File Version:  0.0
 \    MCU:           ESP32-WROOM-32
@@ -11,31 +11,33 @@
 \    GNU General Public License
 \ *********************************************************************
 
-RECORDFILE /spiffs/main.fs
+RECORDFILE /spiffs/config.fs
 
-internals 120 to line-width forth
+$EC $62 $60 $9C $76 $30 define-mac-address: MASTER
+$08 $3A $F2 $6E $1E $F8 define-mac-address: SLAVE1
+$EC $62 $60 $9C $A9 $50 define-mac-address: SLAVE2
+wifi-init 100 ms
+getMyMac
 
-DEFINED? --espnow [if] forget --espnow  [then]
-create --espnow
+espnowInit
 
-needs /spiffs/oled128x32-display.fs
-needs /spiffs/datas-structs.fs
-needs /spiffs/mac-address.fs
-needs /spiffs/espnow.fs
-needs /spiffs/config.fs
-\ needs /spiffs/tests.fs
 myMac 6 MASTER 6 str= [IF]      \ peers for MASTER
-    needs tests-MASTER.fs
+    SLAVE1 add-peer
+    SLAVE2 add-peer
+    s" MASTER" set-title
 [THEN]
 
 myMac 6 SLAVE1 6 str= [IF]      \ peers for SLAV1
-    needs tests-SLAVE1.fs
+    MASTER add-peer
+    SLAVE2 add-peer
+    s" SLAVE1" set-title
 [THEN]
 
 myMac 6 SLAVE2 6 str= [IF]      \ peers for SLAV2
-    needs tests-SLAVE2.fs
+    MASTER add-peer
+    SLAVE1 add-peer
+    s" SLAVE2" set-title
 [THEN]
-
 
 <EOF>
 

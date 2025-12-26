@@ -2,7 +2,7 @@
 \ espnow development
 \    Filename:      espnow.fs
 \    Date:          22 nov. 2025
-\    Updated:       12 dec. 2025
+\    Updated:       26 dec. 2025
 \    File Version:  0.0
 \    MCU:           ESP32-WROOM-32
 \    Forth:         ESP32forth all versions 7.x++
@@ -42,18 +42,36 @@ also espnow
 : add-peer ( peer-addr -- )
     peer-exist?
     esp_now_add_peer ESP_OK <>   \ 0 for success
-    if  ." ESP-NOW add_peer failed" cr 
+    if  cr ." ESP-NOW add_peer failed" 
         -1 throw
     then ;
 
 \ send datas to peer
-\ ex: SLAV1 s" TEST TRANSMISSION" espnowSend
-: espnowSend ( peer-addr datas-addr len -- )
-    esp_now_send ESP_OK <>   \ 0 for success
-    if  ." ESP-NOW Send failed" cr 
+: espnowSend ( peerAddr myData len -- )
+    esp_now_send  ?dup ESP_OK <>     \ 0 for success
+    if  cr ." ESP-NOW esp_now_send failed" 
+        ." error: " .
+        -1 throw
+    then ;
+
+\ Register receive callback
+: espnowRegisterRecv ( callback -- )
+    esp_now_register_recv_cb ESP_OK <>     \ 0 for success
+    if  cr ." ESP-NOW esp_now_register_recv_cb failed" 
+        -1 throw
+    then ;
+
+\ Register send callback
+: espnowRegisterSend ( callback -- )
+    esp_now_register_send_cb ESP_OK <>     \ 0 for success
+    if  ." ESP-NOW esp_now_register_send_cb failed" cr 
         -1 throw
     then ;
 
 only FORTH
 
 <EOF>
+
+
+
+

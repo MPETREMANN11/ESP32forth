@@ -13,12 +13,10 @@
 
 RECORDFILE /spiffs/tests.fs
 
-espnowInit
-\ getMyMac
-\ hex myMac 6 dump
-
-MASTER .mac cr
-SLAVE1 .mac cr
+myMac .mac cr
+." - - - - " cr
+." MASTER: " MASTER .mac cr
+." SLAVE1: " SLAVE1 .mac cr
 
 espnow
 SLAVE1 add-peer
@@ -43,10 +41,10 @@ SLAVE1 add-peer
         ." Échec de l'enregistrement du callback." CR
     THEN
   ;
-INIT-ESP-NOW-SEND-CB
+\ INIT-ESP-NOW-SEND-CB
 
 
-Oled128x32Init
+Oled128x32Init cr
 oled.cls
 z" my string"       oled.println
 z" ET CECI AUSSI"   oled.println
@@ -55,5 +53,9 @@ z" ET LA DERNIERE ligne"   oled.println
 
 
 <EOF>
+
+
+
+
 
 
