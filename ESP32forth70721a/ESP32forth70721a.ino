@@ -15,7 +15,7 @@
 
 /*
  * ESP32forth v7.0.7.21a
- * Updated: Marc PETREMANN - 23 dec. 2025
+ * Updated: Marc PETREMANN - 25 dec. 2025
  */
 
 #if defined(CONFIG_IDF_TARGET_ESP32)
@@ -1180,6 +1180,12 @@ static cell_t *evaluate1(cell_t *rp) {
   return rp;
 }
 
+
+// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
 static cell_t *forth_run(cell_t *initrp);
 
 static void forth_init(int argc, char *argv[],
@@ -1616,9 +1622,9 @@ variable hld
 
 
 ( epsnow )
-variable ESPNOW_RECV_MAC
-variable ESPNOW_RECV_DATA
-variable ESPNOW_RECV_DATA_LEN
+0 value ESPNOW_RECV_MAC
+0 value ESPNOW_RECV_DATA
+0 value ESPNOW_RECV_DATA_LEN
 
 
 ( Input )
@@ -3327,218 +3333,10 @@ static cell_t ResizeFile(cell_t fd, cell_t size) {
 
 
 // Pont entre C et mot FORTH à exécuter
-static cell_t esp_now_recv_xt = 0;
+// static cell_t esp_now_recv_xt = 0;
 
 
-
-
-
-// Retourne 0 si OK, <0 si erreur.
-extern "C" int set_forth_variable(const char *name, cell_t value) {
-    if (!g_sys) return -1;                       // g_sys doit exister
-    if (!name || !*name) return -2;
-
-    cell_t xt = find(name, (cell_t) strlen(name));
-    if (!xt) return -3;                          // mot introuvable
-    cell_t body = xt + sizeof(cell_t);
-    *(cell_t *)body = value;
-    return 0;
-}
-
-
-
-void run_bridge() {
-        // 1. On définit les deux pointeurs de pile en une seule fois
-        // g_sys pointe sur le début de la structure (là où se trouve dsp)
-        cell_t **ptr_to_dsp = (cell_t **)g_sys;
-        cell_t **ptr_to_rsp = ptr_to_dsp + 1; 
-
-        // 2. On récupère les adresses actuelles
-        cell_t *local_sp = *ptr_to_dsp;
-        cell_t *local_rp = *ptr_to_rsp;
-
-        // 4. On place l'XT sur la pile de retour pour l'exécution
-        *++local_rp = (cell_t)esp_now_recv_xt;
-
-        // 5. On remet les nouveaux pointeurs dans la structure globale
-        *ptr_to_dsp = local_sp;
-        *ptr_to_rsp = local_rp;
-
-        // 6. On lance le moteur Forth
-        forth_run(local_rp);
-}
-
-
-
-typedef void (*xt_t)(void);
-
-// Fonction helper pour accéder à la pile de données
-static cell_t* getDataStack() {
-  // La pile de données est parkée dans g_sys->rp
-  // Structure: IP, FP, SP sont empilés dans rp
-  return (cell_t*) g_sys->rp[0];  // SP est au top de rp
-}
-
-
-
-
-// Exécuter du code FORTH en construisant une séquence d'exécution
-void executeForthWord(const char* wordName) {
-  // 1. Trouver le XT (execution token) du mot
-  cell_t len = strlen(wordName);
-  cell_t xt = find(wordName, len);
-  
-  if (xt == 0) {
-    Serial.print("Mot non trouvé: ");
-    Serial.println(wordName);
-    return;
-  }
-  
-  // 2. Construire une mini-séquence d'exécution dans le heap temporaire
-  // Structure: [XT du mot] [EXIT]
-  cell_t *saved_heap = g_sys->heap;
-  
-  cell_t *code_start = g_sys->heap;
-  *g_sys->heap++ = xt;              // Le mot à exécuter
-  *g_sys->heap++ = g_sys->DOEXIT_XT; // EXIT pour terminer
-  
-  // 3. Préparer la pile de retour (rp) pour pointer vers notre code
-  cell_t temp_rp[20];
-  int rp_index = 0;
-  
-  // Empiler l'adresse de notre code
-  temp_rp[rp_index++] = (cell_t) code_start;
-  
-  // Empiler les pointeurs de pile depuis g_sys->rp
-  // Format parké: IP, FP, SP
-  temp_rp[rp_index++] = g_sys->rp[-2]; // IP
-  temp_rp[rp_index++] = g_sys->rp[-1]; // FP
-  temp_rp[rp_index++] = g_sys->rp[0];  // SP
-  
-  // 4. Exécuter via forth_run
-  cell_t *result_rp = forth_run(&temp_rp[rp_index - 1]);
-  
-  // 5. Récupérer l'état de la pile
-  if (result_rp) {
-    g_sys->rp[0] = result_rp[0];   // SP
-    g_sys->rp[-1] = result_rp[-1]; // FP
-    g_sys->rp[-2] = result_rp[-2]; // IP
-  }
-  
-  // 6. Restaurer le heap
-  g_sys->heap = saved_heap;
-}
-
-// Exécuter du code FORTH complet (plusieurs mots)
-void executeForthCode(const char* forthCode) {
-  // Sauvegarder le contexte du TIB
-  const char *saved_tib = g_sys->tib;
-  cell_t saved_ntib = g_sys->ntib;
-  cell_t saved_tin = g_sys->tin;
-  
-  // Installer le code dans le TIB
-  g_sys->tib = forthCode;
-  g_sys->ntib = strlen(forthCode);
-  g_sys->tin = 0;
-  
-  // Trouver EVALUATE1 pour parser et exécuter le TIB
-  cell_t eval_xt = find("EVALUATE1", 9);
-  if (eval_xt == 0) {
-    // Essayer +evaluate1
-    eval_xt = find("+evaluate1", 10);
-  }
-  
-  if (eval_xt) {
-    // Boucle d'évaluation jusqu'à ce que tout le TIB soit consommé
-    while (g_sys->tin < g_sys->ntib) {
-      // Construire le code: [EVALUATE1] [EXIT]
-      cell_t *saved_heap = g_sys->heap;
-      
-      cell_t *code_start = g_sys->heap;
-      *g_sys->heap++ = eval_xt;
-      *g_sys->heap++ = g_sys->DOEXIT_XT;
-      
-      // Préparer rp
-      cell_t temp_rp[20];
-      int rp_index = 0;
-      
-      temp_rp[rp_index++] = (cell_t) code_start;
-      temp_rp[rp_index++] = g_sys->rp[-2]; // IP
-      temp_rp[rp_index++] = g_sys->rp[-1]; // FP  
-      temp_rp[rp_index++] = g_sys->rp[0];  // SP
-      
-      // Exécuter
-      cell_t *result_rp = forth_run(&temp_rp[rp_index - 1]);
-      
-      // Récupérer l'état
-      if (result_rp) {
-        g_sys->rp[0] = result_rp[0];
-        g_sys->rp[-1] = result_rp[-1];
-        g_sys->rp[-2] = result_rp[-2];
-      }
-      
-      // Restaurer heap
-      g_sys->heap = saved_heap;
-      
-      // Sécurité: éviter boucle infinie
-      if (g_sys->tin == 0 && g_sys->ntib > 0) break;
-    }
-  }
-  
-  // Restaurer le TIB
-  g_sys->tib = saved_tib;
-  g_sys->ntib = saved_ntib;
-  g_sys->tin = saved_tin;
-}
-
-// Helper pour pousser une valeur
-void pushToForth(cell_t value) {
-  char buffer[32];
-  snprintf(buffer, sizeof(buffer), "%ld", (long)value);
-  executeForthCode(buffer);
-}
-
-
-
-
-
-// variable ESPNOW_RECV_MAC
-// variable ESPNOW_RECV_DATA
-// variable ESPNOW_RECV_DATA_LEN
-
-
-void esp_now_recv_cb_bridge(const esp_now_recv_info_t *info, const uint8_t *data, int data_len) {
-    Serial.println("--- Bridge ESP-NOW ---");
-    if (esp_now_recv_xt != 0) {
-        Serial.println("--- SET FORTH VARIABLES ---");
-
-        set_forth_variable("ESPNOW_RECV_MAC", (cell_t)info);
-        set_forth_variable("ESPNOW_RECV_DATA", (cell_t)data);
-        set_forth_variable("ESPNOW_RECV_DATA_LEN", (cell_t)data_len);
-
-        executeForthWord("VLIST");
-
-    }
-}
-
-
-
-
-static bool espnow_cb_registered = false;
-
-esp_err_t setEspNowRecvXt(cell_t v) {
-  esp_now_recv_xt = v;
-  static bool registered = false;
-  if (registered) return ESP_OK;
-  esp_err_t err = esp_now_register_recv_cb(esp_now_recv_cb_bridge);
-  if (err == ESP_OK) registered = true;
-  Serial.print("ESP-NOW error = ");
-  Serial.println(err);
-  return err;
-}
-
-
-
+// *** https://github.com/MitchBradley/cforth/blob/353a969f07027361f44b3ff9c5b7059be5780274/src/app/esp32-extra/enow_receive.fth
 
 
 
