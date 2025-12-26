@@ -15,13 +15,31 @@
 
 # include <esp_now.h>
 
-typedef int cell_t;   // ou ton vrai type
+#define INTERRUPT_STACK_CELLS 64
 
-esp_err_t setEspNowRecvXt(cell_t v);
+static cell_t espnow_recv_cb_xt;
 
-void esp_now_recv_cb_bridge(const esp_now_recv_info_t *info,
-                            const uint8_t *data,
-                            int data_len);
+static void IRAM_ATTR HandleRecv(const uint8_t * mac, const uint8_t *incomingData, int len) {
+  cell_t code[2];
+  code[0] = espnow_recv_cb_xt;
+  code[1] = g_sys->YIELD_XT;
+  cell_t fstack[INTERRUPT_STACK_CELLS];
+  cell_t rstack[INTERRUPT_STACK_CELLS];
+  cell_t stack[INTERRUPT_STACK_CELLS];
+  stack[0] = 123;
+  cell_t *rp = rstack;
+  *++rp = (cell_t) code;
+  *++rp = (cell_t) (fstack + 1);
+  *++rp = (cell_t) (stack + 1);
+  forth_run(rp);
+}
+
+static esp_err_t EspnowRegisterRecvCb(cell_t xt) {
+  espnow_recv_cb_xt = xt;
+  return esp_now_register_recv_cb(HandleRecv);
+}
+
+
 
 #define OPTIONAL_ESPNOW_VOCABULARY V(espnow)
 #define OPTIONAL_ESPNOW_SUPPORT \
@@ -31,9 +49,7 @@ void esp_now_recv_cb_bridge(const esp_now_recv_info_t *info,
   XV(espnow, "esp_now_deinit", ESP_NOW_DEINIT, PUSH esp_now_deinit();) \
   XV(espnow, "esp_now_get_version", ESP_NOW_GET_VERSION, n0 = esp_now_get_version((uint32_t *) a0);) \
   XV(espnow, "esp_now_send", ESP_NOW_SEND, n0 = esp_now_send((uint8_t *) a2, (uint8_t *) a1, (size_t) n0); NIPn(2)) \
-  XV(espnow, "esp_now_register_recv_cb", \
-    ESP_NOW_REGISTER_RECV_CB, \
-    n0 = setEspNowRecvXt(n0)) \
+  XV(espnow, "esp_now_register_recv_cb", ESP_NOW_REGISTER_RECV_CB, n0 = EspnowRegisterRecvCb(n0);) \
   XV(espnow, "esp_now_unregister_recv_cb", ESP_NOW_UNREGISTER_RECV_CB, PUSH esp_now_unregister_recv_cb();) \
   XV(espnow, "esp_now_register_send_cb", ESP_NOW_REGISTER_SEND_CB, n0 = esp_now_register_send_cb((esp_now_send_cb_t) n0);) \
   XV(espnow, "esp_now_unregister_send_cb", ESP_NOW_UNREGISTER_SEND_CB, PUSH esp_now_unregister_send_cb();) \
@@ -51,5 +67,4 @@ vocabulary espnow   espnow definitions
 transfer espnow-builtins
 forth definitions
 )""";
-
 
