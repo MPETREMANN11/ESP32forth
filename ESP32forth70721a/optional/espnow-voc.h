@@ -1,5 +1,5 @@
 // Copyright 2024 Marc PETREMANN
-// latest ver: 23 dec 2025
+// latest ver: 28 dec 2025
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
