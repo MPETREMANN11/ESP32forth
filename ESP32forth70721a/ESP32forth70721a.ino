@@ -15,7 +15,7 @@
 
 /*
  * ESP32forth v7.0.7.21a
- * Updated: Marc PETREMANN - 25 dec. 2025
+ * Updated: Marc PETREMANN - 29 dec. 2025
  */
 
 #if defined(CONFIG_IDF_TARGET_ESP32)
@@ -1619,13 +1619,6 @@ variable hld
 ( Abort )
 : abort   -1 throw ;
 : abort"   postpone ." postpone cr -2 aliteral postpone throw ; immediate
-
-
-( epsnow )
-0 value ESPNOW_RECV_MAC
-0 value ESPNOW_RECV_DATA
-0 value ESPNOW_RECV_DATA_LEN
-
 
 ( Input )
 : raw.s   depth 0 max for aft sp@ r@ cells - @ . then next ;
@@ -3329,16 +3322,6 @@ static cell_t ResizeFile(cell_t fd, cell_t size) {
   if (t < 0) { return errno; }
   return 0;
 }
-
-
-
-// Pont entre C et mot FORTH à exécuter
-// static cell_t esp_now_recv_xt = 0;
-
-
-// *** https://github.com/MitchBradley/cforth/blob/353a969f07027361f44b3ff9c5b7059be5780274/src/app/esp32-extra/enow_receive.fth
-
-
 
 void setup() {
   cell_t fh = heap_caps_get_free_size(MALLOC_CAP_INTERNAL);
