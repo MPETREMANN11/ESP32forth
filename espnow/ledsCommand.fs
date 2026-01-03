@@ -40,6 +40,14 @@ RECORDFILE /spiffs/ledsCommand.fs
 : greenOn  ( -- )   LED_GREEN ledOn  ;
 : greenOff ( -- )   LED_GREEN ledOff ;
 
+: ledTest ( -- )
+    16 0 do
+        redOn     60 ms  redOff
+        yellowOn  60 ms  yellowOff
+        greenOn   60 ms  greenOff
+    loop
+  ;
+
 <EOF>
 
 

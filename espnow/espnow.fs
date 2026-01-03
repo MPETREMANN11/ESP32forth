@@ -2,7 +2,7 @@
 \ espnow development
 \    Filename:      espnow.fs
 \    Date:          22 nov. 2025
-\    Updated:       26 dec. 2025
+\    Updated:       28 dec. 2025
 \    File Version:  0.0
 \    MCU:           ESP32-WROOM-32
 \    Forth:         ESP32forth all versions 7.x++
@@ -38,8 +38,8 @@ also espnow
     then ;
 
 \ add peer to peer list
-\ ex: SLAVE1 add-peer
-: add-peer ( peer-addr -- )
+\ ex: SLAVE1 espnowAddPeer
+: espnowAddPeer ( peer-addr -- )
     peer-exist?
     esp_now_add_peer ESP_OK <>   \ 0 for success
     if  cr ." ESP-NOW add_peer failed" 
@@ -62,11 +62,12 @@ also espnow
     then ;
 
 \ Register send callback
-: espnowRegisterSend ( callback -- )
-    esp_now_register_send_cb ESP_OK <>     \ 0 for success
-    if  ." ESP-NOW esp_now_register_send_cb failed" cr 
-        -1 throw
-    then ;
+\ non functionnal at this time
+\ : espnowRegisterSend ( callback -- )
+\     esp_now_register_send_cb ESP_OK <>     \ 0 for success
+\     if  ." ESP-NOW esp_now_register_send_cb failed" cr 
+\         -1 throw
+\     then ;
 
 only FORTH
 

@@ -19,32 +19,45 @@ myMac .mac cr
 ." SLAVE1: " SLAVE1 .mac cr
 ." SLAVE2: " SLAVE2 .mac cr
 
+also espnow
 
-\ variable ESPNOW_RECV_MAC
-\ variable ESPNOW_RECV_DATA
-\ variable ESPNOW_RECV_DATA_LEN
+\ define two strings
+ESP_NOW_ETH_ALEN     string RecvMacAddr
+ESP_NOW_MAX_DATA_LEN string RecvDataStr
 
-: mon-cb-espnow ( macAddr dataAddr len -- )
-    to ESPNOW_RECV_MAC
-    to ESPNOW_RECV_DATA
-    to ESPNOW_RECV_DATA_LEN
-    cr ." --- ESP-NOW RECU ---"
-    cr ." Longueur   : "  ESPNOW_RECV_DATA_LEN .
-    cr ." Datas      : "  ESPNOW_RECV_DATA .
-    cr ." Source MAC : "  ESPNOW_RECV_MAC .mac 
-    cr ." -------------------"
-    cr ." Msg : " ESPNOW_RECV_DATA  ESPNOW_RECV_DATA_LEN type
+
+\ interpret ESP-NOW transmitted string
+: store-cb-espnow  { len dataAddr macAddr -- }
+    macAddr ESP_NOW_ETH_ALEN RecvMacAddr  $!
+    dataAddr len RecvDataStr $!
   ;
 
-\ Enregistrement du callback
-' mon-cb-espnow espnowRegisterRecv
+only FORTH
+
+\ register this callback
+' store-cb-espnow espnowRegisterRecv
+
+: espnow-loop ( -- )
+    begin
+        RecvDataStr nip ?dup if
+            RecvDataStr evaluate
+            RecvDataStr 0$!
+        then        
+    again
+  ;
+
+espnow-loop
 
 <EOF>
 
-
-
-
-
+: mon-cb-espnow { len dataAddr macAddr -- }
+    cr ." --- ESP-NOW RECU ---"
+    cr ." Longueur   : "  len .
+    cr ." Datas      : "  dataAddr .
+    cr ." Source MAC : "  macAddr .mac 
+    cr ." -------------------"
+    cr ." Msg : " dataAddr len type
+  ;
 
 
 

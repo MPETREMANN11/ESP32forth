@@ -23,17 +23,19 @@ needs /spiffs/datas-structs.fs
 needs /spiffs/mac-address.fs
 needs /spiffs/espnow.fs
 needs /spiffs/config.fs
-\ needs /spiffs/tests.fs
-myMac 6 MASTER 6 str= [IF]      \ peers for MASTER
-    needs tests-MASTER.fs
+myMac 6 MASTER 6 str= [IF]
+    needs /spiffs/tests-MASTER.fs
 [THEN]
 
-myMac 6 SLAVE1 6 str= [IF]      \ peers for SLAV1
-    needs tests-SLAVE1.fs
+myMac 6 SLAVE1 6 str= [IF]
+    needs /spiffs/strings.fs
+    needs /spiffs/ledsCommand.fs
+        initLeds  ledTest
+    needs /spiffs/tests-SLAVE1.fs
 [THEN]
 
-myMac 6 SLAVE2 6 str= [IF]      \ peers for SLAV2
-    needs tests-SLAVE2.fs
+myMac 6 SLAVE2 6 str= [IF]
+    needs /spiffs/tests-SLAVE2.fs
 [THEN]
 
 

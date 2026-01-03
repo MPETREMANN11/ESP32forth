@@ -22,20 +22,20 @@ getMyMac
 espnowInit
 
 myMac 6 MASTER 6 str= [IF]      \ peers for MASTER
-    SLAVE1 add-peer
-    SLAVE2 add-peer
+    SLAVE1 espnowAddPeer
+    SLAVE2 espnowAddPeer
     s" MASTER" set-title
 [THEN]
 
 myMac 6 SLAVE1 6 str= [IF]      \ peers for SLAV1
-    MASTER add-peer
-    SLAVE2 add-peer
+    MASTER espnowAddPeer
+    SLAVE2 espnowAddPeer
     s" SLAVE1" set-title
 [THEN]
 
 myMac 6 SLAVE2 6 str= [IF]      \ peers for SLAV2
-    MASTER add-peer
-    SLAVE1 add-peer
+    MASTER espnowAddPeer
+    SLAVE1 espnowAddPeer
     s" SLAVE2" set-title
 [THEN]
 
