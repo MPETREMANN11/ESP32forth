@@ -34,9 +34,9 @@ myMac 6 SLAVE1 6 str= [IF]
     needs /spiffs/tests-SLAVE1.fs
 [THEN]
 
-myMac 6 SLAVE2 6 str= [IF]
-    needs /spiffs/tests-SLAVE2.fs
-[THEN]
+\ myMac 6 SLAVE2 6 str= [IF]
+\     needs /spiffs/tests-SLAVE2.fs
+\ [THEN]
 
 
 <EOF>

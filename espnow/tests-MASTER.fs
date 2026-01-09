@@ -17,7 +17,7 @@ myMac .mac cr
 ." - - - - " cr
 ." MASTER: " MASTER .mac cr
 ." SLAVE1: " SLAVE1 .mac cr
-." SLAVE2: " SLAVE2 .mac cr
+\ ." SLAVE2: " SLAVE2 .mac cr
 
 : testTrans
   SLAVE1 s" TEST TRANSMISSION VERS SLAVE1" espnowSend

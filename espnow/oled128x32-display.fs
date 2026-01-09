@@ -14,7 +14,9 @@
 
 RECORDFILE /spiffs/oled128x32-display.fs
 \ set oled SSD1306 dimensions
-oled
+
+also oled
+
 128 to WIDTH
  32 to HEIGHT
 
@@ -50,7 +52,7 @@ $3c constant I2C_SSD1306_ADDRESS
     1 +to nbLines
   ;
 
-forth
+only FORTH
     
 <EOF>
 

@@ -41,6 +41,7 @@ RECORDFILE /spiffs/ledsCommand.fs
 : greenOff ( -- )   LED_GREEN ledOff ;
 
 : ledTest ( -- )
+    initLeds
     16 0 do
         redOn     60 ms  redOff
         yellowOn  60 ms  yellowOff
