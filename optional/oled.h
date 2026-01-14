@@ -1,5 +1,3 @@
-// Copyright 2023 Bradley D. Nelson
-// adapted Marc PETREMAN 2023-10-09
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,20 +12,14 @@
 // limitations under the License.
 
 /*
- * ESP32forth Oled v7.0.7.15
- * Revision: 564a8fc68b545ebeb3ab
+ * Adadptation Marc PETREMANN
+ * Updated 14 jan. 2026
  */
 
 // You will need to install these libraries from the Library Manager:
 //   Adafruit SSD1306
 //   Adafruit GFX Library
 //   Adafruit BusIO
-
-// à compléter avec d'autres fonctions
-//   YV(oled, OledFastVLine, oled_display->drawFastHLine(n3, n2, n1, n0); DROPn(4)
-
-// à éplucher: https://cdn-learn.adafruit.com/downloads/pdf/adafruit-gfx-graphics-library.pdf
-// lien: https://learn.adafruit.com/adafruit-gfx-graphics-library/graphics-primitives
 
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
@@ -55,16 +47,17 @@ static Adafruit_SSD1306 *oled_display = 0;
   YV(oled, OledSetCursor, oled_display->setCursor(n1,n0); DROPn(2)) \
   YV(oled, OledPixel, oled_display->drawPixel(n2, n1, n0); DROPn(3)) \
   YV(oled, OledDrawL, oled_display->drawLine(n4, n3, n2, n1, n0); DROPn(5)) \
-  YV(oled, OledFastHLine, oled_display->drawFastHLine(n3, n2, n1, n0); DROPn(4)) \
-  YV(oled, OledFastVLine, oled_display->drawFastVLine(n3, n2, n1, n0); DROPn(4)) \
   YV(oled, OledCirc, oled_display->drawCircle(n3,n2, n1, n0); DROPn(4)) \
   YV(oled, OledCircF, oled_display->fillCircle(n3, n2, n1, n0); DROPn(4)) \
   YV(oled, OledRect, oled_display->drawRect(n4, n3, n2, n1, n0); DROPn(5)) \
   YV(oled, OledRectF, oled_display->fillRect(n4, n3, n2, n1, n0); DROPn(5)) \
   YV(oled, OledRectR, oled_display->drawRoundRect(n5, n4, n3, n2, n1, n0); DROPn(6)) \
-  YV(oled, OledRectRF, oled_display->fillRoundRect(n5, n4, n3, n2, n1, n0 ); DROPn(6)) \
-  YV(oled, OledTriangle, oled_display->drawTriangle(n5, n4, n3, n2, n1, n0 ); DROPn(6)) \
-  YV(oled, OledTriangleF, oled_display->fillTriangle(n5, n4, n3, n2, n1, n0 ); DROPn(6))
+  YV(oled, OledRectRF, oled_display->fillRoundRect(n5, n4, n3, n2, n1, n0); DROPn(6)) \
+  YV(oled, OledDrawChar, oled_display->drawChar(n5, n4, n3, n2, n1, n0); DROPn(6)) \
+  YV(oled, OledDrawBitmap, oled_display->drawBitmap(n5, n4, (const uint8_t *) n3, n2, n1, n0); DROPn(6)) \
+  YV(oled, OledTriangle, oled_display->drawTriangle(n6, n5, n4, n3, n2, n1, n0); DROPn(7)) \
+  YV(oled, OledTriangleF, oled_display->fillTriangle(n6, n5, n4, n3, n2, n1, n0); DROPn(7))
+
 
 
 const char oled_source[] = R"""(
