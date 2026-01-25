@@ -15,7 +15,7 @@
 
 /*
  * ESP32forth v7.0.7.21a
- * Updated: Marc PETREMANN - 29 dec. 2025
+ * Updated: Marc PETREMANN - 25 jan. 2026
  */
 
 #if defined(CONFIG_IDF_TARGET_ESP32)
@@ -126,17 +126,11 @@
 // # define UEFORTH_PLATFORM_IS_ESP32C3 0
 // #endif
 
-#if defined(BOARD_HAS_PSRAM)
-# define UEFORTH_PLATFORM_HAS_PSRAM -1
-#else
-# define UEFORTH_PLATFORM_HAS_PSRAM 0
-#endif
-
-#if defined(BOARD_HAS_PSRAM)
-# define UEFORTH_PLATFORM_HAS_PSRAM -1
-#else
-# define UEFORTH_PLATFORM_HAS_PSRAM 0
-#endif
+// #if defined(BOARD_HAS_PSRAM)
+// # define UEFORTH_PLATFORM_HAS_PSRAM -1
+// #else
+// # define UEFORTH_PLATFORM_HAS_PSRAM 0
+// #endif
 
 #define VOCABULARY_LIST \
   V(forth) V(internals) \
@@ -172,12 +166,12 @@ typedef uintptr_t ucell_t;
 #define DUP (*++sp = tos)
 #define PUSH DUP; tos = (cell_t)
 
-// #define PARK   *++rp = (cell_t) ip; *++rp = (cell_t) fp; DUP; *++rp = (cell_t) sp;
-// #define UNPARK sp = (cell_t *) *rp--; DROP; fp = (float *) *rp--; ip = (cell_t *) *rp--;
+#define PARK   *++rp = (cell_t) ip; *++rp = (cell_t) fp; DUP; *++rp = (cell_t) sp;
+#define UNPARK sp = (cell_t *) *rp--; DROP; fp = (float *) *rp--; ip = (cell_t *) *rp--;
 
 // proposition patch COPILOT
-#define PARK   *++rp = (cell_t) ip; *++rp = (cell_t) fp; DUP; *++rp = (cell_t) sp;
-#define UNPARK sp = (cell_t *) *rp--; g_sys->sp = sp; DROP; fp = (float *) *rp--; ip = (cell_t *) *rp--;
+// #define PARK   *++rp = (cell_t) ip; *++rp = (cell_t) fp; DUP; *++rp = (cell_t) sp;
+// #define UNPARK sp = (cell_t *) *rp--; g_sys->sp = sp; DROP; fp = (float *) *rp--; ip = (cell_t *) *rp--;
 
 
 #define THROWIT(n) \
@@ -1486,7 +1480,7 @@ create RECSTACK 0 , bl 2/ ( 16 no numbers yet ) cells allot
 
 ( Create recognizer based words. )
 : postpone ( "name" -- ) bl parse RECSTACK RECOGNIZE @ execute ; immediate
-: +evaluate1
+: +evaluate1 ( -- )
   bl parse dup 0= if 2drop exit then
   RECSTACK RECOGNIZE state @ 1+ 1+ cells + @ execute
 ;
@@ -3275,8 +3269,6 @@ create crlf 13 C, 10 C,
 : MAIN ( -- )
     s" /spiffs/main.fs"       included
   ;
-
-: vl vlist -1 throw ;
 
 forth definitions
 internals definitions
