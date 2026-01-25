@@ -12,7 +12,7 @@
   <li>Vocabulary removal <code>EDIT</code></li>
   <li>Added the <b>spi-voc.h</b> module</li>
   <li>Added the word <code>RECORDFILE</code></li>
-  <li>Correct mani warning errors on compilation</li>
+  <li>Correct many warning errors on compilation</li>
 </ul>
 
 <h2>Modifications</h2>
