@@ -731,6 +731,8 @@ static cell_t ResizeFile(cell_t fd, cell_t size);
   XV(serial, "Serial2.write", SERIAL2_WRITE, n0 = Serial2.write(b1, n0); NIP) \
   XV(serial, "Serial2.flush", SERIAL2_FLUSH, Serial2.flush()) \
   XV(serial, "Serial2.setDebugOutput", SERIAL2_DEBUG_OUTPUT, Serial2.setDebugOutput(n0); DROP)
+#else
+# define OPTIONAL_SERIAL2_SUPPORT
 #endif
 
 #ifdef ENABLE_SERIAL1_SUPPORT
@@ -741,6 +743,8 @@ static cell_t ResizeFile(cell_t fd, cell_t size);
   XV(serial, "Serial1.readBytes", SERIAL1_READ_BYTES, n0 = Serial1.readBytes(b1, n0); NIP) \
   XV(serial, "Serial1.write", SERIAL1_WRITE, n0 = Serial1.write(b1, n0); NIP) \
   XV(serial, "Serial1.flush", SERIAL1_FLUSH, Serial1.flush())
+#else
+# define OPTIONAL_SERIAL1_SUPPORT
 #endif
 
 #define REQUIRED_ARDUINO_GPIO_SUPPORT \
