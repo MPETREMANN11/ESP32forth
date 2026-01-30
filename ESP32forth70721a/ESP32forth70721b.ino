@@ -737,7 +737,7 @@ static cell_t ResizeFile(cell_t fd, cell_t size);
 
 #ifdef ENABLE_SERIAL1_SUPPORT
 # define OPTIONAL_SERIAL1_SUPPORT \
-  XV(serial, "Serial1.begin", SERIAL1_BEGIN, Serial1.begin(n0, SERIAL_8N1, n1, n2); DROP; DROP; DROP) \
+  XV(serial, "Serial1.begin", SERIAL1_BEGIN, Serial1.begin(tos, SERIAL_8N1, 18, 17, false, 20000UL, 112); DROP;) \
   XV(serial, "Serial1.end", SERIAL1_END, Serial1.end()) \
   XV(serial, "Serial1.available", SERIAL1_AVAILABLE, PUSH Serial1.available()) \
   XV(serial, "Serial1.readBytes", SERIAL1_READ_BYTES, n0 = Serial1.readBytes(b1, n0); NIP) \
