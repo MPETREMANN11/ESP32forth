@@ -84,15 +84,18 @@
 # define ENABLE_SD_MMC_SUPPORT
 #endif
 
+/* part modified by Marc PETREMANN - 30 jan. 2026 */
+
 // Serial2 does not work on ESP32-S2 / ESP32-C3
-#if !defined(CONFIG_IDF_TARGET_ESP32S2) && !defined(CONFIG_IDF_TARGET_ESP32C3)
+#if defined(CONFIG_IDF_TARGET_ESP32)
 # define ENABLE_SERIAL2_SUPPORT
 #endif
 
 // Serial1 on ESP32-S3 / ESP32-C3
-#if defined(CONFIG_IDF_TARGET_ESP32C3) || defined(CONFIG_IDF_TARGET_ESP32S3)
-# define ENABLE_SERIAL1_SUPPORT -1
+#if defined(ARDUINO_ESP32S3_DEV) || defined(CONFIG_IDF_TARGET_ESP32S3) || defined(CONFIG_IDF_TARGET_ESP32C3)
+# define ENABLE_SERIAL1_SUPPORT
 #endif
+
 
 // No DACS on ESP32-S3 and ESP32-C3.
 #if !defined(CONFIG_IDF_TARGET_ESP32S3) && !defined(CONFIG_IDF_TARGET_ESP32C3)
@@ -638,7 +641,7 @@ static cell_t ResizeFile(cell_t fd, cell_t size);
   REQUIRED_MEMORY_SUPPORT \
   REQUIRED_SERIAL_SUPPORT \
   OPTIONAL_SERIAL1_SUPPORT \
-  OPTIONAL_SERIAL2_SUPPORT
+  OPTIONAL_SERIAL2_SUPPORT \
   REQUIRED_ARDUINO_GPIO_SUPPORT \
   REQUIRED_SYSTEM_SUPPORT \
   REQUIRED_FILES_SUPPORT \
@@ -719,9 +722,7 @@ static cell_t ResizeFile(cell_t fd, cell_t size);
   XV(serial, "Serial.flush", SERIAL_FLUSH, Serial.flush()) \
   XV(serial, "Serial.setDebugOutput", SERIAL_DEBUG_OUTPUT, Serial.setDebugOutput(n0); DROP)
 
-#ifndef ENABLE_SERIAL2_SUPPORT
-# define OPTIONAL_SERIAL2_SUPPORT
-#else
+#ifdef ENABLE_SERIAL2_SUPPORT
 # define OPTIONAL_SERIAL2_SUPPORT \
   XV(serial, "Serial2.begin", SERIAL2_BEGIN, Serial2.begin(tos); DROP) \
   XV(serial, "Serial2.end", SERIAL2_END, Serial2.end()) \
@@ -732,11 +733,9 @@ static cell_t ResizeFile(cell_t fd, cell_t size);
   XV(serial, "Serial2.setDebugOutput", SERIAL2_DEBUG_OUTPUT, Serial2.setDebugOutput(n0); DROP)
 #endif
 
-#ifndef ENABLE_SERIAL1_SUPPORT
-# define OPTIONAL_SERIAL1_SUPPORT
-#else
+#ifdef ENABLE_SERIAL1_SUPPORT
 # define OPTIONAL_SERIAL1_SUPPORT \
-  XV(serial, "Serial1.begin", SERIAL1_BEGIN, Serial1.begin(n2, SERIAL_8N1, n1, n0); DROP; DROP; DROP) \
+  XV(serial, "Serial1.begin", SERIAL1_BEGIN, Serial1.begin(n0, SERIAL_8N1, n1, n2); DROP; DROP; DROP) \
   XV(serial, "Serial1.end", SERIAL1_END, Serial1.end()) \
   XV(serial, "Serial1.available", SERIAL1_AVAILABLE, PUSH Serial1.available()) \
   XV(serial, "Serial1.readBytes", SERIAL1_READ_BYTES, n0 = Serial1.readBytes(b1, n0); NIP) \
