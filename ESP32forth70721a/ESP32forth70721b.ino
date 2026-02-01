@@ -1311,7 +1311,7 @@ static void forth_faults_setup(void) {
 
 #include <setjmp.h>
 #include "soc/soc.h"
-#include "xtensa/xtensa_api.h"   // #include <xtensa/xtensa_api.h>
+#include "xtensa_api.h"   // #include <xtensa/xtensa_api.h>
 
 static __thread jmp_buf g_forth_fault;
 static __thread int g_forth_signal;
@@ -1695,7 +1695,7 @@ sp0 'stack-cells @ 2 3 */ cells + constant sp-limit
 variable boot-prompt
 : free. ( nf nu -- ) 2dup swap . ." free + " . ." used = " 2dup + . ." total ("
                      over + 100 -rot */ n. ." % free)" ;
-: raw-ok   ."  v7.0.7.21a - rev 9ae74fa18335b0378a98bd8c693b468cc1265ee5" cr
+: raw-ok   ."  v7.0.7.21b - rev 9ae74fa18335b0378a98bd8c693b468cc1265ee5" cr
            boot-prompt @ if boot-prompt @ execute then
            ." Forth dictionary: " remaining used free. cr
            ." 3 x Forth stacks: " 'stack-cells @ cells . ." bytes each" cr
