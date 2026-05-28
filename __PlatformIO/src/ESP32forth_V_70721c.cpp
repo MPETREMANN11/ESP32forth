@@ -1436,7 +1436,7 @@ static void forth_faults_setup(void) {
 #define ADDROF(x) (&& OP_ ## x)
 
 static cell_t *forth_run(cell_t *init_rp) {
-    const BUILTIN_WORD builtins[] = {
+    static const BUILTIN_WORD builtins[] = {
 #define Z(flags, name, op, code) \
     name, ((VOC_ ## flags >> 8) & 0xff) | BUILTIN_MARK, \
     sizeof(name) - 1, (VOC_ ## flags & 0xff), && OP_ ## op,
@@ -1726,7 +1726,7 @@ sp0 'stack-cells @ 2 3 */ cells + constant sp-limit
 variable boot-prompt
 : free. ( nf nu -- ) 2dup swap . ." free + " . ." used = " 2dup + . ." total ("
                      over + 100 -rot */ n. ." % free)" ;
-: raw-ok   ."  v7.0.7.21c - Updated 02 feb. 2026" cr
+: raw-ok   ."  v7.0.7.21c - Updated 18 may 2026" cr
            boot-prompt @ if boot-prompt @ execute then
            ." Forth dictionary: " remaining used free. cr
            ." 3 x Forth stacks: " 'stack-cells @ cells . ." bytes each" cr
@@ -2965,7 +2965,7 @@ variable goal   variable goal#
 : send ( a n -- ) client-type ;
 
 : response ( mime$ result$ status -- )
-  s" HTTP/1.0 " client-type <# #s #> client-type
+  s" HTTP/1.0 " client-type base @ >r decimal <# #s #> r> base ! client-type
   bl client-emit client-type client-cr
   s" Content-type: " client-type client-type client-cr
   client-cr ;
@@ -2985,95 +2985,123 @@ also streams also httpd
 vocabulary web-interface   also web-interface definitions
 
 r|
-<!html>
+<!DOCTYPE html>
+<html>
 <head>
-<title>esp32forth</title>
-<style>
-body {
-  padding: 5px;
-  background-color: #111;
-  color: #2cf;
-  overflow: hidden;
-}
-#prompt {
-  width: 100%;
-  padding: 5px;
-  font-family: monospace;
-  background-color: #ff8;
-}
-#output {
-  width: 100%;
-  height: 80%;
-  resize: none;
-  overflow-y: scroll;
-  word-break: break-all;
-}
-</style>
-<link rel="icon" href="data:,">
+  <title>esp32forth</title>
+  <style>
+    body {
+      padding: 5px;
+      background-color: #111;
+      color: #2cf;
+      overflow: hidden;
+    }
+    #prompt {
+      width: 100%;
+      padding: 5px;
+      font-family: monospace;
+      background-color: #ff8;
+    }
+    #output {
+      width: 100%;
+      height: 80vh;
+      resize: none;
+      overflow-y: scroll;
+      word-break: break-all;
+    }
+  </style>
+  <link rel="icon" href="data:,">
 </head>
 <body>
-<h2>ESP32forth v7</h2>
-Upload File: <input id="filepick" type="file" name="files[]"></input><br/>
-<button onclick="ask('hex\n')">hex</button>
-<button onclick="ask('decimal\n')">decimal</button>
-<button onclick="ask('words\n')">words</button>
-<button onclick="ask('low led pin\n')">LED OFF</button>
-<button onclick="ask('high led pin\n')">LED ON</button>
-<br/>
-<textarea id="output" readonly></textarea>
-<input id="prompt" type="prompt"></input><br/>
-<script>
-var prompt = document.getElementById('prompt');
-var filepick = document.getElementById('filepick');
-var output = document.getElementById('output');
-function httpPost(url, data, callback) {
-  var r = new XMLHttpRequest();
-  r.onreadystatechange = function() {
-    if (this.readyState == XMLHttpRequest.DONE) {
-      if (this.status === 200) {
-        callback(this.responseText);
-      } else {
-        callback(null);
-      }
+  <h2>ESP32forth v7</h2>
+  Upload File: <input id="filepick" type="file" name="files[]"><br>
+
+  <button onclick="ask('hex\n')">hex</button>
+  <button onclick="ask('decimal\n')">decimal</button>
+  <button onclick="ask('words\n')">words</button>
+  <button onclick="ask('low led pin\n')">LED OFF</button>
+  <button onclick="ask('high led pin\n')">LED ON</button>
+  <br>
+
+  <textarea id="output" readonly></textarea>
+  <input id="promptInput" type="text"><br>
+
+  <script>
+    var promptInput = document.getElementById('promptInput');  // Renommé pour éviter d'écraser window.prompt
+    var filepick = document.getElementById('filepick');
+    var output = document.getElementById('output');
+
+    var isPolling = false;  // Verrou pour éviter les chevauchements de requêtes
+
+    function httpPost(url, data, callback) {
+      var r = new XMLHttpRequest();
+      r.onreadystatechange = function() {
+        if (this.readyState === XMLHttpRequest.DONE) {
+          callback(this.status === 200 ? this.responseText : null);
+        }
+      };
+      r.open('POST', url);
+      r.send(data);
     }
-  };
-  r.open('POST', url);
-  r.send(data);
-}
-setInterval(function() { ask(''); }, 300);
-function ask(cmd, callback) {
-  httpPost('/input', cmd, function(data) {
-    if (data !== null) { output.value += data; }
-    output.scrollTop = output.scrollHeight;  // Scroll to the bottom
-    if (callback !== undefined) { callback(); }
-  });
-}
-prompt.onkeyup = function(event) {
-  if (event.keyCode === 13) {
-    event.preventDefault();
-    ask(prompt.value + '\n');
-    prompt.value = '';
-  }
-};
-filepick.onchange = function(event) {
-  if (event.target.files.length > 0) {
-    var reader = new FileReader();
-    reader.onload = function(e) {
-      var parts = e.target.result.replace(/[\r]/g, '').split('\n');
-      function upload() {
-        if (parts.length === 0) { filepick.value = ''; return; }
-        ask(parts.shift(), upload);
-      }
-      upload();
+
+    const MAX_OUTPUT = 50000;  // Limite de caractères dans le textarea
+
+    function ask(cmd, callback) {
+      httpPost('/input', cmd, function(data) {
+        if (data !== null) {
+          output.value += data;
+          // Tronquer si trop long
+          if (output.value.length > MAX_OUTPUT) {
+            output.value = output.value.slice(-MAX_OUTPUT);
+          }
+        }
+        output.scrollTop = output.scrollHeight;
+        isPolling = false;  // Libérer le verrou
+        if (callback !== undefined) callback();
+      });
     }
-    reader.readAsText(event.target.files[0]);
-  }
-};
-window.onload = function() {
-  ask('\n');
-  prompt.focus();
-};
-</script>
+
+    // Polling toutes les 500ms avec verrou anti-chevauchement
+    setInterval(function() {
+      if (!isPolling) {
+        isPolling = true;
+        ask('');
+      }
+    }, 500);
+
+    promptInput.onkeyup = function(event) {
+      if (event.keyCode === 13) {
+        event.preventDefault();
+        ask(promptInput.value + '\n');
+        promptInput.value = '';
+      }
+    };
+
+    filepick.onchange = function(event) {
+      if (event.target.files.length > 0) {
+        var reader = new FileReader();
+        reader.onload = function(e) {
+          var parts = e.target.result.replace(/[\r]/g, '').split('\n');
+          function upload() {
+            if (parts.length === 0) {
+              filepick.value = '';
+              return;
+            }
+            ask(parts.shift() + '\n', upload);  // Ajout du \n manquant sur chaque ligne
+          }
+          upload();
+        };
+        reader.readAsText(event.target.files[0]);
+      }
+    };
+
+    window.onload = function() {
+      ask('\n');
+      promptInput.focus();
+    };
+  </script>
+</body>
+</html>
 | constant index-html# constant index-html
 
 variable webserver
