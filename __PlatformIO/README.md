@@ -1,3 +1,5 @@
+<h1>Compile ESP32forth with Visul Studio Code</h1>
+<img src="compileWithVSCode.jpg"/>
 <p>I switched from Arduino IDE to Visual Studio Code to compile my ESP32 programs. Here, I'm compiling code that took several minutes 
 with the Arduino IDE. Visual Studio Code compiles the same code in 15 seconds!</p>
 <P>Video demonstrating compilation speed:</P>
